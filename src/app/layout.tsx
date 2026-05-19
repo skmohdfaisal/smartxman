@@ -18,7 +18,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "smartXman | Smart Product Picks That Actually Make Sense",
     description: "Discover curated tech, setup, gaming, and lifestyle products recommended with real research.",
-    url: "https://smartxman.com",
+    url: "https://smartxman.vercel.app",
     siteName: "smartXman",
     images: [
       {
@@ -39,7 +39,7 @@ export const metadata: Metadata = {
     creator: "@smartxman",
   },
   alternates: {
-    canonical: "https://smartxman.com",
+    canonical: "https://smartxman.vercel.app",
   },
   robots: {
     index: true,

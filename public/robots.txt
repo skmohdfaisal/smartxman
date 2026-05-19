@@ -5,4 +5,4 @@ Allow: /
 Disallow: /admin/
 Disallow: /auth/
 
-Sitemap: https://smartxman.com/sitemap.xml
+Sitemap: https://smartxman.vercel.app/sitemap.xml
