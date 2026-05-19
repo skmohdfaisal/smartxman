@@ -116,6 +116,9 @@ export default function ProfilePage() {
         ...formData
       }));
       
+      // Fire a live update event to let Navbar and other components sync instantly!
+      window.dispatchEvent(new Event('profile-updated'));
+      
       // Switch back to overview tab after 1.5s
       setTimeout(() => {
         setActiveTab("overview");

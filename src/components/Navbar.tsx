@@ -16,6 +16,8 @@ export default function Navbar() {
   const [user, setUser] = useState<SupabaseUser | null>(null);
   const [wishlistCount, setWishlistCount] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
+  const [displayName, setDisplayName] = useState("");
+  const [avatarUrl, setAvatarUrl] = useState("");
   const router = useRouter();
 
   // 1. Listen for auth changes once on mount
@@ -54,6 +56,49 @@ export default function Navbar() {
       window.removeEventListener('wishlist-updated', handleWishlistUpdate);
     };
   }, [user]);
+
+  // 3. Fetch profile details (name and avatar) from public.users and listen to live updates
+  useEffect(() => {
+    if (user) {
+      fetchProfileDetails(user);
+    } else {
+      setDisplayName("");
+      setAvatarUrl("");
+    }
+
+    const handleProfileUpdate = () => {
+      if (user) {
+        fetchProfileDetails(user);
+      }
+    };
+
+    window.addEventListener('profile-updated', handleProfileUpdate);
+    return () => {
+      window.removeEventListener('profile-updated', handleProfileUpdate);
+    };
+  }, [user]);
+
+  const fetchProfileDetails = async (currentUser: SupabaseUser) => {
+    try {
+      const { data, error } = await supabase
+        .from("users")
+        .select("name, avatar")
+        .eq("id", currentUser.id)
+        .single();
+      
+      const googleAvatar = currentUser.user_metadata?.avatar_url || currentUser.user_metadata?.picture;
+      
+      if (!error && data) {
+        setDisplayName(data.name || currentUser.user_metadata?.full_name || currentUser.email?.split('@')[0] || "Member");
+        setAvatarUrl(data.avatar || googleAvatar || "");
+      } else {
+        setDisplayName(currentUser.user_metadata?.full_name || currentUser.email?.split('@')[0] || "Member");
+        setAvatarUrl(googleAvatar || "");
+      }
+    } catch (err) {
+      console.error("Error fetching navbar profile:", err);
+    }
+  };
 
   const fetchWishlistCount = async (userId: string) => {
     const { data: wishlistData, error: wishlistError } = await supabase
@@ -164,8 +209,12 @@ export default function Navbar() {
           {user ? (
             <div className="flex items-center gap-3">
               <Link href="/profile" className="flex items-center gap-2 p-1.5 px-3 border border-slate-200 dark:border-slate-800 rounded-full hover:bg-slate-50 dark:hover:bg-slate-800 transition-all text-sm font-medium">
-                <User className="w-4 h-4" />
-                <span className="hidden lg:inline">{user.user_metadata.full_name || user.email?.split('@')[0]}</span>
+                {avatarUrl ? (
+                  <img src={avatarUrl} alt={displayName} className="w-5 h-5 rounded-full object-cover" />
+                ) : (
+                  <User className="w-4 h-4" />
+                )}
+                <span className="hidden lg:inline">{displayName || user.user_metadata.full_name || user.email?.split('@')[0]}</span>
               </Link>
               <button 
                 onClick={handleSignOut}
