@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Search, ShoppingBag, User, Menu, LogOut, X } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { User as SupabaseUser } from "@supabase/supabase-js";
@@ -21,6 +21,16 @@ export default function Navbar() {
   const router = useRouter();
   const pathname = usePathname();
   const adminUrl = process.env.NEXT_PUBLIC_ADMIN_URL || "http://localhost:3001";
+  
+  const searchInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (isMenuOpen) {
+      setTimeout(() => {
+        searchInputRef.current?.focus();
+      }, 100);
+    }
+  }, [isMenuOpen]);
 
   if (pathname?.startsWith("/admin")) {
     return null;
@@ -204,7 +214,11 @@ export default function Navbar() {
             />
           </form>
           
-          <button className="p-2 text-slate-600 hover:text-brand-600 dark:text-slate-300 transition-colors md:hidden">
+          <button 
+            onClick={() => setIsMenuOpen(true)}
+            className="p-2 text-slate-600 hover:text-brand-600 dark:text-slate-300 transition-colors md:hidden"
+            aria-label="Open search"
+          >
             <Search className="w-5 h-5" />
           </button>
           
@@ -269,6 +283,7 @@ export default function Navbar() {
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                 <form onSubmit={(e) => { handleSearch(e); setIsMenuOpen(false); }}>
                   <input 
+                    ref={searchInputRef}
                     type="text" 
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
