@@ -3,15 +3,18 @@
 import { CheckCircle, XCircle, ArrowRight, HelpCircle } from "lucide-react";
 import Link from "next/link";
 
-export function WhySmartxman() {
+export function WhySmartxman({ settings }: { settings?: any }) {
+  const whyTitle = settings?.why_smartxman_title || "Why Smartxman?";
+  const whyDesc = settings?.why_smartxman_desc || "Most product websites just show links. We help you understand what to buy, why to buy, and when to skip.";
+
   return (
     <section className="py-24 bg-slate-50 dark:bg-slate-900/30">
       <div className="container mx-auto px-4">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-black text-slate-900 dark:text-white mb-4 tracking-tighter">Why Smartxman?</h2>
+            <h2 className="text-4xl font-black text-slate-900 dark:text-white mb-4 tracking-tighter">{whyTitle}</h2>
             <p className="text-lg text-slate-600 dark:text-slate-400">
-              Most product websites just show links. We help you understand what to buy, why to buy, and when to skip.
+              {whyDesc}
             </p>
           </div>
 

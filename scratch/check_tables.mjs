@@ -1,20 +1,52 @@
 import { createClient } from '@supabase/supabase-js';
 import fs from 'fs';
+import path from 'path';
 
-const env = fs.readFileSync('.env.local', 'utf8');
-const url = env.match(/NEXT_PUBLIC_SUPABASE_URL=(.*)/)?.[1]?.trim();
-const key = env.match(/NEXT_PUBLIC_SUPABASE_ANON_KEY=(.*)/)?.[1]?.trim();
+// Manually parse .env.local
+const envPath = path.resolve(process.cwd(), '.env.local');
+const envContent = fs.readFileSync(envPath, 'utf8');
+const env = {};
+envContent.split('\n').forEach(line => {
+  const match = line.match(/^\s*([^#=\s]+)\s*=\s*(.*)\s*$/);
+  if (match) {
+    env[match[1]] = match[2].trim();
+  }
+});
 
-const supabase = createClient(url, key);
+const supabase = createClient(
+  env.NEXT_PUBLIC_SUPABASE_URL,
+  env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+);
 
-async function test() {
-    const { data: tables, error } = await supabase.rpc('get_tables'); // This might not work if rpc not defined
-    // Let's just try to select from products
-    const { data: p, error: pe } = await supabase.from('products').select('id').limit(1);
-    console.log('Products table exists:', !!p, pe?.message);
-    
-    const { data: w, error: we } = await supabase.from('wishlist').select('id').limit(1);
-    console.log('Wishlist table exists:', !!w, we?.message);
+const tables = [
+  'users',
+  'profiles',
+  'products',
+  'categories',
+  'blogs',
+  'deals',
+  'comments',
+  'newsletter_subscribers',
+  'homepage_settings',
+  'seo_settings',
+  'product_store_links',
+  'amazon_imports',
+  'contact_submissions'
+];
+
+async function check() {
+  for (const table of tables) {
+    try {
+      const { data, error } = await supabase.from(table).select('*').limit(1);
+      if (error) {
+        console.log(`❌ Table "${table}": error: ${error.message} (${error.code})`);
+      } else {
+        console.log(`✅ Table "${table}": exists! Count checked: ${data.length}`);
+      }
+    } catch (e) {
+      console.log(`❌ Table "${table}": exception: ${e.message}`);
+    }
+  }
 }
 
-test();
+check();

@@ -6,10 +6,17 @@ import { useRouter } from "next/navigation";
 import { ArrowRight, CheckCircle2, Sparkles, Target, Compass, Award } from "lucide-react";
 import { motion } from "framer-motion";
 
-export function Hero() {
+export function Hero({ settings }: { settings?: any }) {
   const router = useRouter();
   const [selectedGoal, setSelectedGoal] = useState<string | null>(null);
   const [selectedBudget, setSelectedBudget] = useState<string | null>(null);
+
+  const heroBadge = settings?.hero_badge || "500+ Curated Picks for Smarter Buying";
+  const heroTitleFallback = settings?.hero_title_fallback || "Confused";
+  const heroTitleAccent = settings?.hero_title_accent || "what to buy?";
+  const heroTitleSubtitle = settings?.hero_title_subtitle || "Find picks that make sense.";
+  const heroDescription = settings?.hero_description || "Smartxman helps students, creators, gamers, and everyday buyers discover useful tech, setup gear, and lifestyle products based on your budget and real value.";
+  const primaryCtaText = settings?.primary_cta_text || "Find My Smart Picks";
 
   const goals = [
     { id: "student", label: "Student Setup" },
@@ -53,7 +60,7 @@ export function Hero() {
               className="inline-flex self-start items-center gap-2 px-3 py-1.5 rounded-full bg-brand-50 dark:bg-brand-900/30 text-brand-700 dark:text-brand-300 text-xs font-bold uppercase tracking-wider mb-6 border border-brand-100 dark:border-brand-800/30"
             >
               <Sparkles className="w-3.5 h-3.5" />
-              500+ Curated Picks for Smarter Buying
+              {heroBadge}
             </motion.div>
             
             <motion.h1 
@@ -62,8 +69,8 @@ export function Hero() {
               transition={{ duration: 0.4, delay: 0.1 }}
               className="text-4xl md:text-5xl lg:text-6xl font-black tracking-tighter mb-5 text-slate-900 dark:text-white leading-[1.05]"
             >
-              Confused <span className="text-brand-600">what to buy?</span><br />
-              <span className="text-slate-400 dark:text-slate-600">Find picks that make sense.</span>
+              {heroTitleFallback} <span className="text-brand-600">{heroTitleAccent}</span><br />
+              <span className="text-slate-400 dark:text-slate-600">{heroTitleSubtitle}</span>
             </motion.h1>
             
             <motion.p 
@@ -72,7 +79,7 @@ export function Hero() {
               transition={{ duration: 0.4, delay: 0.2 }}
               className="text-base md:text-lg text-slate-600 dark:text-slate-400 mb-8 leading-relaxed max-w-2xl"
             >
-              Smartxman helps students, creators, gamers, and everyday buyers discover useful tech, setup gear, and lifestyle products based on your budget and real value.
+              {heroDescription}
             </motion.p>
             
             {/* Trust Checklist */}

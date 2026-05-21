@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Search, ShoppingBag, User, Menu, LogOut, X } from "lucide-react";
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { User as SupabaseUser } from "@supabase/supabase-js";
 
@@ -19,6 +19,11 @@ export default function Navbar() {
   const [displayName, setDisplayName] = useState("");
   const [avatarUrl, setAvatarUrl] = useState("");
   const router = useRouter();
+  const pathname = usePathname();
+
+  if (pathname?.startsWith("/admin")) {
+    return null;
+  }
 
   // 1. Listen for auth changes once on mount
   useEffect(() => {

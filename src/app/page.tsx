@@ -9,8 +9,12 @@ import { ProductSuggestions } from "@/components/home/ProductSuggestions";
 import { BestDealsSection } from "@/components/home/BestDealsSection";
 import { WhySmartxman } from "@/components/home/WhySmartxman";
 import { supabase } from "@/lib/supabase";
+import { getHomepageSettings } from "@/app/admin/homepage/actions";
 
 export default async function Home() {
+  const homeSettingsRes = await getHomepageSettings();
+  const settings = homeSettingsRes?.success ? homeSettingsRes.data : null;
+
   // Fetch real products from Supabase
   const { data: dbProducts } = await supabase
     .from('products')
@@ -67,7 +71,7 @@ export default async function Home() {
   return (
     <div className="flex flex-col min-h-screen">
       {/* 1. Combined Hero + Smart Finder Card Layout */}
-      <Hero />
+      <Hero settings={settings} />
 
       {/* 2. Product Suggestions Section */}
       <ProductSuggestions products={products} />
@@ -109,7 +113,7 @@ export default async function Home() {
       </section>
 
       {/* 5. Why Smartxman? */}
-      <WhySmartxman />
+      <WhySmartxman settings={settings} />
 
       {/* 6. Best Setup Guides */}
       <section className="py-24 bg-white dark:bg-slate-950">

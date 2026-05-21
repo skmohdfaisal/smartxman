@@ -5,9 +5,15 @@ import Image from "next/image";
 import { ThemeToggle } from "./ThemeToggle";
 import { useState } from "react";
 import { Check } from "lucide-react";
+import { usePathname } from "next/navigation";
 
 export default function Footer() {
+  const pathname = usePathname();
   const [subscribed, setSubscribed] = useState(false);
+
+  if (pathname?.startsWith("/admin")) {
+    return null;
+  }
 
   const handleSubscribe = (e: React.FormEvent) => {
     e.preventDefault();
