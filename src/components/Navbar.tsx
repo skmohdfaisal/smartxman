@@ -218,6 +218,14 @@ export default function Navbar() {
           
           {user ? (
             <div className="flex items-center gap-3">
+              {user.email?.toLowerCase() === "skmohdfaisal07@gmail.com" && (
+                <Link 
+                  href="/admin" 
+                  className="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-brand-50 hover:bg-brand-100 dark:bg-brand-950/30 dark:hover:bg-brand-900/40 text-brand-600 dark:text-brand-400 border border-brand-200/30 dark:border-brand-800/30 rounded-full text-xs font-black uppercase tracking-wider transition-all"
+                >
+                  Admin Panel
+                </Link>
+              )}
               <Link href="/profile" className="flex items-center gap-2 p-1.5 px-3 border border-slate-200 dark:border-slate-800 rounded-full hover:bg-slate-50 dark:hover:bg-slate-800 transition-all text-sm font-medium">
                 {avatarUrl ? (
                   <img src={avatarUrl} alt={displayName} className="w-5 h-5 rounded-full object-cover" />
@@ -297,12 +305,23 @@ export default function Navbar() {
                 </Link>
               )}
               {user && (
-                <button 
-                  onClick={() => { handleSignOut(); setIsMenuOpen(false); }}
-                  className="mt-4 flex items-center justify-center gap-2 py-4 bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white rounded-xl font-bold"
-                >
-                  <LogOut className="w-5 h-5" /> Sign Out
-                </button>
+                <div className="flex flex-col gap-2.5">
+                  {user.email?.toLowerCase() === "skmohdfaisal07@gmail.com" && (
+                    <Link 
+                      href="/admin" 
+                      onClick={() => setIsMenuOpen(false)}
+                      className="mt-4 flex items-center justify-center gap-2 py-4 bg-brand-600 text-white rounded-xl font-bold shadow-lg shadow-brand-500/20"
+                    >
+                      Admin Panel
+                    </Link>
+                  )}
+                  <button 
+                    onClick={() => { handleSignOut(); setIsMenuOpen(false); }}
+                    className={`${user.email?.toLowerCase() === "skmohdfaisal07@gmail.com" ? "mt-0" : "mt-4"} flex items-center justify-center gap-2 py-4 bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white rounded-xl font-bold`}
+                  >
+                    <LogOut className="w-5 h-5" /> Sign Out
+                  </button>
+                </div>
               )}
             </nav>
           </div>

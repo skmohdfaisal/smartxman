@@ -32,7 +32,12 @@ export default function AuthPage() {
           password,
         });
         if (error) throw error;
-        window.location.href = "/"; // Redirect on success
+        
+        if (email.toLowerCase() === "skmohdfaisal07@gmail.com") {
+          window.location.href = "/admin";
+        } else {
+          window.location.href = "/"; // Redirect on success
+        }
       } else if (mode === "signup") {
         const { error } = await supabase.auth.signUp({
           email,
