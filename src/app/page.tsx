@@ -9,7 +9,8 @@ import { ProductSuggestions } from "@/components/home/ProductSuggestions";
 import { BestDealsSection } from "@/components/home/BestDealsSection";
 import { WhySmartxman } from "@/components/home/WhySmartxman";
 import { supabase } from "@/lib/supabase";
-import { getHomepageSettings } from "@/app/admin/homepage/actions";
+import { getHomepageSettings } from "@/lib/homepage-actions";
+
 
 export default async function Home() {
   const homeSettingsRes = await getHomepageSettings();

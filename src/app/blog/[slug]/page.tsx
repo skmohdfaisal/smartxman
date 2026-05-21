@@ -4,7 +4,8 @@ import { use, useState, useEffect } from "react";
 import { ArrowLeft, Clock, Calendar, Share2, Link2, ChevronRight, Bookmark } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
-import { getBlogBySlug } from "../../admin/blogs/actions";
+import { getBlogBySlug } from "@/lib/blogs-actions";
+
 
 // Basic markdown to styled JSX converter for robust rendering without extra libraries
 function renderMarkdownToJSX(content: string) {

@@ -34,7 +34,7 @@ export default function AuthPage() {
         if (error) throw error;
         
         if (email.toLowerCase() === "skmohdfaisal07@gmail.com") {
-          window.location.href = "/admin";
+          window.location.href = process.env.NEXT_PUBLIC_ADMIN_URL || "http://localhost:3001";
         } else {
           window.location.href = "/"; // Redirect on success
         }

@@ -4,7 +4,8 @@ import { ArrowLeft, Clock, Calendar, ChevronRight, Loader2 } from "lucide-react"
 import Link from "next/link";
 import Image from "next/image";
 import { useState, useEffect } from "react";
-import { getBlogs } from "../admin/blogs/actions";
+import { getBlogs } from "@/lib/blogs-actions";
+
 
 export default function BlogPage() {
   const [articles, setArticles] = useState<any[]>([]);
