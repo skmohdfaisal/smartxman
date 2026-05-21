@@ -1,88 +1,194 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
-import { ArrowRight, CheckCircle2, Sparkles, Zap, Search } from "lucide-react";
-import { FEATURED_PRODUCTS } from "@/lib/constants";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { ArrowRight, CheckCircle2, Sparkles, Target, Compass, Award } from "lucide-react";
 import { motion } from "framer-motion";
 
 export function Hero() {
-  const floatingProducts = FEATURED_PRODUCTS.slice(0, 3);
+  const router = useRouter();
+  const [selectedGoal, setSelectedGoal] = useState<string | null>(null);
+  const [selectedBudget, setSelectedBudget] = useState<string | null>(null);
+
+  const goals = [
+    { id: "student", label: "Student Setup" },
+    { id: "creator", label: "Creator Setup" },
+    { id: "gaming", label: "Gaming Setup" },
+    { id: "desk", label: "Desk Setup" },
+  ];
+
+  const budgets = [
+    { id: "1000", label: "Under ₹1000" },
+    { id: "3000", label: "Under ₹3000" },
+    { id: "5000", label: "Under ₹5000" },
+    { id: "ultimate", label: "Ultimate" },
+  ];
+
+  const handleSearch = () => {
+    let url = "/products?";
+    const params: string[] = [];
+    if (selectedGoal) params.push(`goal=${selectedGoal}`);
+    if (selectedBudget) params.push(`budget=${selectedBudget}`);
+    
+    if (params.length > 0) {
+      router.push(url + params.join("&"));
+    }
+  };
 
   return (
-    <section className="relative pt-12 pb-24 lg:pt-20 lg:pb-32 overflow-hidden bg-white dark:bg-slate-950">
-      {/* Background Decor */}
-      <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-brand-50/50 to-transparent dark:from-brand-900/10 dark:to-transparent -z-10 blur-3xl opacity-50"></div>
-      <div className="absolute bottom-0 left-0 w-1/3 h-1/2 bg-gradient-to-tr from-accent-50/30 to-transparent dark:from-accent-900/5 dark:to-transparent -z-10 blur-3xl opacity-50"></div>
-
-      <div className="container mx-auto px-4">
-        <div className="flex flex-col items-center text-center max-w-4xl mx-auto">
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-brand-50 dark:bg-brand-900/30 text-brand-700 dark:text-brand-300 text-[13px] font-bold uppercase tracking-wider mb-8 border border-brand-100 dark:border-brand-800/50"
-          >
-            <Sparkles className="w-4 h-4" />
-            500+ curated picks for smarter buying
-          </motion.div>
+    <section className="relative pt-8 pb-16 lg:pt-16 lg:pb-24 overflow-hidden bg-white dark:bg-slate-950 bg-gradient-mesh">
+      {/* Dynamic Background Elements */}
+      <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-brand-50/30 to-transparent dark:from-brand-900/5 dark:to-transparent -z-10 blur-3xl opacity-60"></div>
+      
+      <div className="container mx-auto px-4 relative z-10">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
           
-          <motion.h1 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.1 }}
-            className="text-6xl md:text-8xl font-black tracking-tighter mb-8 text-slate-900 dark:text-white leading-[0.9] lg:leading-[0.85]"
-          >
-            Confused <span className="text-brand-600">what to buy?</span><br />
-            <span className="text-slate-400 dark:text-slate-700">Find picks that make sense.</span>
-          </motion.h1>
+          {/* Left Column: Context & Copy */}
+          <div className="lg:col-span-7 flex flex-col justify-center text-left">
+            <motion.div 
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4 }}
+              className="inline-flex self-start items-center gap-2 px-3 py-1.5 rounded-full bg-brand-50 dark:bg-brand-900/30 text-brand-700 dark:text-brand-300 text-xs font-bold uppercase tracking-wider mb-6 border border-brand-100 dark:border-brand-800/30"
+            >
+              <Sparkles className="w-3.5 h-3.5" />
+              500+ Curated Picks for Smarter Buying
+            </motion.div>
+            
+            <motion.h1 
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: 0.1 }}
+              className="text-4xl md:text-5xl lg:text-6xl font-black tracking-tighter mb-5 text-slate-900 dark:text-white leading-[1.05]"
+            >
+              Confused <span className="text-brand-600">what to buy?</span><br />
+              <span className="text-slate-400 dark:text-slate-600">Find picks that make sense.</span>
+            </motion.h1>
+            
+            <motion.p 
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: 0.2 }}
+              className="text-base md:text-lg text-slate-600 dark:text-slate-400 mb-8 leading-relaxed max-w-2xl"
+            >
+              Smartxman helps students, creators, gamers, and everyday buyers discover useful tech, setup gear, and lifestyle products based on your budget and real value.
+            </motion.p>
+            
+            {/* Trust Checklist */}
+            <motion.div 
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: 0.3 }}
+              className="flex flex-wrap items-center gap-x-6 gap-y-3 text-xs md:text-sm font-bold text-slate-500 dark:text-slate-500 uppercase tracking-wider"
+            >
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-brand-600 dark:text-brand-400" />
+                Budget-friendly picks
+              </div>
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-brand-600 dark:text-brand-400" />
+                Clear recommendations
+              </div>
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-brand-600 dark:text-brand-400" />
+                No confusing jargon
+              </div>
+            </motion.div>
+          </div>
           
-          <motion.p 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            className="text-xl md:text-2xl text-slate-600 dark:text-slate-400 mb-12 leading-relaxed max-w-3xl"
-          >
-            Smartxman helps students, creators, gamers, and everyday buyers discover useful tech, setup gear, and lifestyle products based on <span className="text-slate-900 dark:text-white font-semibold italic">your budget</span> and real value.
-          </motion.p>
+          {/* Right Column: Smart Finder Card */}
+          <div className="lg:col-span-5 w-full">
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.4, delay: 0.2 }}
+              className="bg-white dark:bg-slate-900 rounded-[2rem] p-6 md:p-8 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.06)] border border-slate-100 dark:border-slate-800 relative overflow-hidden"
+            >
+              {/* Inner subtle glow design */}
+              <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-brand-50 to-transparent dark:from-brand-900/10 opacity-50 rounded-bl-full pointer-events-none"></div>
+              
+              <div className="relative z-10">
+                <h3 className="text-xl md:text-2xl font-black text-slate-900 dark:text-white mb-2 flex items-center gap-2">
+                  <Compass className="w-5 h-5 text-brand-600" />
+                  What are you looking for?
+                </h3>
+                <p className="text-xs md:text-sm text-slate-500 dark:text-slate-400 font-medium mb-6">
+                  Select your goal and budget, and we'll help you find the right picks.
+                </p>
+                
+                <div className="space-y-6">
+                  {/* Goal Buttons */}
+                  <div>
+                    <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500 block mb-3">
+                      Choose Your Goal
+                    </label>
+                    <div className="grid grid-cols-2 gap-2">
+                      {goals.map((g) => (
+                        <button
+                          key={g.id}
+                          onClick={() => setSelectedGoal(selectedGoal === g.id ? null : g.id)}
+                          className={`px-3 py-2.5 rounded-xl border text-xs font-bold text-center transition-all ${
+                            selectedGoal === g.id
+                              ? "border-brand-500 bg-brand-50/80 text-brand-600 dark:bg-brand-950/40 dark:text-brand-400 ring-2 ring-brand-500/20"
+                              : "border-slate-150 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 hover:border-slate-300 dark:hover:border-slate-700"
+                          }`}
+                        >
+                          {g.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  
+                  {/* Budget Buttons */}
+                  <div>
+                    <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500 block mb-3">
+                      Budget Range
+                    </label>
+                    <div className="grid grid-cols-2 gap-2">
+                      {budgets.map((b) => (
+                        <button
+                          key={b.id}
+                          onClick={() => setSelectedBudget(selectedBudget === b.id ? null : b.id)}
+                          className={`px-3 py-2.5 rounded-xl border text-xs font-bold text-center transition-all ${
+                            selectedBudget === b.id
+                              ? "border-brand-500 bg-brand-50/80 text-brand-600 dark:bg-brand-950/40 dark:text-brand-400 ring-2 ring-brand-500/20"
+                              : "border-slate-150 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 hover:border-slate-300 dark:hover:border-slate-700"
+                          }`}
+                        >
+                          {b.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  
+                  {/* Primary CTA */}
+                  <div className="pt-4 border-t border-slate-100 dark:border-slate-800/50">
+                    <button
+                      onClick={handleSearch}
+                      disabled={!selectedGoal && !selectedBudget}
+                      className={`w-full py-4 rounded-2xl font-black uppercase tracking-wider text-sm transition-all flex items-center justify-center gap-2 shadow-lg ${
+                        selectedGoal || selectedBudget
+                          ? "bg-brand-600 text-white hover:bg-brand-700 hover:shadow-brand-500/20 active:scale-[0.98]"
+                          : "bg-slate-100 dark:bg-slate-800/60 text-slate-400 dark:text-slate-600 cursor-not-allowed shadow-none"
+                      }`}
+                    >
+                      Find My Smart Picks
+                      <ArrowRight className="w-4 h-4" />
+                    </button>
+                    
+                    {!selectedGoal && !selectedBudget && (
+                      <p className="text-center text-[11px] text-slate-400 dark:text-slate-500 mt-3 font-semibold italic">
+                        Please select a goal or budget to continue
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          </div>
           
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.3 }}
-            className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-10 w-full sm:w-auto"
-          >
-            <Link href="/products?type=setup" className="w-full sm:w-auto px-10 py-5 bg-brand-600 hover:bg-brand-700 text-white rounded-2xl font-bold transition-all shadow-xl shadow-brand-500/25 flex items-center justify-center gap-2 group text-lg">
-              Build My Setup <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-            </Link>
-            <Link href="/products?type=budget" className="w-full sm:w-auto px-10 py-5 bg-white dark:bg-slate-900 text-slate-900 dark:text-white border-2 border-slate-200 dark:border-slate-800 hover:border-brand-500 dark:hover:border-brand-500 rounded-2xl font-bold transition-all text-lg">
-              Explore Budget Picks
-            </Link>
-          </motion.div>
-
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.5, delay: 0.4 }}
-            className="flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-[13px] font-bold text-slate-500 dark:text-slate-500 uppercase tracking-[0.2em]"
-          >
-            <div className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-brand-500" /> No spammy picks</div>
-            <div className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-brand-500" /> Clear pros & cons</div>
-            <div className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-brand-500" /> Budget-friendly</div>
-          </motion.div>
         </div>
-        
-        {/* Emotional Line */}
-        <motion.div 
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.8 }}
-          className="mt-20 text-center py-6 border-t border-slate-100 dark:border-slate-900/50"
-        >
-          <p className="text-sm font-medium text-slate-500 dark:text-slate-400 italic">
-            Made for people who hate confusing product research. No more open tabs, no more second-guessing.
-          </p>
-        </motion.div>
       </div>
     </section>
   );

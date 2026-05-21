@@ -181,7 +181,11 @@ export default function Navbar() {
 
         <div className="flex items-center gap-4">
           <form onSubmit={handleSearch} className="hidden md:flex relative group">
-            <button type="submit" className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-brand-500 transition-colors">
+            <button 
+              type="submit" 
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-brand-500 transition-colors"
+              suppressHydrationWarning
+            >
               <Search className="w-4 h-4" />
             </button>
             <input 
@@ -190,6 +194,7 @@ export default function Navbar() {
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search products..." 
               className="pl-9 pr-4 py-2 rounded-full bg-slate-100 dark:bg-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 w-64 transition-all focus:w-80"
+              suppressHydrationWarning
             />
           </form>
           
@@ -255,6 +260,7 @@ export default function Navbar() {
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="Search products..." 
                     className="w-full pl-10 pr-4 py-3 rounded-xl bg-slate-100 dark:bg-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
+                    suppressHydrationWarning
                   />
                 </form>
               </div>

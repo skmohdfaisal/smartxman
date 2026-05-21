@@ -5,7 +5,8 @@ import Image from "next/image";
 import { ArrowRight, Trophy } from "lucide-react";
 import { AboutSection } from "@/components/home/AboutSection";
 import { Hero } from "@/components/home/Hero";
-import { ProductFinder } from "@/components/home/ProductFinder";
+import { ProductSuggestions } from "@/components/home/ProductSuggestions";
+import { BestDealsSection } from "@/components/home/BestDealsSection";
 import { WhySmartxman } from "@/components/home/WhySmartxman";
 import { supabase } from "@/lib/supabase";
 
@@ -28,54 +29,54 @@ export default async function Home() {
     reviews: 0,
     image: p.images?.[0] || "/placeholder-product.png",
     images: p.images || [],
-    category: "Tech", // For now, handle category mapping if needed
+    category: "Tech", // Can map this dynamically based on category relation later
     affiliateLink: p.affiliate_link || "#",
     expertNote: p.expert_note || ""
   }));
 
-  // Budget picks logic (using the price_range string or a specific price field)
-  const budgetPicks = products.filter(p => {
-    const priceNum = parseInt(p.price.replace(/[^0-9]/g, ""));
-    return isNaN(priceNum) || priceNum < 10000;
-  }).slice(0, 4);
+  // Fetch deals from Supabase store links with old prices
+  const { data: dbDeals } = await supabase
+    .from('product_store_links')
+    .select('*, product:products(*)')
+    .not('old_price', 'is', null)
+    .order('created_at', { ascending: false });
 
-  const trendingPicks = products.filter(p => p.id).slice(0, 8); // Just take recent ones for now
+  const deals = (dbDeals || [])
+    .filter(d => d.product)
+    .map(d => {
+      const priceNum = Number(d.price) || 0;
+      const oldPriceNum = Number(d.old_price) || 0;
+      const discountPct = oldPriceNum > priceNum 
+        ? Math.round(((oldPriceNum - priceNum) / oldPriceNum) * 100)
+        : 0;
+
+      return {
+        id: d.id,
+        name: d.product.name,
+        slug: d.product.slug,
+        image: d.product.images?.[0] || "/placeholder-product.png",
+        price: `₹${priceNum.toLocaleString('en-IN')}`,
+        oldPrice: `₹${oldPriceNum.toLocaleString('en-IN')}`,
+        discount: `${discountPct}% OFF`,
+        affiliateUrl: d.affiliate_url || `/product/${d.product.slug}`
+      };
+    })
+    .filter(d => parseInt(d.discount) > 0)
+    .slice(0, 3);
 
   return (
     <div className="flex flex-col min-h-screen">
-      {/* 1. Hero Section */}
+      {/* 1. Combined Hero + Smart Finder Card Layout */}
       <Hero />
 
-      {/* 2. Product Finder Box (Separate Section) */}
-      <ProductFinder />
+      {/* 2. Product Suggestions Section */}
+      <ProductSuggestions products={products} />
 
-      {/* 3. Trending Budget Picks */}
-      <section className="py-20 bg-slate-50 dark:bg-slate-900/50">
-        <div className="container mx-auto px-4">
-          <div className="flex items-end justify-between mb-10">
-            <div>
-              <div className="flex items-center gap-2 mb-2">
-                <Trophy className="w-5 h-5 text-amber-500" />
-                <span className="text-xs font-black uppercase tracking-[0.2em] text-brand-600 dark:text-brand-400">Top Rated Value</span>
-              </div>
-              <h2 className="text-4xl font-black tracking-tighter text-slate-900 dark:text-white mb-2">Trending Budget Picks</h2>
-              <p className="text-slate-600 dark:text-slate-400">High performance gear that won't break your bank.</p>
-            </div>
-            <Link href="/products?type=budget" className="hidden md:flex items-center gap-1 text-brand-600 dark:text-brand-400 font-bold hover:text-brand-700 dark:hover:text-brand-300 transition-colors uppercase text-xs tracking-widest">
-              View all <ArrowRight className="w-4 h-4" />
-            </Link>
-          </div>
-          
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {budgetPicks.map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
-          </div>
-        </div>
-      </section>
+      {/* 3. Best Deals Section */}
+      <BestDealsSection deals={deals} />
 
       {/* 4. Featured Categories */}
-      <section className="py-24">
+      <section className="py-24 bg-slate-50/50 dark:bg-slate-900/10">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-black tracking-tighter text-slate-900 dark:text-white mb-4">Featured Categories</h2>
