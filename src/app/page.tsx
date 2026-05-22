@@ -11,6 +11,7 @@ import { WhySmartxman } from "@/components/home/WhySmartxman";
 import { supabase } from "@/lib/supabase";
 import { getHomepageSettings } from "@/lib/homepage-actions";
 
+export const revalidate = 60;
 
 export default async function Home() {
   const homeSettingsRes = await getHomepageSettings();
