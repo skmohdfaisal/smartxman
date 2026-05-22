@@ -183,11 +183,34 @@ export default function Navbar() {
               smart<span className="text-brand-600">X</span>man
             </span>
           </Link>
-          <nav className="hidden xl:flex gap-8 text-[13px] font-bold uppercase tracking-wider">
-            <Link href="/products" className="text-slate-600 hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-400 transition-colors">Products</Link>
-            <Link href="/products?type=setup" className="text-slate-600 hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-400 transition-colors">Build My Setup</Link>
-            <Link href="/products?type=budget" className="text-slate-600 hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-400 transition-colors">Budget Picks</Link>
-            <Link href="/blog" className="text-slate-600 hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-400 transition-colors">Guides</Link>
+          <nav className="hidden xl:flex gap-8 text-[13px] font-bold uppercase tracking-wider relative group/nav">
+            {/* Categories Dropdown Container */}
+            <div className="relative group/categories h-16 flex items-center">
+              <button className="text-slate-600 hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-400 transition-colors flex items-center gap-1">
+                Categories
+              </button>
+              
+              {/* Mega Menu Dropdown */}
+              <div className="absolute top-full left-0 pt-2 opacity-0 invisible group-hover/categories:opacity-100 group-hover/categories:visible transition-all duration-300 ease-out z-50">
+                <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-800 p-6 w-[400px] grid grid-cols-2 gap-x-6 gap-y-4">
+                  <Link href="/products" className="col-span-2 text-brand-600 dark:text-brand-400 hover:text-brand-700 dark:hover:text-brand-300 transition-colors font-black flex items-center gap-2 pb-2 border-b border-slate-100 dark:border-slate-800">
+                    All Products
+                  </Link>
+                  <Link href="/category/tech-accessories" className="text-slate-600 dark:text-slate-400 hover:text-brand-600 dark:hover:text-brand-400 transition-colors">Tech Accessories</Link>
+                  <Link href="/category/creator-setup" className="text-slate-600 dark:text-slate-400 hover:text-brand-600 dark:hover:text-brand-400 transition-colors">Creator Setup</Link>
+                  <Link href="/category/gaming-setup" className="text-slate-600 dark:text-slate-400 hover:text-brand-600 dark:hover:text-brand-400 transition-colors">Gaming Setup</Link>
+                  <Link href="/category/student-essentials" className="text-slate-600 dark:text-slate-400 hover:text-brand-600 dark:hover:text-brand-400 transition-colors">Student Essentials</Link>
+                  <Link href="/category/desk-setup" className="text-slate-600 dark:text-slate-400 hover:text-brand-600 dark:hover:text-brand-400 transition-colors">Desk Setup</Link>
+                  <Link href="/category/budget-finds" className="text-slate-600 dark:text-slate-400 hover:text-brand-600 dark:hover:text-brand-400 transition-colors">Budget Finds</Link>
+                  <Link href="/category/productivity" className="text-slate-600 dark:text-slate-400 hover:text-brand-600 dark:hover:text-brand-400 transition-colors">Productivity</Link>
+                  <Link href="/category/smart-gadgets" className="text-slate-600 dark:text-slate-400 hover:text-brand-600 dark:hover:text-brand-400 transition-colors">Smart Gadgets</Link>
+                </div>
+              </div>
+            </div>
+            
+            <Link href="/products?type=setup" className="flex items-center text-slate-600 hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-400 transition-colors">Build My Setup</Link>
+            <Link href="/products?type=budget" className="flex items-center text-slate-600 hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-400 transition-colors">Budget Picks</Link>
+            <Link href="/blog" className="flex items-center text-slate-600 hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-400 transition-colors">Guides</Link>
             <Link href="/products?type=deals" className="flex items-center gap-1.5 text-brand-600 hover:text-brand-700 dark:text-brand-400 dark:hover:text-brand-300 transition-colors">
               Deals
               <span className="flex h-2 w-2 rounded-full bg-brand-500 animate-pulse"></span>
@@ -294,21 +317,35 @@ export default function Navbar() {
                 </form>
               </div>
               <div className="grid grid-cols-2 gap-4">
-                <Link href="/category/tech" onClick={() => setIsMenuOpen(false)} className="flex flex-col gap-1 p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50 hover:bg-brand-50 dark:hover:bg-brand-900/20 transition-colors">
-                  <span className="font-bold text-slate-900 dark:text-white">Tech</span>
-                  <span className="text-xs text-slate-500">Accessories & Gadgets</span>
+                <Link href="/products" onClick={() => setIsMenuOpen(false)} className="col-span-2 flex flex-col gap-1 p-4 rounded-xl bg-brand-50 dark:bg-brand-900/20 hover:bg-brand-100 dark:hover:bg-brand-900/40 transition-colors">
+                  <span className="font-bold text-brand-700 dark:text-brand-400">All Products</span>
                 </Link>
-                <Link href="/category/setup" onClick={() => setIsMenuOpen(false)} className="flex flex-col gap-1 p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50 hover:bg-brand-50 dark:hover:bg-brand-900/20 transition-colors">
-                  <span className="font-bold text-slate-900 dark:text-white">Setup</span>
-                  <span className="text-xs text-slate-500">Desks & Keyboards</span>
+                <Link href="/category/tech-accessories" onClick={() => setIsMenuOpen(false)} className="flex flex-col gap-1 p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50 hover:bg-brand-50 dark:hover:bg-brand-900/20 transition-colors">
+                  <span className="font-bold text-slate-900 dark:text-white">Tech Accessories</span>
                 </Link>
-                <Link href="/category/lifestyle" onClick={() => setIsMenuOpen(false)} className="flex flex-col gap-1 p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50 hover:bg-brand-50 dark:hover:bg-brand-900/20 transition-colors">
-                  <span className="font-bold text-slate-900 dark:text-white">Lifestyle</span>
-                  <span className="text-xs text-slate-500">Everyday Carry</span>
+                <Link href="/category/creator-setup" onClick={() => setIsMenuOpen(false)} className="flex flex-col gap-1 p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50 hover:bg-brand-50 dark:hover:bg-brand-900/20 transition-colors">
+                  <span className="font-bold text-slate-900 dark:text-white">Creator Setup</span>
                 </Link>
-                <Link href="/blog" onClick={() => setIsMenuOpen(false)} className="flex flex-col gap-1 p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50 hover:bg-brand-50 dark:hover:bg-brand-900/20 transition-colors">
-                  <span className="font-bold text-slate-900 dark:text-white">Guides</span>
-                  <span className="text-xs text-slate-500">Buying Tips</span>
+                <Link href="/category/gaming-setup" onClick={() => setIsMenuOpen(false)} className="flex flex-col gap-1 p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50 hover:bg-brand-50 dark:hover:bg-brand-900/20 transition-colors">
+                  <span className="font-bold text-slate-900 dark:text-white">Gaming Setup</span>
+                </Link>
+                <Link href="/category/student-essentials" onClick={() => setIsMenuOpen(false)} className="flex flex-col gap-1 p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50 hover:bg-brand-50 dark:hover:bg-brand-900/20 transition-colors">
+                  <span className="font-bold text-slate-900 dark:text-white">Student Essentials</span>
+                </Link>
+                <Link href="/category/desk-setup" onClick={() => setIsMenuOpen(false)} className="flex flex-col gap-1 p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50 hover:bg-brand-50 dark:hover:bg-brand-900/20 transition-colors">
+                  <span className="font-bold text-slate-900 dark:text-white">Desk Setup</span>
+                </Link>
+                <Link href="/category/budget-finds" onClick={() => setIsMenuOpen(false)} className="flex flex-col gap-1 p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50 hover:bg-brand-50 dark:hover:bg-brand-900/20 transition-colors">
+                  <span className="font-bold text-slate-900 dark:text-white">Budget Finds</span>
+                </Link>
+                <Link href="/category/productivity" onClick={() => setIsMenuOpen(false)} className="flex flex-col gap-1 p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50 hover:bg-brand-50 dark:hover:bg-brand-900/20 transition-colors">
+                  <span className="font-bold text-slate-900 dark:text-white">Productivity</span>
+                </Link>
+                <Link href="/category/smart-gadgets" onClick={() => setIsMenuOpen(false)} className="flex flex-col gap-1 p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50 hover:bg-brand-50 dark:hover:bg-brand-900/20 transition-colors">
+                  <span className="font-bold text-slate-900 dark:text-white">Smart Gadgets</span>
+                </Link>
+                <Link href="/blog" onClick={() => setIsMenuOpen(false)} className="col-span-2 flex flex-col gap-1 p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50 hover:bg-brand-50 dark:hover:bg-brand-900/20 transition-colors text-center">
+                  <span className="font-bold text-slate-900 dark:text-white">Guides & Reviews</span>
                 </Link>
               </div>
               {!user && (

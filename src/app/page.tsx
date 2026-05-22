@@ -7,6 +7,7 @@ import { AboutSection } from "@/components/home/AboutSection";
 import { Hero } from "@/components/home/Hero";
 import { ProductSuggestions } from "@/components/home/ProductSuggestions";
 import { BestDealsSection } from "@/components/home/BestDealsSection";
+import { ShopByCategory } from "@/components/home/ShopByCategory";
 import { WhySmartxman } from "@/components/home/WhySmartxman";
 import { supabase } from "@/lib/supabase";
 import { getHomepageSettings } from "@/lib/homepage-actions";
@@ -81,38 +82,8 @@ export default async function Home() {
       {/* 3. Best Deals Section */}
       <BestDealsSection deals={deals} />
 
-      {/* 4. Featured Categories */}
-      <section className="py-24 bg-slate-50/50 dark:bg-slate-900/10">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-black tracking-tighter text-slate-900 dark:text-white mb-4">Featured Categories</h2>
-            <p className="text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">Explore our complete collection of handpicked gear for every use case.</p>
-          </div>
-
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {[
-              { name: "Tech Accessories", slug: "tech", count: "124", image: "/categories/tech.png" },
-              { name: "Setup Gear", slug: "setup", count: "86", image: "/categories/setup.png" },
-              { name: "Lifestyle Gear", slug: "lifestyle", count: "142", image: "/categories/lifestyle.png" },
-              { name: "Productivity", slug: "productivity", count: "95", image: "/categories/productivity.png" }
-            ].map((category) => (
-              <Link key={category.slug} href={`/category/${category.slug}`} className="group relative overflow-hidden rounded-[2rem] aspect-[4/3] bg-slate-100 dark:bg-slate-800 flex flex-col justify-end border border-slate-200 dark:border-slate-700 hover:border-brand-500 transition-all shadow-sm hover:shadow-md">
-                <Image 
-                  src={category.image} 
-                  alt={category.name} 
-                  fill 
-                  className="object-cover group-hover:scale-110 transition-transform duration-700"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-slate-900/20 to-transparent z-10"></div>
-                <div className="relative z-20 p-8">
-                  <h3 className="text-2xl font-black text-white mb-1 tracking-tight">{category.name}</h3>
-                  <p className="text-slate-300 text-sm font-medium">{category.count} Products</p>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section>
+      {/* 4. Shop by Category */}
+      <ShopByCategory />
 
       {/* 5. Why Smartxman? */}
       <WhySmartxman settings={settings} />

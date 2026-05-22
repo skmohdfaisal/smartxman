@@ -37,6 +37,10 @@ export default async function ProductsPage({
     category: "Tech", // For now
     affiliateLink: p.affiliate_link || "#",
     expertNote: p.expert_note || "",
+    tags: p.tags || [],
+    audience: p.audience || [],
+    useCase: p.use_case || [],
+    budgetRange: p.budget_range || [],
     reviews: 1240 // Dummy reviews
   }));
   const resolvedSearchParams = await searchParams;
@@ -49,11 +53,18 @@ export default async function ProductsPage({
   let displayProducts = [...ALL_PRODUCTS];
 
   if (search) {
-    displayProducts = displayProducts.filter(product => 
-      product.name.toLowerCase().includes(search.toLowerCase()) || 
-      product.category.toLowerCase().includes(search.toLowerCase()) ||
-      product.expertNote.toLowerCase().includes(search.toLowerCase())
-    );
+    const s = search.toLowerCase();
+    displayProducts = displayProducts.filter(product => {
+      const matchName = product.name.toLowerCase().includes(s);
+      const matchCategory = product.category.toLowerCase().includes(s);
+      const matchNote = product.expertNote.toLowerCase().includes(s);
+      const matchTags = product.tags.some((t: string) => t.toLowerCase().includes(s));
+      const matchAudience = product.audience.some((a: string) => a.toLowerCase().includes(s));
+      const matchUseCase = product.useCase.some((u: string) => u.toLowerCase().includes(s));
+      const matchBudget = product.budgetRange.some((b: string) => b.toLowerCase().includes(s));
+
+      return matchName || matchCategory || matchNote || matchTags || matchAudience || matchUseCase || matchBudget;
+    });
   }
 
   if (goal) {

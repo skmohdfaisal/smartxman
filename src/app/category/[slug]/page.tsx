@@ -2,12 +2,11 @@ import ProductCard from "@/components/ProductCard";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { ProductFilters } from "@/components/ProductFilters";
-import { FEATURED_PRODUCTS } from "@/lib/constants";
-
-const ALL_PRODUCTS = [...FEATURED_PRODUCTS];
+import { supabase } from "@/lib/supabase";
 
 // Helper to parse price string to number for sorting
-const parsePrice = (priceStr: string) => {
+const parsePrice = (priceStr: string | undefined | null) => {
+  if (!priceStr) return 0;
   return parseInt(priceStr.replace(/[^0-9]/g, "")) || 0;
 };
 
@@ -22,15 +21,47 @@ export default async function CategoryPage({
   const resolvedSearchParams = await searchParams;
   const sort = typeof resolvedSearchParams.sort === 'string' ? resolvedSearchParams.sort : 'recommended';
   
-  // 1. Filter by category
-  let displayProducts = ALL_PRODUCTS.filter(
-    (product) => product.category.toLowerCase() === slug.toLowerCase()
-  );
-  
-  // Fallback to top products if category is empty
-  if (displayProducts.length === 0) {
-    displayProducts = [...ALL_PRODUCTS.slice(0, 4)];
+  // 1. Fetch category id by slug
+  const { data: categoryData } = await supabase
+    .from('categories')
+    .select('id, name')
+    .eq('slug', slug.toLowerCase())
+    .single();
+
+  let products = [];
+
+  if (categoryData) {
+    // Fetch products belonging to this category from product_categories
+    const { data: productCategories } = await supabase
+      .from('product_categories')
+      .select(`
+        product_id,
+        products (*)
+      `)
+      .eq('category_id', categoryData.id);
+
+    if (productCategories) {
+      products = productCategories
+        .map(pc => pc.products)
+        .filter(p => p !== null && p.status === 'published'); // Only published
+    }
   }
+
+  // Format products for display
+  let displayProducts = products.map(p => ({
+    id: p.id,
+    name: p.name,
+    slug: p.slug,
+    description: p.description,
+    price: p.price_range || "N/A",
+    rating: Number(p.rating) || 0,
+    reviews: 0,
+    image: p.images?.[0] || "/placeholder-product.png",
+    images: p.images || [],
+    category: categoryData?.name || slug,
+    affiliateLink: p.affiliate_link || "#",
+    expertNote: p.expert_note || ""
+  }));
 
   // 2. Apply sorting
   if (sort === "price_asc") {
@@ -52,10 +83,10 @@ export default async function CategoryPage({
             <ArrowLeft className="w-4 h-4" /> Back to Home
           </Link>
           <h1 className="text-4xl md:text-5xl font-bold mb-4 capitalize tracking-tight text-slate-900 dark:text-white">
-            {slug} Gear
+            {categoryData?.name || slug.replace('-', ' ')} Gear
           </h1>
           <p className="text-lg text-slate-600 dark:text-slate-400 max-w-2xl">
-            Our expertly curated selection of the best products in the {slug} category. 
+            Our expertly curated selection of the best products in the {categoryData?.name || slug.replace('-', ' ')} category. 
             Handpicked for performance, design, and value.
           </p>
         </div>
@@ -70,9 +101,15 @@ export default async function CategoryPage({
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {displayProducts.map((product) => (
-            <ProductCard key={product.id} product={product} />
-          ))}
+          {displayProducts.length > 0 ? (
+            displayProducts.map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))
+          ) : (
+            <div className="col-span-full py-12 text-center">
+              <p className="text-slate-500">No published products found in this category yet.</p>
+            </div>
+          )}
         </div>
       </div>
     </div>
