@@ -28,7 +28,7 @@ export default async function CategoryPage({
     .eq('slug', slug.toLowerCase())
     .single();
 
-  let products = [];
+  let products: any[] = [];
 
   if (categoryData) {
     // Fetch products belonging to this category from product_categories
@@ -43,7 +43,7 @@ export default async function CategoryPage({
     if (productCategories) {
       products = productCategories
         .map(pc => pc.products)
-        .filter(p => p !== null && p.status === 'published'); // Only published
+        .filter((p: any) => p !== null && p.status === 'published'); // Only published
     }
   }
 
