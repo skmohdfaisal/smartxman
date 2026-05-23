@@ -49,7 +49,7 @@ export default async function CategoryPage({
 
     const secondaryProducts = productCategories
       ? productCategories
-          .map(pc => pc.products)
+          .map(pc => pc.products as any)
           .filter((p: any) => p !== null && p.status === 'published')
       : [];
 

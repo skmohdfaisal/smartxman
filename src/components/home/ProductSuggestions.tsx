@@ -223,6 +223,4 @@ export function ProductSuggestions({ products = [] }: SuggestionsProps) {
       </div>
     </section>
   );
-}>
-  );
 }
