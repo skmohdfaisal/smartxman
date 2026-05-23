@@ -25,7 +25,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
     try {
       const { data, error } = await supabase
         .from('products')
-        .select('*, primary_category:categories(*)')
+        .select('*, primary_category:categories!products_primary_category_id_fkey(*)')
         .eq('slug', slug)
         .single();
 

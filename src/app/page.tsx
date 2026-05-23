@@ -21,7 +21,7 @@ export default async function Home() {
   // Fetch real products from Supabase with categories
   const { data: dbProducts } = await supabase
     .from('products')
-    .select('*, primary_category:categories(*)')
+    .select('*, primary_category:categories!products_primary_category_id_fkey(*)')
     .order('created_at', { ascending: false });
 
   // Only show published products, respecting the admin workflow
