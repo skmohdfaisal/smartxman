@@ -73,13 +73,37 @@ export default async function ProductsPage({
     displayProducts = displayProducts.filter(product => {
       const matchName = product.name.toLowerCase().includes(s);
       const matchCategory = product.category.toLowerCase().includes(s);
+      const matchSubCategory = product.subCategory.toLowerCase().includes(s);
+      const matchBrand = product.brand.toLowerCase().includes(s);
+      const matchDescription = product.description.toLowerCase().includes(s);
       const matchNote = product.expertNote.toLowerCase().includes(s);
+      const matchVerdict = product.buyingVerdict.toLowerCase().includes(s);
+      const matchWhoShouldBuy = product.whoShouldBuy.toLowerCase().includes(s);
+      const matchWhoShouldAvoid = product.whoShouldAvoid.toLowerCase().includes(s);
       const matchTags = product.tags.some((t: string) => t.toLowerCase().includes(s));
       const matchAudience = product.audience.some((a: string) => a.toLowerCase().includes(s));
       const matchUseCase = product.useCase.some((u: string) => u.toLowerCase().includes(s));
       const matchBudget = product.budgetRange.some((b: string) => b.toLowerCase().includes(s));
+      const matchPros = product.pros.some((p: string) => p.toLowerCase().includes(s));
+      const matchCons = product.cons.some((c: string) => c.toLowerCase().includes(s));
 
-      return matchName || matchCategory || matchNote || matchTags || matchAudience || matchUseCase || matchBudget;
+      return (
+        matchName || 
+        matchCategory || 
+        matchSubCategory ||
+        matchBrand ||
+        matchDescription ||
+        matchNote || 
+        matchVerdict ||
+        matchWhoShouldBuy ||
+        matchWhoShouldAvoid ||
+        matchTags || 
+        matchAudience || 
+        matchUseCase || 
+        matchBudget ||
+        matchPros ||
+        matchCons
+      );
     });
   }
 
