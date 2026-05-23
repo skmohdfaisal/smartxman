@@ -16,32 +16,48 @@ export default async function ProductsPage({
 }: {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }) {
-  // Fetch real products from Supabase
+  // Fetch real products from Supabase with categories relation
   const { data: dbProducts } = await supabase
     .from('products')
-    .select('*')
+    .select('*, primary_category:categories(*)')
     .order('created_at', { ascending: false });
 
-  // Filter out delisted products safely in JS (in case the column doesn't exist yet)
-  const activeDbProducts = (dbProducts || []).filter(p => p.is_active !== false);
+  // Only show published active products, respecting the visibility admin filters
+  const activeDbProducts = (dbProducts || []).filter(
+    p => p.is_active !== false && p.status === 'published'
+  );
 
   const ALL_PRODUCTS = activeDbProducts.map(p => ({
     id: p.id,
     name: p.name,
     slug: p.slug,
     description: p.description,
-    price: p.price_range || "N/A",
-    rating: p.rating || 0,
+    price: p.price_range || "Check Price",
+    rating: Number(p.rating) || 0,
     image: p.images?.[0] || "/placeholder-product.png",
     images: p.images || [],
-    category: "Tech", // For now
-    affiliateLink: p.affiliate_link || "#",
+    category: p.primary_category?.name || "Tech Accessories",
+    subCategory: p.sub_category || "",
+    brand: p.brand || "",
+    affiliateLink: p.affiliate_link || p.affiliate_url || "#",
     expertNote: p.expert_note || "",
-    tags: p.tags || [],
+    featured: p.featured || false,
+    trending: p.trending || false,
+    isBudgetPick: p.is_budget_pick || false,
+    isBestDeal: p.is_best_deal || false,
+    smartScore: Number(p.smart_score) || 8.0,
+    valueScore: Number(p.value_score) || 8.0,
+    pros: p.pros || [],
+    cons: p.cons || [],
+    bestFor: p.best_for || "",
+    whoShouldBuy: p.who_should_buy || "",
+    whoShouldAvoid: p.who_should_avoid || "",
+    buyingVerdict: p.buying_verdict || "",
     audience: p.audience || [],
     useCase: p.use_case || [],
     budgetRange: p.budget_range || [],
-    reviews: 1240 // Dummy reviews
+    tags: p.tags || [],
+    reviews: 840
   }));
   const resolvedSearchParams = await searchParams;
   const search = typeof resolvedSearchParams.search === 'string' ? resolvedSearchParams.search : '';
@@ -68,12 +84,12 @@ export default async function ProductsPage({
   }
 
   if (goal) {
-    // Map goal to category logic
+    // Map setup target goal to our specific redesigned 10 main categories
     const goalMap: { [key: string]: string[] } = {
-      "student-setup": ["Tech", "Setup", "Productivity"],
-      "creator-setup": ["Setup", "Tech"],
-      "gaming-setup": ["Setup", "Tech"],
-      "desk-setup": ["Setup", "Productivity"]
+      "student-setup": ["Student Essentials", "Desk Setup", "Productivity Tools", "Tech Accessories"],
+      "creator-setup": ["Creator Gear", "Desk Setup", "Tech Accessories"],
+      "gaming-setup": ["Gaming Accessories", "Desk Setup", "Tech Accessories"],
+      "desk-setup": ["Desk Setup", "Work From Home", "Productivity Tools", "Tech Accessories"]
     };
     const targetCategories = goalMap[goal] || [];
     if (targetCategories.length > 0) {

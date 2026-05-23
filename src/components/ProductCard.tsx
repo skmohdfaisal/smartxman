@@ -2,17 +2,14 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { Star, Heart, ArrowRight } from "lucide-react";
+import { Star, Heart, ArrowRight, ShoppingBag, Award } from "lucide-react";
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 
-import { type ProductProps } from "@/lib/constants";
-
-export default function ProductCard({ product }: { product: ProductProps }) {
-  const [isHovered, setIsHovered] = useState(false);
+export default function ProductCard({ product }: { product: any }) {
   const [isSaved, setIsSaved] = useState(false);
   const router = useRouter();
 
@@ -68,84 +65,128 @@ export default function ProductCard({ product }: { product: ProductProps }) {
     }
   };
 
+  const currentCategory = product.category || "Tech";
+  const budgetBadge = product.budgetRange?.[0] || product.budget_range?.[0] || "";
+
   return (
     <motion.div 
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 15 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
-      transition={{ duration: 0.5 }}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-      className="group relative flex flex-col bg-white dark:bg-slate-900 rounded-2xl overflow-hidden border border-slate-100 dark:border-slate-800 shadow-sm hover:shadow-xl transition-all duration-300"
+      transition={{ duration: 0.4 }}
+      className="group relative flex flex-col bg-white dark:bg-slate-900 rounded-[2rem] overflow-hidden border border-slate-100 dark:border-slate-800/80 shadow-sm hover:shadow-2xl hover:-translate-y-1 transition-all duration-300"
     >
-      <div className="absolute top-3 left-3 z-10">
-        <span className="px-2.5 py-1 text-xs font-semibold bg-white/90 dark:bg-slate-900/90 backdrop-blur-sm text-slate-800 dark:text-slate-200 rounded-full shadow-sm">
-          {product.category}
+      {/* Category Overlay */}
+      <div className="absolute top-4 left-4 z-10 flex flex-col gap-1.5">
+        <span className="px-3 py-1 text-[10px] font-black uppercase tracking-wider bg-white/95 dark:bg-slate-900/95 backdrop-blur-sm text-slate-800 dark:text-slate-200 rounded-lg shadow-sm border border-slate-100 dark:border-slate-800">
+          {currentCategory}
         </span>
+        {budgetBadge && (
+          <span className="px-3 py-1 text-[10px] font-black uppercase tracking-wider bg-emerald-500 text-white rounded-lg shadow-sm">
+            {budgetBadge}
+          </span>
+        )}
       </div>
       
+      {/* Wishlist Icon */}
       <button 
         onClick={toggleSave}
-        className="absolute top-3 right-3 z-10 p-2 bg-white/90 dark:bg-slate-900/90 backdrop-blur-sm rounded-full shadow-sm hover:bg-white dark:hover:bg-slate-800 transition-colors"
+        className="absolute top-4 right-4 z-10 p-2.5 bg-white/95 dark:bg-slate-900/95 backdrop-blur-sm rounded-full shadow-sm hover:bg-white dark:hover:bg-slate-800 transition-colors"
         aria-label={isSaved ? "Remove from wishlist" : "Add to wishlist"}
-        aria-pressed={isSaved}
       >
         <Heart className={cn("w-4 h-4 transition-colors", isSaved ? "fill-red-500 text-red-500" : "text-slate-400")} />
       </button>
 
-      <Link href={`/product/${product.slug}`} className="relative aspect-square overflow-hidden bg-slate-50 dark:bg-slate-800">
-        {product.image ? (
+      {/* Product Image Link */}
+      <Link href={`/product/${product.slug}`} className="relative aspect-square overflow-hidden bg-slate-50 dark:bg-slate-800/20 border-b border-slate-100 dark:border-slate-800/80">
+        {product.image || product.images?.[0] ? (
           <Image 
-            src={product.image} 
-            alt={`Photo of ${product.name}`} 
+            src={product.image || product.images?.[0]} 
+            alt={product.name} 
             fill 
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
-            className="object-cover group-hover:scale-105 transition-transform duration-500" 
+            className="object-contain p-6 group-hover:scale-103 transition-transform duration-500" 
           />
         ) : (
           <div className="absolute inset-0 flex items-center justify-center bg-slate-100 dark:bg-slate-800">
-            <div className="w-full h-full bg-gradient-to-br from-brand-100 to-accent-100 dark:from-brand-900 dark:to-accent-900 opacity-20"></div>
             <span className="text-slate-400 font-medium">Image Coming Soon</span>
           </div>
         )}
       </Link>
 
-      <div className="p-5 flex flex-col flex-1">
-        <div className="flex items-center gap-1 mb-2">
-          <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-          <span className="text-sm font-medium text-slate-700 dark:text-slate-300">{product.rating}</span>
-          <span className="text-xs text-slate-400">({product.reviews})</span>
+      {/* Card Content Body */}
+      <div className="p-6 flex flex-col flex-1">
+        {/* Rating and Scores */}
+        <div className="flex flex-wrap items-center gap-3 mb-3 border-b border-slate-100 dark:border-slate-800/80 pb-3">
+          <div className="flex items-center gap-1">
+            <Star className="w-3.5 h-3.5 fill-yellow-400 text-yellow-400" />
+            <span className="text-xs font-black text-slate-800 dark:text-slate-200">{Number(product.rating || 0).toFixed(1)}</span>
+          </div>
+          
+          {(product.smartScore || product.smart_score) && (
+            <div className="flex items-center gap-1 px-2 py-0.5 bg-brand-50/80 dark:bg-brand-950/20 border border-brand-100/10 text-brand-650 dark:text-brand-400 rounded-md text-[10px] font-black uppercase">
+              Smart: {Number(product.smartScore || product.smart_score).toFixed(1)}
+            </div>
+          )}
+          
+          {(product.valueScore || product.value_score) && (
+            <div className="flex items-center gap-1 px-2 py-0.5 bg-emerald-50/80 dark:bg-emerald-950/20 border border-emerald-100/10 text-emerald-650 dark:text-emerald-400 rounded-md text-[10px] font-black uppercase">
+              VFM: {Number(product.valueScore || product.value_score).toFixed(1)}
+            </div>
+          )}
         </div>
 
+        {/* Brand Label */}
+        {product.brand && (
+          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none mb-1">
+            {product.brand}
+          </span>
+        )}
+
+        {/* Product Title */}
         <Link href={`/product/${product.slug}`}>
-          <h3 className="font-semibold text-slate-900 dark:text-slate-100 line-clamp-2 mb-2 group-hover:text-brand-600 dark:group-hover:text-brand-400 transition-colors">
+          <h3 className="font-extrabold text-slate-900 dark:text-white line-clamp-2 leading-snug mb-3 group-hover:text-brand-600 dark:group-hover:text-brand-400 transition-colors">
             {product.name}
           </h3>
         </Link>
         
-        <p className="text-sm text-slate-500 dark:text-slate-400 line-clamp-2 mb-4 flex-1">
-          <span className="font-medium text-brand-600 dark:text-brand-400">Expert Note: </span>
-          {product.expertNote}
-        </p>
+        {/* Short Buying Advice */}
+        {product.expertNote ? (
+          <p className="text-xs text-slate-500 dark:text-slate-400 italic line-clamp-3 mb-6 bg-slate-50/50 dark:bg-slate-950/20 p-3 rounded-2xl border border-slate-100/40 dark:border-slate-800 flex-1 leading-relaxed">
+            "{product.expertNote}"
+          </p>
+        ) : (
+          <div className="flex-1"></div>
+        )}
 
-        <div className="flex flex-col gap-2 mt-auto pt-4 border-t border-slate-100 dark:border-slate-800">
+        {/* Price & CTA Button */}
+        <div className="flex flex-col gap-3 pt-4 border-t border-slate-150 dark:border-slate-800">
           <div className="flex items-center justify-between">
             <div className="flex flex-col">
-              {product.priceIsFresh && product.price ? (
-                <span className="text-lg font-bold text-slate-900 dark:text-slate-100">{product.price}</span>
-              ) : (
-                <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Check Amazon for Price</span>
-              )}
+              <span className="text-[9px] text-slate-400 uppercase tracking-wider font-bold">Price Range</span>
+              <span className="text-lg font-black text-slate-950 dark:text-slate-100">{product.price || product.price_range || "Check Price"}</span>
             </div>
+            
             <Link 
               href={`/product/${product.slug}`}
-              className="flex items-center gap-1 text-sm font-bold text-brand-600 dark:text-brand-400 hover:text-brand-700 dark:hover:text-brand-300 transition-colors shrink-0"
+              className="flex items-center gap-1.5 px-4 py-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-xs font-black uppercase tracking-wider text-slate-900 dark:text-white rounded-xl transition-all shadow-sm"
             >
-              View Details <ArrowRight className="w-4 h-4" />
+              View Details <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>
-          <p className="text-[10px] text-slate-400 dark:text-slate-500 leading-tight">
-             Smartxman may earn a commission when you buy through our links.
+
+          <a 
+            href={product.affiliateLink || product.affiliate_link || "#"}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-full py-3 bg-amber-400 hover:bg-amber-500 text-slate-900 font-black text-xs uppercase tracking-wider rounded-xl transition-all text-center flex items-center justify-center gap-2 shadow-sm"
+          >
+            <ShoppingBag className="w-3.5 h-3.5" /> View Latest Price
+          </a>
+
+          {/* Affiliate Disclosure statement */}
+          <p className="text-[8px] text-slate-400 dark:text-slate-550 leading-tight text-center mt-0.5">
+            SmartXMan may earn a small commission when you buy through this link.
           </p>
         </div>
       </div>

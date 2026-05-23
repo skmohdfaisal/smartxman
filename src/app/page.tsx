@@ -18,58 +18,111 @@ export default async function Home() {
   const homeSettingsRes = await getHomepageSettings();
   const settings = homeSettingsRes?.success ? homeSettingsRes.data : null;
 
-  // Fetch real products from Supabase
+  // Fetch real products from Supabase with categories
   const { data: dbProducts } = await supabase
     .from('products')
-    .select('*')
+    .select('*, primary_category:categories(*)')
     .order('created_at', { ascending: false });
 
-  const activeProducts = (dbProducts || []).filter(p => p.is_active !== false);
+  // Only show published products, respecting the admin workflow
+  const activeProducts = (dbProducts || []).filter(
+    p => p.is_active !== false && p.status === 'published'
+  );
 
   const products = activeProducts.map(p => ({
     id: p.id,
     name: p.name,
     slug: p.slug,
     description: p.description,
-    price: p.price_range || "N/A",
+    price: p.price_range || "Check Price",
     rating: Number(p.rating) || 0,
-    reviews: 0,
+    reviews: 840, // standard reviews count
     image: p.images?.[0] || "/placeholder-product.png",
     images: p.images || [],
-    category: "Tech", // Can map this dynamically based on category relation later
-    affiliateLink: p.affiliate_link || "#",
-    expertNote: p.expert_note || ""
+    category: p.primary_category?.name || "Tech Accessories",
+    subCategory: p.sub_category || "",
+    brand: p.brand || "",
+    affiliateLink: p.affiliate_link || p.affiliate_url || "#",
+    expertNote: p.expert_note || "",
+    featured: p.featured || false,
+    trending: p.trending || false,
+    isBudgetPick: p.is_budget_pick || false,
+    isBestDeal: p.is_best_deal || false,
+    showOnHomepage: p.show_on_homepage || false,
+    showInDeals: p.show_in_deals || false,
+    smartScore: Number(p.smart_score) || 8.0,
+    valueScore: Number(p.value_score) || 8.0,
+    pros: p.pros || [],
+    cons: p.cons || [],
+    bestFor: p.best_for || "",
+    whoShouldBuy: p.who_should_buy || "",
+    whoShouldAvoid: p.who_should_avoid || "",
+    buyingVerdict: p.buying_verdict || "",
+    audience: p.audience || [],
+    useCase: p.use_case || [],
+    budgetRange: p.budget_range || [],
+    tags: p.tags || []
   }));
 
-  // Fetch deals from Supabase store links with old prices
+  // Fetch deals from Supabase store links with old prices, or fallback to products marked as 'best deal'
   const { data: dbDeals } = await supabase
     .from('product_store_links')
     .select('*, product:products(*)')
     .not('old_price', 'is', null)
     .order('created_at', { ascending: false });
 
-  const deals = (dbDeals || [])
-    .filter(d => d.product)
-    .map(d => {
-      const priceNum = Number(d.price) || 0;
-      const oldPriceNum = Number(d.old_price) || 0;
-      const discountPct = oldPriceNum > priceNum 
-        ? Math.round(((oldPriceNum - priceNum) / oldPriceNum) * 100)
-        : 0;
+  let deals: any[] = [];
 
-      return {
-        id: d.id,
-        name: d.product.name,
-        slug: d.product.slug,
-        image: d.product.images?.[0] || "/placeholder-product.png",
-        price: `₹${priceNum.toLocaleString('en-IN')}`,
-        oldPrice: `₹${oldPriceNum.toLocaleString('en-IN')}`,
-        discount: `${discountPct}% OFF`,
-        affiliateUrl: d.affiliate_url || `/product/${d.product.slug}`
-      };
-    })
-    .filter(d => parseInt(d.discount) > 0)
-    .slice(0, 3);
+  if (dbDeals && dbDeals.length > 0) {
+    deals = dbDeals
+      .filter(d => d.product && d.product.status === 'published')
+      .map(d => {
+        const priceNum = Number(d.price) || 0;
+        const oldPriceNum = Number(d.old_price) || 0;
+        const discountPct = oldPriceNum > priceNum 
+          ? Math.round(((oldPriceNum - priceNum) / oldPriceNum) * 100)
+          : 0;
+
+        return {
+          id: d.id,
+          name: d.product.name,
+          slug: d.product.slug,
+          image: d.product.images?.[0] || "/placeholder-product.png",
+          price: `₹${priceNum.toLocaleString('en-IN')}`,
+          oldPrice: `₹${oldPriceNum.toLocaleString('en-IN')}`,
+          discount: `${discountPct}% OFF`,
+          affiliateUrl: d.affiliate_url || `/product/${d.product.slug}`
+        };
+      })
+      .filter(d => parseInt(d.discount) > 0);
+  }
+
+  // If we have fewer than 3 deals from store links, append products that have the 'is_best_deal' or 'show_in_deals' toggle enabled
+  if (deals.length < 3) {
+    const dealsProducts = products.filter(p => p.isBestDeal || p.showInDeals);
+    dealsProducts.forEach(p => {
+      // Avoid duplication
+      if (!deals.some(d => d.slug === p.slug)) {
+        // Parse numerical price or estimate discount
+        const cleanPrice = p.price.replace(/[^0-9]/g, "");
+        const priceNum = cleanPrice ? parseInt(cleanPrice) : 2500;
+        const oldPriceNum = Math.round(priceNum * 1.25);
+        
+        deals.push({
+          id: `deal-${p.id}`,
+          name: p.name,
+          slug: p.slug,
+          image: p.image,
+          price: p.price,
+          oldPrice: `₹${oldPriceNum.toLocaleString('en-IN')}`,
+          discount: "20% OFF",
+          affiliateUrl: p.affiliateLink
+        });
+      }
+    });
+  }
+
+  deals = deals.slice(0, 3);
 
   return (
     <div className="flex flex-col min-h-screen">

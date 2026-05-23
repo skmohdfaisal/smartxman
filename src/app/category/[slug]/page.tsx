@@ -31,7 +31,14 @@ export default async function CategoryPage({
   let products: any[] = [];
 
   if (categoryData) {
-    // Fetch products belonging to this category from product_categories
+    // Fetch products belonging to this category from primary category column directly
+    const { data: primaryProducts } = await supabase
+      .from('products')
+      .select('*')
+      .eq('primary_category_id', categoryData.id)
+      .eq('status', 'published');
+
+    // Also fetch products belonging to this category from product_categories join table
     const { data: productCategories } = await supabase
       .from('product_categories')
       .select(`
@@ -40,27 +47,55 @@ export default async function CategoryPage({
       `)
       .eq('category_id', categoryData.id);
 
-    if (productCategories) {
-      products = productCategories
-        .map(pc => pc.products)
-        .filter((p: any) => p !== null && p.status === 'published'); // Only published
-    }
+    const secondaryProducts = productCategories
+      ? productCategories
+          .map(pc => pc.products)
+          .filter((p: any) => p !== null && p.status === 'published')
+      : [];
+
+    // Merge products and remove duplicates
+    const allUniqueProducts = [...(primaryProducts || [])];
+    secondaryProducts.forEach(p => {
+      if (!allUniqueProducts.some(up => up.id === p.id)) {
+        allUniqueProducts.push(p);
+      }
+    });
+
+    products = allUniqueProducts;
   }
 
-  // Format products for display
+  // Format products for display with full rich recommendation metadata
   let displayProducts = products.map(p => ({
     id: p.id,
     name: p.name,
     slug: p.slug,
     description: p.description,
-    price: p.price_range || "N/A",
+    price: p.price_range || "Check Price",
     rating: Number(p.rating) || 0,
-    reviews: 0,
+    reviews: 840,
     image: p.images?.[0] || "/placeholder-product.png",
     images: p.images || [],
-    category: categoryData?.name || slug,
-    affiliateLink: p.affiliate_link || "#",
-    expertNote: p.expert_note || ""
+    category: categoryData?.name || slug.replace('-', ' '),
+    subCategory: p.sub_category || "",
+    brand: p.brand || "",
+    affiliateLink: p.affiliate_link || p.affiliate_url || "#",
+    expertNote: p.expert_note || "",
+    featured: p.featured || false,
+    trending: p.trending || false,
+    isBudgetPick: p.is_budget_pick || false,
+    isBestDeal: p.is_best_deal || false,
+    smartScore: Number(p.smart_score) || 8.0,
+    valueScore: Number(p.value_score) || 8.0,
+    pros: p.pros || [],
+    cons: p.cons || [],
+    bestFor: p.best_for || "",
+    whoShouldBuy: p.who_should_buy || "",
+    whoShouldAvoid: p.who_should_avoid || "",
+    buyingVerdict: p.buying_verdict || "",
+    audience: p.audience || [],
+    useCase: p.use_case || [],
+    budgetRange: p.budget_range || [],
+    tags: p.tags || []
   }));
 
   // 2. Apply sorting
