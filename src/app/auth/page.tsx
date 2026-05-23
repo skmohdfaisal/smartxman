@@ -39,7 +39,9 @@ export default function AuthPage() {
         if (error) throw error;
         
         if (email.toLowerCase() === "skmohdfaisal07@gmail.com") {
-          window.location.href = process.env.NEXT_PUBLIC_ADMIN_URL || "http://localhost:3001";
+          window.location.href = process.env.NODE_ENV === "development" 
+            ? "http://localhost:3001" 
+            : (process.env.NEXT_PUBLIC_ADMIN_URL || "https://smartxman-admin.vercel.app");
         } else {
           window.location.href = "/"; // Redirect on success
         }
