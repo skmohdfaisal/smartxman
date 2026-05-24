@@ -6,10 +6,11 @@ import { Star, Heart, ArrowRight, ShoppingBag, Award } from "lucide-react";
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
-import { supabase } from "@/lib/supabase";
+import { createClient } from "@/lib/supabase-client";
 import { useRouter } from "next/navigation";
 
 export default function ProductCard({ product }: { product: any }) {
+  const supabase = createClient();
   const [isSaved, setIsSaved] = useState(false);
   const router = useRouter();
 

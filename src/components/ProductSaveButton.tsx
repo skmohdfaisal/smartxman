@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Heart } from "lucide-react";
-import { supabase } from "@/lib/supabase";
+import { createClient } from "@/lib/supabase-client";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 
@@ -11,6 +11,7 @@ interface ProductSaveButtonProps {
 }
 
 export default function ProductSaveButton({ productId }: ProductSaveButtonProps) {
+  const supabase = createClient();
   const [isSaved, setIsSaved] = useState(false);
   const router = useRouter();
 

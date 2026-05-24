@@ -5,12 +5,13 @@ import Link from "next/link";
 import { Search, ShoppingBag, User, Menu, LogOut, X } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import { supabase } from "@/lib/supabase";
+import { createClient } from "@/lib/supabase-client";
 import { User as SupabaseUser } from "@supabase/supabase-js";
 
 import { FEATURED_PRODUCTS } from "@/lib/constants";
 
 export default function Navbar() {
+  const supabase = createClient();
   const [searchQuery, setSearchQuery] = useState("");
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [user, setUser] = useState<SupabaseUser | null>(null);

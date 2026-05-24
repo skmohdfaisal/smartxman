@@ -1,13 +1,14 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { supabase } from "@/lib/supabase";
+import { createClient } from "@/lib/supabase-client";
 import ProductCard from "@/components/ProductCard";
 import { FEATURED_PRODUCTS } from "@/lib/constants";
 import { Heart, ShoppingBag, Loader2, ArrowRight } from "lucide-react";
 import Link from "next/link";
 
 export default function WishlistPage() {
+  const supabase = createClient();
   const [items, setItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<any>(null);
