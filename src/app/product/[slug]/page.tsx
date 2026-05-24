@@ -1,218 +1,160 @@
-"use client";
-
-import { ShoppingBag, Star, Heart, ArrowLeft, Loader2, Trophy, AlertCircle, ShieldAlert, Sparkles, Tag, Check, CheckCircle2 } from "lucide-react";
+import { ShoppingBag, Star, ArrowLeft, Trophy, ShieldAlert, Sparkles, Tag, CheckCircle2 } from "lucide-react";
 import Link from "next/link";
-import Image from "next/image";
 import { FEATURED_PRODUCTS } from "@/lib/constants";
-import { useState, useEffect, use } from "react";
 import { supabase } from "@/lib/supabase";
-import { useRouter } from "next/navigation";
-import { cn } from "@/lib/utils";
+import { Metadata } from "next";
+import ProductImageGallery from "@/components/ProductImageGallery";
+import ProductSaveButton from "@/components/ProductSaveButton";
+import { notFound } from "next/navigation";
 
-export default function ProductDetailPage({ params }: { params: Promise<{ slug: string }> }) {
-  const { slug } = use(params);
-  const router = useRouter();
-  const [isSaved, setIsSaved] = useState(false);
-  const [activeImageIndex, setActiveImageIndex] = useState(0);
-  const [loading, setLoading] = useState(true);
-  const [product, setProduct] = useState<any>(null);
+interface Props {
+  params: Promise<{ slug: string }>;
+}
 
-  useEffect(() => {
-    fetchProduct();
-  }, [slug]);
+async function getProduct(slug: string) {
+  const { data, error } = await supabase
+    .from('products')
+    .select('*, primary_category:categories!products_primary_category_id_fkey(*)')
+    .eq('slug', slug)
+    .single();
 
-  const fetchProduct = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('products')
-        .select('*, primary_category:categories!products_primary_category_id_fkey(*)')
-        .eq('slug', slug)
-        .single();
-
-      if (error || !data) {
-        // Fallback to constants if not in DB
-        const mockProduct = FEATURED_PRODUCTS.find(p => p.slug === slug);
-        if (mockProduct) {
-          setProduct({
-            ...mockProduct,
-            smartScore: mockProduct.smartScore || 8.5,
-            valueScore: mockProduct.valueScore || 8.0,
-            buyingVerdict: mockProduct.buyingVerdict || mockProduct.expertNote,
-            bestFor: "Productivity",
-            whoShouldBuy: "Working professionals and students looking for high quality desk setup tools.",
-            whoShouldAvoid: "Casual buyers with tight budget limits.",
-            pros: mockProduct.pros || ["Solid build quality", "Premium finish"],
-            cons: mockProduct.cons || ["Slightly expensive"],
-            subCategory: "Setup Upgrades",
-            tags: ["tech", "minimalist", "setup"]
-          });
-        } else {
-          setProduct(null);
-        }
-      } else {
-        const mappedProduct = {
-          id: data.id,
-          name: data.name,
-          slug: data.slug,
-          brand: data.brand || "",
-          description: data.description,
-          price: data.price_range || "Check Amazon",
-          rating: data.rating || 0,
-          image: data.images?.[0] || "/placeholder-product.png",
-          images: data.images || [],
-          category: data.primary_category?.name || "Tech Accessories",
-          subCategory: data.sub_category || "",
-          affiliateLink: data.affiliate_link || data.affiliate_url || "#",
-          expertNote: data.expert_note || "",
-          bestFor: data.best_for || "",
-          whoShouldBuy: data.who_should_buy || "",
-          whoShouldAvoid: data.who_should_avoid || "",
-          pros: data.pros || [],
-          cons: data.cons || [],
-          buyingVerdict: data.buying_verdict || "",
-          testedByUs: data.tested_by_us || false,
-          priceIsFresh: data.price_is_fresh || false,
-          smartScore: data.smart_score || 8.0,
-          valueScore: data.value_score || 8.0,
-          tags: data.tags || [],
-          reviews: 840 // Dummy reviews
-        };
-        setProduct(mappedProduct);
-      }
-    } catch (err) {
-      console.error('Error fetching product:', err);
-    } finally {
-      setLoading(false);
+  if (error || !data) {
+    const mockProduct = FEATURED_PRODUCTS.find(p => p.slug === slug);
+    if (mockProduct) {
+      return {
+        ...mockProduct,
+        smartScore: mockProduct.smartScore || 8.5,
+        valueScore: mockProduct.valueScore || 8.0,
+        buyingVerdict: mockProduct.buyingVerdict || mockProduct.expertNote,
+        bestFor: "Productivity",
+        whoShouldBuy: "Working professionals and students looking for high quality desk setup tools.",
+        whoShouldAvoid: "Casual buyers with tight budget limits.",
+        pros: mockProduct.pros || ["Solid build quality", "Premium finish"],
+        cons: mockProduct.cons || ["Slightly expensive"],
+        subCategory: "Setup Upgrades",
+        tags: ["tech", "minimalist", "setup"]
+      };
     }
-  };
-
-  useEffect(() => {
-    if (product) {
-      checkIfSaved();
-    }
-  }, [product]);
-
-  const checkIfSaved = async () => {
-    if (!product || !product.id) return;
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
-
-    const { data } = await supabase
-      .from("wishlist")
-      .select("*")
-      .eq("user_id", user.id)
-      .eq("product_id", product.id)
-      .single();
-
-    if (data) setIsSaved(true);
-  };
-
-  const toggleSave = async () => {
-    if (!product) return;
-    const { data: { user } } = await supabase.auth.getUser();
-    
-    if (!user) {
-      router.push("/auth");
-      return;
-    }
-
-    if (isSaved) {
-      const { error } = await supabase
-        .from("wishlist")
-        .delete()
-        .eq("user_id", user.id)
-        .eq("product_id", product.id);
-      
-      if (!error) {
-        setIsSaved(false);
-        window.dispatchEvent(new Event('wishlist-updated'));
-      }
-    } else {
-      const { error } = await supabase
-        .from("wishlist")
-        .insert([{ user_id: user.id, product_id: product.id }]);
-      
-      if (!error) {
-        setIsSaved(true);
-        window.dispatchEvent(new Event('wishlist-updated'));
-      }
-    }
-  };
-
-  if (loading) {
-    return (
-      <div className="container mx-auto px-4 py-24 flex flex-col items-center justify-center min-h-[50vh] gap-3">
-        <Loader2 className="w-8 h-8 text-brand-600 animate-spin" />
-        <p className="text-slate-500 font-bold">Synchronizing product analysis details...</p>
-      </div>
-    );
+    return null;
   }
+
+  return {
+    id: data.id,
+    name: data.name,
+    slug: data.slug,
+    brand: data.brand || "",
+    description: data.description,
+    price: data.price_range || "Check Amazon",
+    rating: data.rating || 0,
+    image: data.images?.[0] || "/placeholder-product.png",
+    images: data.images || [],
+    category: data.primary_category?.name || "Tech Accessories",
+    subCategory: data.sub_category || "",
+    affiliateLink: data.affiliate_link || data.affiliate_url || "#",
+    expertNote: data.expert_note || "",
+    bestFor: data.best_for || "",
+    whoShouldBuy: data.who_should_buy || "",
+    whoShouldAvoid: data.who_should_avoid || "",
+    pros: data.pros || [],
+    cons: data.cons || [],
+    buyingVerdict: data.buying_verdict || "",
+    testedByUs: data.tested_by_us || false,
+    priceIsFresh: data.price_is_fresh || false,
+    smartScore: data.smart_score || 8.0,
+    valueScore: data.value_score || 8.0,
+    tags: data.tags || [],
+    reviews: 840 // Dummy reviews
+  };
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const resolvedParams = await params;
+  const product = await getProduct(resolvedParams.slug);
 
   if (!product) {
-    return (
-      <div className="container mx-auto px-4 py-20 text-center">
-        <h1 className="text-2xl font-bold mb-4">Product Not Found</h1>
-        <Link href="/products" className="text-brand-600 font-medium hover:underline">
-          Back to all products
-        </Link>
-      </div>
-    );
+    return {
+      title: 'Product Not Found | smartXman',
+    };
   }
-  
+
+  return {
+    title: `${product.name} - Review & Best Price | smartXman`,
+    description: product.expertNote || product.description?.substring(0, 160),
+    openGraph: {
+      title: `${product.name} | smartXman Picks`,
+      description: product.expertNote || product.description?.substring(0, 160),
+      images: [
+        {
+          url: product.image,
+          width: 800,
+          height: 800,
+          alt: product.name,
+        },
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: `${product.name} | smartXman Picks`,
+      description: product.expertNote || product.description?.substring(0, 160),
+      images: [product.image],
+    },
+  };
+}
+
+export default async function ProductDetailPage({ params }: Props) {
+  const resolvedParams = await params;
+  const product = await getProduct(resolvedParams.slug);
+
+  if (!product) {
+    notFound();
+  }
+
+  // Generate JSON-LD Schema for Rich Snippets
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: product.name,
+    image: product.image,
+    description: product.description || product.expertNote,
+    brand: {
+      '@type': 'Brand',
+      name: product.brand || 'Generic',
+    },
+    aggregateRating: {
+      '@type': 'AggregateRating',
+      ratingValue: product.rating > 0 ? product.rating : 4.5,
+      reviewCount: product.reviews || 840,
+    },
+    offers: {
+      '@type': 'Offer',
+      priceCurrency: 'INR',
+      price: product.price ? product.price.replace(/[^0-9.]/g, '') : '0',
+      availability: 'https://schema.org/InStock',
+      url: product.affiliateLink,
+    },
+  };
+
   return (
     <div className="container mx-auto px-4 py-12 max-w-6xl">
+      {/* Inject JSON-LD */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+
       <Link href="/products" className="inline-flex items-center gap-2 text-slate-500 hover:text-slate-900 dark:hover:text-white mb-8 transition-colors font-bold text-sm">
         <ArrowLeft className="w-4 h-4" /> Back to Explore
       </Link>
 
       <div className="flex flex-col lg:flex-row gap-12 lg:gap-16 items-start">
-        {/* Left Side: Product Gallery */}
-        <div className="w-full lg:w-1/2 space-y-6 sticky top-24">
-          <div className="aspect-square bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-3xl relative overflow-hidden group shadow-inner flex items-center justify-center p-8">
-             <Image 
-                src={product.images?.[activeImageIndex] || product.image} 
-                alt={product.name} 
-                fill 
-                priority
-                className="object-contain p-6 group-hover:scale-102 transition-transform duration-500" 
-             />
-             
-             {/* Dynamic score overlays */}
-             <div className="absolute bottom-4 left-4 flex gap-2">
-                <div className="bg-white/95 dark:bg-slate-900/90 text-brand-650 dark:text-brand-400 border border-slate-150/40 dark:border-slate-800 backdrop-blur-md px-3.5 py-1.5 rounded-xl shadow-md text-xs font-black uppercase flex items-center gap-1.5">
-                  <Trophy className="w-4 h-4 text-brand-500" /> Smart Score: {Number(product.smartScore).toFixed(1)}
-                </div>
-                <div className="bg-white/95 dark:bg-slate-900/90 text-emerald-650 dark:text-emerald-400 border border-slate-150/40 dark:border-slate-800 backdrop-blur-md px-3.5 py-1.5 rounded-xl shadow-md text-xs font-black uppercase flex items-center gap-1.5">
-                  <Star className="w-4 h-4 text-yellow-500" /> VFM Score: {Number(product.valueScore).toFixed(1)}
-                </div>
-             </div>
-          </div>
-          
-          {/* Image Thumbnails */}
-          {product.images && product.images.length > 1 && (
-            <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
-              {product.images.map((img: string, idx: number) => (
-                <button
-                  key={idx}
-                  onClick={() => setActiveImageIndex(idx)}
-                  className={cn(
-                    "relative w-20 h-20 rounded-2xl overflow-hidden flex-shrink-0 border-2 bg-slate-50 dark:bg-slate-850 transition-all",
-                    activeImageIndex === idx 
-                      ? "border-brand-500 ring-4 ring-brand-500/10" 
-                      : "border-transparent hover:border-slate-350 dark:hover:border-slate-700"
-                  )}
-                >
-                  <Image 
-                    src={img} 
-                    alt={`${product.name} thumbnail ${idx + 1}`} 
-                    fill 
-                    className="object-contain p-2" 
-                  />
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
+        {/* Left Side: Product Gallery (Client Component) */}
+        <ProductImageGallery 
+           images={product.images} 
+           image={product.image} 
+           name={product.name} 
+           smartScore={product.smartScore} 
+           valueScore={product.valueScore} 
+        />
         
         {/* Right Side: Primary Meta Data */}
         <div className="w-full lg:w-1/2 space-y-8">
@@ -288,18 +230,8 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
               </p>
             </div>
             
-            <button 
-              onClick={toggleSave}
-              className={cn(
-                "px-6 py-4 rounded-2xl font-black text-sm uppercase tracking-wider transition-all border flex items-center justify-center gap-2",
-                isSaved 
-                  ? "bg-red-50 dark:bg-red-950/20 border-red-100 dark:border-red-900/30 text-red-650 dark:text-red-400" 
-                  : "bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white hover:border-slate-350"
-              )}
-            >
-              <Heart className={cn("w-4 h-4 transition-colors", isSaved && "fill-red-500 text-red-500")} />
-              {isSaved ? "Saved" : "Save"}
-            </button>
+            {/* Wishlist Button (Client Component) */}
+            <ProductSaveButton productId={product.id} />
           </div>
         </div>
       </div>
@@ -332,7 +264,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
                 <h4 className="font-black text-slate-900 dark:text-white text-base text-rose-500 dark:text-rose-455 flex items-center gap-2">
                   <ShieldAlert className="w-5 h-5 shrink-0" /> Not Recommended For
                 </h4>
-                <p className="text-slate-650 dark:text-slate-450 leading-relaxed text-sm">{product.whoShouldAvoid}</p>
+                <p className="text-slate-655 dark:text-slate-450 leading-relaxed text-sm">{product.whoShouldAvoid}</p>
               </div>
             )}
           </div>
