@@ -8,7 +8,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const { data: products } = await supabase
     .from('products')
     .select('slug, updated_at, images')
-    .eq('status', 'published') // Assuming only published products should be indexed
     .order('updated_at', { ascending: false });
 
   // Fetch all categories
