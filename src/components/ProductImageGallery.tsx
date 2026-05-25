@@ -23,9 +23,11 @@ export default function ProductImageGallery({ images, image, name, smartScore, v
       <div className="aspect-square bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-3xl relative overflow-hidden group shadow-inner flex items-center justify-center p-8">
          <Image 
             src={displayImages[activeImageIndex] || "/placeholder-product.png"} 
-            alt={name} 
+            alt={`${name} - smartXman Review & Best Price`} 
+            title={`${name} on smartXman`}
             fill 
             priority
+            sizes="(max-width: 768px) 100vw, 50vw"
             className="object-contain p-6 group-hover:scale-102 transition-transform duration-500" 
          />
          
@@ -56,8 +58,10 @@ export default function ProductImageGallery({ images, image, name, smartScore, v
             >
               <Image 
                 src={img} 
-                alt={`${name} thumbnail ${idx + 1}`} 
+                alt={`${name} thumbnail ${idx + 1} - smartXman`} 
+                title={`${name} view ${idx + 1}`}
                 fill 
+                sizes="80px"
                 className="object-contain p-2" 
               />
             </button>

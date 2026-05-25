@@ -11,10 +11,14 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://smartxman.vercel.app"),
   title: "smartXman | Smart Product Picks That Actually Make Sense",
   description: "Discover curated tech, setup, gaming, and lifestyle products recommended with real research.",
-  keywords: ["tech setup", "gaming setup", "creator tools", "productivity", "best tech 2026"],
+  keywords: ["tech setup", "gaming setup", "creator tools", "productivity", "best tech 2026", "smartxman"],
   authors: [{ name: "smartXman Team" }],
+  verification: {
+    google: "YOUR_GOOGLE_SEARCH_CONSOLE_VERIFICATION_CODE", // Replace this with your actual code
+  },
   openGraph: {
     title: "smartXman | Smart Product Picks That Actually Make Sense",
     description: "Discover curated tech, setup, gaming, and lifestyle products recommended with real research.",
@@ -59,6 +63,28 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning className={`${inter.variable} h-full antialiased`}>
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              '@context': 'https://schema.org',
+              '@type': 'WebSite',
+              name: 'smartXman',
+              url: 'https://smartxman.vercel.app',
+              description: 'Discover curated tech, setup, gaming, and lifestyle products recommended with real research.',
+              publisher: {
+                '@type': 'Organization',
+                name: 'smartXman',
+                logo: {
+                  '@type': 'ImageObject',
+                  url: 'https://smartxman.vercel.app/icon.png'
+                }
+              }
+            }),
+          }}
+        />
+      </head>
       <body className="min-h-full flex flex-col bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-50">
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
           <Navbar />

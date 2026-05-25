@@ -88,7 +88,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
           url: product.image,
           width: 800,
           height: 800,
-          alt: product.name,
+          alt: `${product.name} - smartXman Review`,
         },
       ],
     },
@@ -114,7 +114,7 @@ export default async function ProductDetailPage({ params }: Props) {
     '@context': 'https://schema.org',
     '@type': 'Product',
     name: product.name,
-    image: product.image,
+    image: product.images && product.images.length > 0 ? product.images : [product.image],
     description: product.description || product.expertNote,
     brand: {
       '@type': 'Brand',

@@ -7,7 +7,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Fetch all published products
   const { data: products } = await supabase
     .from('products')
-    .select('slug, updated_at')
+    .select('slug, updated_at, images')
     .eq('status', 'published') // Assuming only published products should be indexed
     .order('updated_at', { ascending: false });
 
@@ -66,6 +66,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     lastModified: product.updated_at ? new Date(product.updated_at) : new Date(),
     changeFrequency: 'daily',
     priority: 0.8,
+    images: product.images && product.images.length > 0 ? product.images : undefined,
   }));
 
   const categoryRoutes: MetadataRoute.Sitemap = (categories || []).map((category) => ({
