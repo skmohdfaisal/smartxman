@@ -19,7 +19,7 @@ export default function ProductImageGallery({ images, image, name, smartScore, v
   const displayImages = images?.length > 0 ? images : [image];
 
   return (
-    <div className="w-full lg:w-1/2 space-y-6 sticky top-24">
+    <div className="w-full lg:w-1/2 space-y-6 lg:sticky lg:top-24">
       <div className="aspect-square bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-3xl relative overflow-hidden group shadow-inner flex items-center justify-center p-8">
          <Image 
             src={displayImages[activeImageIndex] || "/placeholder-product.png"} 
