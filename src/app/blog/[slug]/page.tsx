@@ -1,10 +1,9 @@
-"use client";
-
-import { use, useState, useEffect } from "react";
-import { ArrowLeft, Clock, Calendar, Share2, Link2, ChevronRight, Bookmark } from "lucide-react";
+import { ArrowLeft, Clock, Calendar, ChevronRight, Bookmark } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { getBlogBySlug } from "@/lib/blogs-actions";
+import { ShareButton } from "@/components/ShareButton";
+import { Metadata } from "next";
 
 
 // Basic markdown to styled JSX converter for robust rendering without extra libraries
@@ -97,42 +96,42 @@ function renderMarkdownToJSX(content: string) {
   return renderedElements;
 }
 
-export default function BlogDetailPage({ params }: { params: Promise<{ slug: string }> }) {
-  const { slug } = use(params);
-  const [blog, setBlog] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-  const [copied, setCopied] = useState(false);
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
+  const res = await getBlogBySlug(slug);
+  const blog = res.data;
 
-  useEffect(() => {
-    loadBlog();
-  }, [slug]);
+  if (!blog) {
+    return { title: 'Article Not Found | smartXman' };
+  }
 
-  const loadBlog = async () => {
-    try {
-      const res = await getBlogBySlug(slug);
-      if (res.success && res.data) {
-        setBlog(res.data);
-      }
-    } catch (err) {
-      console.error("Error loading blog details:", err);
-    } finally {
-      setLoading(false);
+  const title = `${blog.seo_title || blog.title} | smartXman`;
+  const description = blog.seo_description || blog.excerpt || '';
+
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      type: 'article',
+      url: `/blog/${slug}`,
+      images: blog.cover_image ? [blog.cover_image] : [],
     }
   };
+}
 
-  const handleShare = () => {
-    navigator.clipboard.writeText(window.location.href);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-
-  if (loading) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
-        <div className="w-12 h-12 border-4 border-brand-200 border-t-brand-600 rounded-full animate-spin"></div>
-        <p className="text-slate-500 font-medium">Loading article details...</p>
-      </div>
-    );
+export default async function BlogDetailPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  
+  let blog = null;
+  try {
+    const res = await getBlogBySlug(slug);
+    if (res.success && res.data) {
+      blog = res.data;
+    }
+  } catch (err) {
+    console.error("Error loading blog details:", err);
   }
 
   if (!blog) {
@@ -156,13 +155,7 @@ export default function BlogDetailPage({ params }: { params: Promise<{ slug: str
             <ArrowLeft className="w-4 h-4" /> Back to Articles
           </Link>
           <div className="flex items-center gap-3">
-            <button 
-              onClick={handleShare}
-              className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl text-slate-500 transition-colors flex items-center gap-1.5 text-xs font-semibold"
-            >
-              <Share2 className="w-4 h-4" />
-              <span>{copied ? "Copied!" : "Share"}</span>
-            </button>
+            <ShareButton />
           </div>
         </div>
       </div>

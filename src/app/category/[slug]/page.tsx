@@ -3,12 +3,42 @@ import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { ProductFilters } from "@/components/ProductFilters";
 import { supabase } from "@/lib/supabase";
+import { Metadata } from "next";
 
 // Helper to parse price string to number for sorting
 const parsePrice = (priceStr: string | undefined | null) => {
   if (!priceStr) return 0;
   return parseInt(priceStr.replace(/[^0-9]/g, "")) || 0;
 };
+
+export async function generateMetadata({ 
+  params 
+}: { 
+  params: Promise<{ slug: string }> 
+}): Promise<Metadata> {
+  const { slug } = await params;
+  
+  const { data: categoryData } = await supabase
+    .from('categories')
+    .select('name, description')
+    .eq('slug', slug.toLowerCase())
+    .single();
+
+  const categoryName = categoryData?.name || slug.replace('-', ' ');
+  const title = `${categoryName} Gear & Accessories | smartXman`;
+  const description = categoryData?.description || `Discover expertly curated ${categoryName.toLowerCase()} for your setup. Handpicked for performance, design, and value.`;
+
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      type: 'website',
+      url: `/category/${slug}`,
+    }
+  };
+}
 
 export default async function CategoryPage({ 
   params,

@@ -5,6 +5,7 @@ import { supabase } from "@/lib/supabase";
 import { Metadata } from "next";
 import ProductImageGallery from "@/components/ProductImageGallery";
 import ProductSaveButton from "@/components/ProductSaveButton";
+import ProductShareButton from "@/components/ProductShareButton";
 import { notFound } from "next/navigation";
 
 interface Props {
@@ -230,8 +231,13 @@ export default async function ProductDetailPage({ params }: Props) {
               </p>
             </div>
             
-            {/* Wishlist Button (Client Component) */}
-            <ProductSaveButton productId={product.id} />
+            <div className="flex gap-2.5">
+              {/* Wishlist Button (Client Component) */}
+              <ProductSaveButton productId={product.id} />
+              
+              {/* Share Button (Client Component) */}
+              <ProductShareButton affiliateLink={product.affiliateLink} productName={product.name} />
+            </div>
           </div>
         </div>
       </div>
