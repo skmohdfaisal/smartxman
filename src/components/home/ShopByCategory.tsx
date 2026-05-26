@@ -1,8 +1,13 @@
 import Link from "next/link";
-import { Laptop, Gamepad2, Briefcase, GraduationCap, DollarSign, Zap, Headphones, MonitorSmartphone, Sparkles, Home, Compass, Smartphone, Building, Cpu, Heart, Video } from "lucide-react";
+import { Laptop, Gamepad2, Briefcase, GraduationCap, DollarSign, Zap, Headphones, MonitorSmartphone, Sparkles, Home, Compass, Smartphone, Building, Cpu, Heart, Video, Watch } from "lucide-react";
 
 export function ShopByCategory() {
   const categories = [
+    { name: "Laptops", slug: "laptops", description: "Work, gaming, & student laptops", icon: <Laptop className="w-7 h-7" /> },
+    { name: "Smartphones", slug: "smartphones", description: "Flagship and budget phones", icon: <Smartphone className="w-7 h-7" /> },
+    { name: "Headphones & Earbuds", slug: "headphones-earbuds", description: "True wireless & over-ears", icon: <Headphones className="w-7 h-7" /> },
+    { name: "Smartwatches & Wearables", slug: "smartwatches-wearables", description: "Smartwatches & health bands", icon: <Watch className="w-7 h-7" /> },
+    { name: "Computer Components", slug: "computer-components-storage", description: "SSDs, RAM, and storage", icon: <Cpu className="w-7 h-7" /> },
     { name: "Laptop Accessories", slug: "laptop-accessories", description: "Sleeves, stands, and hubs", icon: <Laptop className="w-7 h-7" /> },
     { name: "Desk Setup", slug: "desk-setup", description: "Ergonomics and mats", icon: <Briefcase className="w-7 h-7" /> },
     { name: "Tech Accessories", slug: "tech-accessories", description: "Daily tech gear and tools", icon: <MonitorSmartphone className="w-7 h-7" /> },
