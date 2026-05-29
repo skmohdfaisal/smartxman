@@ -12,12 +12,15 @@ import { WhySmartxman } from "@/components/home/WhySmartxman";
 import { supabase } from "@/lib/supabase";
 import { getHomepageSettings } from "@/lib/homepage-actions";
 import { Metadata } from "next";
+import { getSeoMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  alternates: {
-    canonical: "/",
-  },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  return getSeoMetadata("homepage", {
+    title: "smartXman | Smart Product Picks That Actually Make Sense",
+    description: "Discover useful tech, setup, gaming, productivity, and lifestyle products curated for students, creators, gamers, and everyday buyers.",
+    url: "https://smartxman.vercel.app",
+  });
+}
 
 export const revalidate = 60;
 

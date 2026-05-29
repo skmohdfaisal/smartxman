@@ -3,14 +3,15 @@ import Link from "next/link";
 import Image from "next/image";
 import { getBlogs } from "@/lib/blogs-actions";
 import { Metadata } from "next";
+import { getSeoMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Guides & Articles | smartXman",
-  description: "Read our latest expert buying guides, reviews, and setup inspiration.",
-  alternates: {
-    canonical: "/blog",
-  },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  return getSeoMetadata("blog", {
+    title: "Smart Buying Guides for Tech, Setup & Gadgets | smartXman",
+    description: "Read simple buying guides, product comparisons, setup ideas, and budget-friendly tech recommendations for students, creators, gamers, and everyday buyers.",
+    url: "https://smartxman.vercel.app/blog",
+  });
+}
 
 export default async function BlogPage() {
   const res = await getBlogs();

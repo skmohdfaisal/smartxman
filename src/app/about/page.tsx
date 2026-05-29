@@ -1,18 +1,15 @@
 import { Metadata } from "next";
 import Link from "next/link";
 import { CheckCircle2, Laptop, Gamepad2, Users, Search, Target, Heart } from "lucide-react";
+import { getSeoMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "About smartXman | Smart Product Recommendations",
-  description: "smartXman helps students, creators, gamers, and everyday buyers discover useful tech, setup, gaming, productivity, and lifestyle products without confusion.",
-  openGraph: {
-    title: "About smartXman",
-    description: "Less confusion. Better choices. Smarter buying.",
-  },
-  alternates: {
-    canonical: "/about",
-  }
-};
+export async function generateMetadata(): Promise<Metadata> {
+  return getSeoMetadata("about", {
+    title: "About smartXman | Our Mission & Story",
+    description: "Learn about smartXman — why we started, our mission to simplify product buying decisions, and how we curate the best product recommendations.",
+    url: "https://smartxman.vercel.app/about",
+  });
+}
 
 export default function AboutPage() {
   return (

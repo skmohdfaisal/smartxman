@@ -5,14 +5,15 @@ import { ArrowLeft, ArrowRight, SearchX, Sparkles, Trophy } from "lucide-react";
 import { ProductFilters } from "@/components/ProductFilters";
 import { supabase } from "@/lib/supabase";
 import { Metadata } from "next";
+import { getSeoMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "All Products | smartXman",
-  description: "Explore our complete curated collection of the best tech, setup gear, and lifestyle products.",
-  alternates: {
-    canonical: "/products",
-  },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  return getSeoMetadata("products", {
+    title: "Smart Product Recommendations for Tech, Setup & Lifestyle | smartXman",
+    description: "Explore curated product picks, budget finds, setup gear, creator tools, gaming accessories, and smart gadgets with clear buying guidance.",
+    url: "https://smartxman.vercel.app/products",
+  });
+}
 
 // Helper to parse price string to number for sorting
 const parsePrice = (priceStr: string) => {
