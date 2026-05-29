@@ -12,11 +12,28 @@ import { useRouter } from "next/navigation";
 export default function ProductCard({ product }: { product: any }) {
   const supabase = createClient();
   const [isSaved, setIsSaved] = useState(false);
+  const [freshnessWindow, setFreshnessWindow] = useState(7);
   const router = useRouter();
 
   useEffect(() => {
     checkIfSaved();
+    fetchFreshness();
   }, [product.id]);
+
+  const fetchFreshness = async () => {
+    try {
+      const { data } = await supabase
+        .from("site_settings")
+        .select("price_freshness_window")
+        .limit(1)
+        .maybeSingle();
+      if (data?.price_freshness_window) {
+        setFreshnessWindow(data.price_freshness_window);
+      }
+    } catch (err) {
+      console.warn("Failed to load price freshness window on public card, using 7 days", err);
+    }
+  };
 
   const checkIfSaved = async () => {
     const { data: { user } } = await supabase.auth.getUser();
@@ -66,6 +83,22 @@ export default function ProductCard({ product }: { product: any }) {
     }
   };
 
+  const isPriceFresh = () => {
+    if (product.current_price === null || product.current_price === undefined) return false;
+    if (!product.price_is_fresh) return false;
+    if (!product.last_price_checked_at) return false;
+    
+    const diffTime = Math.abs(new Date().getTime() - new Date(product.last_price_checked_at).getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays <= freshnessWindow;
+  };
+
+  const showFreshPrice = isPriceFresh();
+  let discountPercent = 0;
+  if (showFreshPrice && product.old_price && product.current_price && product.old_price > product.current_price) {
+    discountPercent = Math.round(((product.old_price - product.current_price) / product.old_price) * 100);
+  }
+
   const currentCategory = product.category || "Tech";
   const budgetBadge = product.budgetRange?.[0] || product.budget_range?.[0] || "";
 
@@ -85,6 +118,11 @@ export default function ProductCard({ product }: { product: any }) {
         {budgetBadge && (
           <span className="px-3 py-1 text-[10px] font-black uppercase tracking-wider bg-emerald-500 text-white rounded-lg shadow-sm">
             {budgetBadge}
+          </span>
+        )}
+        {showFreshPrice && discountPercent > 0 && (
+          <span className="px-3 py-1 text-[10px] font-black uppercase tracking-wider bg-rose-500 text-white rounded-lg shadow-sm">
+            {discountPercent}% OFF
           </span>
         )}
       </div>
@@ -164,15 +202,36 @@ export default function ProductCard({ product }: { product: any }) {
         <div className="flex flex-col gap-3 pt-4 border-t border-slate-150 dark:border-slate-800">
           <div className="flex items-center justify-between">
             <div className="flex flex-col">
-              <span className="text-[9px] text-slate-400 uppercase tracking-wider font-bold">Price Range</span>
-              <span className="text-lg font-black text-slate-950 dark:text-slate-100">{product.price || product.price_range || "Check Price"}</span>
+              {showFreshPrice ? (
+                <>
+                  <span className="text-[9px] text-slate-400 uppercase tracking-wider font-bold">Verified Price</span>
+                  <div className="flex items-baseline gap-1.5 mt-0.5">
+                    <span className="text-lg font-black text-slate-950 dark:text-slate-100">
+                      ₹{Number(product.current_price).toLocaleString('en-IN')}
+                    </span>
+                    {product.old_price && product.old_price > product.current_price && (
+                      <span className="text-xs text-slate-400 line-through">
+                        ₹{Number(product.old_price).toLocaleString('en-IN')}
+                      </span>
+                    )}
+                  </div>
+                  <span className="text-[8px] text-slate-450 dark:text-slate-500 font-semibold mt-0.5">
+                    Checked {new Date(product.last_price_checked_at).toLocaleDateString()}
+                  </span>
+                </>
+              ) : (
+                <>
+                  <span className="text-[9px] text-slate-400 uppercase tracking-wider font-bold">Amazon Price</span>
+                  <span className="text-xs font-black text-amber-600 dark:text-amber-400 uppercase tracking-wider mt-1">Check Price</span>
+                </>
+              )}
             </div>
             
             <Link 
               href={`/product/${product.slug}`}
               className="flex items-center gap-1.5 px-4 py-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-xs font-black uppercase tracking-wider text-slate-900 dark:text-white rounded-xl transition-all shadow-sm"
             >
-              View Details <ArrowRight className="w-3.5 h-3.5" />
+              Details <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>
 
@@ -182,12 +241,12 @@ export default function ProductCard({ product }: { product: any }) {
             rel="noopener noreferrer"
             className="w-full py-3 bg-amber-400 hover:bg-amber-500 text-slate-900 font-black text-xs uppercase tracking-wider rounded-xl transition-all text-center flex items-center justify-center gap-2 shadow-sm"
           >
-            <ShoppingBag className="w-3.5 h-3.5" /> View Latest Price
+            <ShoppingBag className="w-3.5 h-3.5" /> {showFreshPrice ? "Buy on Amazon" : "Check Latest Price on Amazon"}
           </a>
 
           {/* Affiliate Disclosure statement */}
-          <p className="text-[8px] text-slate-400 dark:text-slate-550 leading-tight text-center mt-0.5">
-            SmartXMan may earn a small commission when you buy through this link.
+          <p className="text-[8px] text-slate-400 dark:text-slate-500 leading-normal text-center mt-0.5">
+            smartXman may earn a small commission when you buy through this link. Our recommendations are based on usefulness, value, and practical needs.
           </p>
         </div>
       </div>

@@ -33,11 +33,42 @@ async function getProduct(slug: string) {
         pros: mockProduct.pros || ["Solid build quality", "Premium finish"],
         cons: mockProduct.cons || ["Slightly expensive"],
         subCategory: "Setup Upgrades",
-        tags: ["tech", "minimalist", "setup"]
+        tags: ["tech", "minimalist", "setup"],
+        showFreshPrice: false,
+        currentPrice: null,
+        oldPrice: null,
+        lastPriceCheckedAt: null
       };
     }
     return null;
   }
+
+  // Load price freshness setting from site_settings table
+  let freshnessWindow = 7;
+  try {
+    const { data: settings } = await supabase
+      .from("site_settings")
+      .select("price_freshness_window")
+      .limit(1)
+      .maybeSingle();
+    if (settings?.price_freshness_window) {
+      freshnessWindow = settings.price_freshness_window;
+    }
+  } catch (err) {
+    console.warn("Failed to load settings on detail page, using 7 days", err);
+  }
+
+  const isPriceFresh = () => {
+    if (data.current_price === null || data.current_price === undefined) return false;
+    if (!data.price_is_fresh) return false;
+    if (!data.last_price_checked_at) return false;
+    
+    const diffTime = Math.abs(new Date().getTime() - new Date(data.last_price_checked_at).getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays <= freshnessWindow;
+  };
+
+  const showFreshPrice = isPriceFresh();
 
   return {
     id: data.id,
@@ -64,7 +95,11 @@ async function getProduct(slug: string) {
     smartScore: data.smart_score || 8.0,
     valueScore: data.value_score || 8.0,
     tags: data.tags || [],
-    reviews: 840 // Dummy reviews
+    reviews: 840, // Dummy reviews
+    currentPrice: data.current_price,
+    oldPrice: data.old_price,
+    showFreshPrice,
+    lastPriceCheckedAt: data.last_price_checked_at
   };
 }
 
@@ -207,10 +242,36 @@ export default async function ProductDetailPage({ params }: Props) {
           </div>
 
           <div className="space-y-3">
-            <p className="text-xs text-slate-450 uppercase font-black tracking-wider">Current Market Pricing</p>
-            <div className="text-3xl font-black text-slate-950 dark:text-white">
-              {product.price}
-            </div>
+            {product.showFreshPrice ? (
+              <>
+                <p className="text-xs text-slate-400 dark:text-slate-500 uppercase font-black tracking-wider">Verified Market Price</p>
+                <div className="flex items-baseline gap-3">
+                  <span className="text-4xl font-black text-slate-950 dark:text-white">
+                    ₹{Number(product.currentPrice).toLocaleString('en-IN')}
+                  </span>
+                  {product.oldPrice && product.oldPrice > product.currentPrice && (
+                    <>
+                      <span className="text-lg text-slate-400 line-through">
+                        ₹{Number(product.oldPrice).toLocaleString('en-IN')}
+                      </span>
+                      <span className="px-2.5 py-1 bg-rose-500 text-white font-black text-[10px] uppercase rounded-lg shadow-sm">
+                        {Math.round(((product.oldPrice - product.currentPrice) / product.oldPrice) * 100)}% OFF
+                      </span>
+                    </>
+                  )}
+                </div>
+                <p className="text-[10px] text-slate-400 dark:text-slate-550 font-semibold">
+                  Last checked: {new Date(product.lastPriceCheckedAt).toLocaleDateString()}
+                </p>
+              </>
+            ) : (
+              <>
+                <p className="text-xs text-slate-400 dark:text-slate-500 uppercase font-black tracking-wider">Amazon Price</p>
+                <div className="text-xl font-black text-amber-600 dark:text-amber-400 uppercase tracking-wider">
+                  Check Price
+                </div>
+              </>
+            )}
           </div>
 
           <div className="prose dark:prose-invert max-w-none">
@@ -227,10 +288,10 @@ export default async function ProductDetailPage({ params }: Props) {
                 rel="noopener noreferrer"
                 className="w-full py-4 bg-amber-400 hover:bg-amber-500 text-slate-900 rounded-2xl font-black text-sm uppercase tracking-wider transition-all text-center flex items-center justify-center gap-2 shadow-sm"
               >
-                <ShoppingBag className="w-4 h-4" /> Check Latest Price on Amazon
+                <ShoppingBag className="w-4 h-4" /> {product.showFreshPrice ? "Buy on Amazon" : "Check Latest Price on Amazon"}
               </a>
-              <p className="text-[10px] text-slate-400 dark:text-slate-500 text-center leading-tight">
-                SmartXMan may earn a small commission when you buy through this link.
+              <p className="text-[10px] text-slate-400 dark:text-slate-500 text-center leading-normal">
+                smartXman may earn a small commission when you buy through this link. Our recommendations are based on usefulness, value, and practical needs.
               </p>
             </div>
             
