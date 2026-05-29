@@ -492,7 +492,7 @@ export default function Navbar() {
           ) : (
             <Link 
               href="/auth" 
-              className="hidden md:flex items-center gap-2 p-1.5 px-4 bg-brand-650 hover:bg-brand-700 text-white rounded-full transition-all text-xs font-bold shadow-md shadow-brand-500/10 shrink-0"
+              className="hidden md:flex items-center gap-2 p-1.5 px-4 bg-brand-600 hover:bg-brand-700 text-white rounded-full transition-all text-xs font-bold shadow-md shadow-brand-500/10 shrink-0"
             >
               <User className="w-3.5 h-3.5" />
               <span>Sign In</span>
