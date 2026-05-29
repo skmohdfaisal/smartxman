@@ -1,3 +1,13 @@
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Terms of Service | smartXman",
+  description: "Read about our terms of service, conditions, and intellectual property policies.",
+  alternates: {
+    canonical: "/terms",
+  },
+};
+
 export default function TermsPage() {
   return (
     <div className="container mx-auto px-4 py-20 max-w-4xl">

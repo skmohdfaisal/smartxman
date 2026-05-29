@@ -8,6 +8,9 @@ export const metadata: Metadata = {
   openGraph: {
     title: "About smartXman",
     description: "Less confusion. Better choices. Smarter buying.",
+  },
+  alternates: {
+    canonical: "/about",
   }
 };
 

@@ -3,6 +3,9 @@ import { Info } from "lucide-react";
 export const metadata = {
   title: "Affiliate Disclosure | Smartxman",
   description: "Read about how we fund our research and recommendations through affiliate links.",
+  alternates: {
+    canonical: "/affiliate-disclosure",
+  },
 };
 
 export default function AffiliateDisclosurePage() {

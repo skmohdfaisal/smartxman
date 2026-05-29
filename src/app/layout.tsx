@@ -42,9 +42,7 @@ export const metadata: Metadata = {
     images: ["/og-image.png"],
     creator: "@smartxman",
   },
-  alternates: {
-    canonical: "https://smartxman.vercel.app",
-  },
+
   robots: {
     index: true,
     follow: true,

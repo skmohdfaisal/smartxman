@@ -9,6 +9,9 @@ import { Metadata } from "next";
 export const metadata: Metadata = {
   title: "All Products | smartXman",
   description: "Explore our complete curated collection of the best tech, setup gear, and lifestyle products.",
+  alternates: {
+    canonical: "/products",
+  },
 };
 
 // Helper to parse price string to number for sorting

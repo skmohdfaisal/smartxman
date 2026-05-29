@@ -117,7 +117,10 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       type: 'article',
       url: `/blog/${slug}`,
       images: blog.cover_image ? [blog.cover_image] : [],
-    }
+    },
+    alternates: {
+      canonical: `/blog/${slug}`,
+    },
   };
 }
 

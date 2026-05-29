@@ -99,6 +99,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       description: product.expertNote || product.description?.substring(0, 160),
       images: [product.image],
     },
+    alternates: {
+      canonical: `/product/${resolvedParams.slug}`,
+    },
   };
 }
 

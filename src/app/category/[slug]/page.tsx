@@ -36,7 +36,10 @@ export async function generateMetadata({
       description,
       type: 'website',
       url: `/category/${slug}`,
-    }
+    },
+    alternates: {
+      canonical: `/category/${slug}`,
+    },
   };
 }
 

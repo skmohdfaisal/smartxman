@@ -1,34 +1,22 @@
-"use client";
-
-import { ArrowLeft, Clock, Calendar, ChevronRight, Loader2 } from "lucide-react";
+import { ArrowLeft, Clock, Calendar, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
-import { useState, useEffect } from "react";
 import { getBlogs } from "@/lib/blogs-actions";
+import { Metadata } from "next";
 
+export const metadata: Metadata = {
+  title: "Guides & Articles | smartXman",
+  description: "Read our latest expert buying guides, reviews, and setup inspiration.",
+  alternates: {
+    canonical: "/blog",
+  },
+};
 
-export default function BlogPage() {
-  const [articles, setArticles] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    loadArticles();
-  }, []);
-
-  const loadArticles = async () => {
-    try {
-      const res = await getBlogs();
-      if (res.success && res.data) {
-        // Only show published articles in the public feed
-        const published = res.data.filter((art: any) => art.status === "published");
-        setArticles(published);
-      }
-    } catch (err) {
-      console.error("Failed to load blog articles:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
+export default async function BlogPage() {
+  const res = await getBlogs();
+  const articles = res.success && res.data 
+    ? res.data.filter((art: any) => art.status === "published") 
+    : [];
 
   return (
     <div className="flex flex-col min-h-screen bg-slate-50/30 dark:bg-slate-950">
@@ -47,14 +35,9 @@ export default function BlogPage() {
       </div>
 
       <div className="container mx-auto px-4 py-16 max-w-6xl">
-        {loading ? (
-          <div className="flex flex-col items-center justify-center py-20 gap-4">
-            <Loader2 className="w-8 h-8 animate-spin text-brand-600" />
-            <p className="text-slate-500 font-medium">Loading articles...</p>
-          </div>
-        ) : articles.length > 0 ? (
+        {articles.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {articles.map((article) => (
+            {articles.map((article: any) => (
               <Link 
                 key={article.id} 
                 href={`/blog/${article.slug}`}
@@ -76,7 +59,7 @@ export default function BlogPage() {
                         {article.category}
                       </span>
                       <span className="text-slate-500 flex items-center gap-1 font-medium">
-                        <Clock className="w-3 h-3" /> {article.read_time || "5 min read"}
+                        <Clock className="w-3.5 h-3.5" /> {article.read_time || "5 min read"}
                       </span>
                     </div>
                     <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-2 group-hover:text-brand-600 dark:group-hover:text-brand-400 transition-colors line-clamp-2 leading-snug">
@@ -88,7 +71,7 @@ export default function BlogPage() {
                   </div>
                   <div className="flex items-center justify-between mt-4 pt-4 border-t border-slate-100 dark:border-slate-800">
                     <span className="text-xs text-slate-500 flex items-center gap-1 font-medium">
-                      <Calendar className="w-3 h-3" /> {new Date(article.created_at || Date.now()).toLocaleDateString("en-US", { month: 'short', day: 'numeric', year: 'numeric' })}
+                      <Calendar className="w-3.5 h-3.5" /> {new Date(article.created_at || Date.now()).toLocaleDateString("en-US", { month: 'short', day: 'numeric', year: 'numeric' })}
                     </span>
                     <span className="text-sm font-extrabold text-brand-600 dark:text-brand-400 flex items-center gap-1 group-hover:gap-2 transition-all">
                       Read More <ChevronRight className="w-4 h-4" />

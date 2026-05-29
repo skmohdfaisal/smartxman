@@ -11,6 +11,13 @@ import { ShopByCategory } from "@/components/home/ShopByCategory";
 import { WhySmartxman } from "@/components/home/WhySmartxman";
 import { supabase } from "@/lib/supabase";
 import { getHomepageSettings } from "@/lib/homepage-actions";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  alternates: {
+    canonical: "/",
+  },
+};
 
 export const revalidate = 60;
 
