@@ -261,7 +261,7 @@ export default function Navbar() {
               </button>
               
               {/* Mega Menu Dropdown */}
-              <div className="absolute top-full left-1/2 -translate-x-[42%] pt-3 opacity-0 invisible group-hover/categories:opacity-100 group-hover/categories:visible transition-all duration-300 ease-out z-50">
+              <div className="absolute top-full left-0 -translate-x-12 pt-3 opacity-0 invisible group-hover/categories:opacity-100 group-hover/categories:visible transition-all duration-300 ease-out z-50">
                 <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.12)] border border-slate-200/50 dark:border-slate-800/80 p-8 w-[760px] grid grid-cols-3 gap-8">
                   
                   {/* Column 1: Shop by Category */}
