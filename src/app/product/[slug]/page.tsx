@@ -325,10 +325,15 @@ export default async function ProductDetailPage({ params }: Props) {
             )}
           </div>
 
-          <div className="prose dark:prose-invert max-w-none">
-            <p className="text-slate-655 dark:text-slate-300 text-base leading-relaxed">
-              {product.description || "Our complete in-depth review on this product is currently active. Scroll down to see full Pros, Cons, and buying verdict recommendations."}
-            </p>
+          <div className="space-y-2">
+            <h3 className="font-black text-xs uppercase tracking-widest text-slate-400 dark:text-slate-500">
+              Product Description
+            </h3>
+            <div className="prose dark:prose-invert max-w-none">
+              <p className="text-slate-600 dark:text-slate-350 text-sm leading-relaxed whitespace-pre-line">
+                {product.description || "Our complete in-depth review on this product is currently active. Scroll down to see full Pros, Cons, and buying verdict recommendations."}
+              </p>
+            </div>
           </div>
           
           <div className="pt-4 flex flex-col sm:flex-row gap-3">
@@ -337,7 +342,7 @@ export default async function ProductDetailPage({ params }: Props) {
                 href={product.affiliateLink} 
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full py-4 bg-amber-400 hover:bg-amber-500 text-slate-900 rounded-2xl font-black text-sm uppercase tracking-wider transition-all text-center flex items-center justify-center gap-2 shadow-sm"
+                className="w-full py-4 bg-brand-600 hover:bg-brand-700 text-white rounded-2xl font-black text-sm uppercase tracking-wider transition-all text-center flex items-center justify-center gap-2 shadow-md shadow-brand-500/10 active:scale-[0.98]"
               >
                 <ShoppingBag className="w-4 h-4" /> {product.showFreshPrice ? "Buy on Amazon" : "Check Latest Price on Amazon"}
               </a>
