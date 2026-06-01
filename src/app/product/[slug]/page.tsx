@@ -1,4 +1,4 @@
-import { ShoppingBag, Star, ArrowLeft, Trophy, ShieldAlert, Sparkles, Tag, CheckCircle2 } from "lucide-react";
+import { ShoppingBag, Star, ArrowLeft, Trophy, ShieldAlert, Sparkles, Tag, CheckCircle2, HelpCircle, Layers, FileText } from "lucide-react";
 import Link from "next/link";
 import { FEATURED_PRODUCTS } from "@/lib/constants";
 import { supabase } from "@/lib/supabase";
@@ -6,6 +6,8 @@ import { Metadata } from "next";
 import ProductImageGallery from "@/components/ProductImageGallery";
 import ProductSaveButton from "@/components/ProductSaveButton";
 import ProductShareButton from "@/components/ProductShareButton";
+import StickyCTA from "@/components/StickyCTA";
+import ProductCard from "@/components/ProductCard";
 import { notFound } from "next/navigation";
 
 interface Props {
@@ -37,7 +39,8 @@ async function getProduct(slug: string) {
         showFreshPrice: false,
         currentPrice: null,
         oldPrice: null,
-        lastPriceCheckedAt: null
+        lastPriceCheckedAt: null,
+        alternatives: null
       };
     }
     return null;
@@ -99,7 +102,8 @@ async function getProduct(slug: string) {
     currentPrice: data.current_price,
     oldPrice: data.old_price,
     showFreshPrice,
-    lastPriceCheckedAt: data.last_price_checked_at
+    lastPriceCheckedAt: data.last_price_checked_at,
+    primaryCategoryId: data.primary_category_id || null
   };
 }
 
@@ -146,6 +150,53 @@ export default async function ProductDetailPage({ params }: Props) {
 
   if (!product) {
     notFound();
+  }
+
+  // Fetch related products from the same category
+  let relatedProducts: any[] = [];
+  try {
+    if (product.primaryCategoryId) {
+      const { data: dbRelated } = await supabase
+        .from('products')
+        .select('*, primary_category:categories!products_primary_category_id_fkey(*)')
+        .eq('primary_category_id', product.primaryCategoryId)
+        .neq('id', product.id)
+        .eq('status', 'published')
+        .limit(4);
+
+      if (dbRelated && dbRelated.length > 0) {
+        relatedProducts = dbRelated.map(p => ({
+          id: p.id,
+          name: p.name,
+          slug: p.slug,
+          description: p.description,
+          price: p.price_range || "Check Price",
+          rating: Number(p.rating) || 0,
+          image: p.images?.[0] || "/placeholder-product.png",
+          images: p.images || [],
+          category: p.primary_category?.name || product.category,
+          subCategory: p.sub_category || "",
+          brand: p.brand || "",
+          affiliateLink: p.affiliate_link || p.affiliate_url || "#",
+          expertNote: p.expert_note || "",
+          featured: p.featured || false,
+          trending: p.trending || false,
+          isBudgetPick: p.is_budget_pick || false,
+          isBestDeal: p.is_best_deal || false,
+          smartScore: Number(p.smart_score) || 8.0,
+          valueScore: Number(p.value_score) || 8.0,
+          pros: p.pros || [],
+          cons: p.cons || [],
+          bestFor: p.best_for || "",
+          whoShouldBuy: p.who_should_buy || "",
+          whoShouldAvoid: p.who_should_avoid || "",
+          buyingVerdict: p.buying_verdict || "",
+          tags: p.tags || []
+        }));
+      }
+    }
+  } catch (err) {
+    console.warn("Failed to load related products", err);
   }
 
   // Generate JSON-LD Schema for Rich Snippets
@@ -310,9 +361,9 @@ export default async function ProductDetailPage({ params }: Props) {
       <div className="mt-20 border-t border-slate-100 dark:border-slate-850 pt-16 grid grid-cols-1 md:grid-cols-2 gap-8">
         {/* Recommended Lists */}
         {(product.whoShouldBuy || product.whoShouldAvoid || product.bestFor) && (
-          <div className="p-8 rounded-[2.5rem] bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-sm space-y-6">
+          <div className="p-8 rounded-[2.5rem] bg-white dark:bg-slate-900/60 border border-slate-100 dark:border-slate-800 shadow-sm space-y-6">
             {product.bestFor && (
-              <div className="space-y-2 border-b border-slate-50 dark:border-slate-850 pb-4">
+              <div className="space-y-2 border-b border-slate-50 dark:border-slate-800/60 pb-4">
                 <span className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Best Used For</span>
                 <p className="text-slate-900 dark:text-white font-extrabold text-lg flex items-center gap-2">
                   <Sparkles className="w-5 h-5 text-brand-500" /> {product.bestFor}
@@ -325,7 +376,7 @@ export default async function ProductDetailPage({ params }: Props) {
                 <h4 className="font-black text-slate-900 dark:text-white text-base text-emerald-650 dark:text-emerald-400 flex items-center gap-2">
                   <CheckCircle2 className="w-5 h-5 shrink-0" /> Recommended For
                 </h4>
-                <p className="text-slate-600 dark:text-slate-450 leading-relaxed text-sm">{product.whoShouldBuy}</p>
+                <p className="text-slate-600 dark:text-slate-400 leading-relaxed text-sm font-semibold">{product.whoShouldBuy}</p>
               </div>
             )}
             
@@ -334,7 +385,7 @@ export default async function ProductDetailPage({ params }: Props) {
                 <h4 className="font-black text-slate-900 dark:text-white text-base text-rose-500 dark:text-rose-455 flex items-center gap-2">
                   <ShieldAlert className="w-5 h-5 shrink-0" /> Not Recommended For
                 </h4>
-                <p className="text-slate-655 dark:text-slate-450 leading-relaxed text-sm">{product.whoShouldAvoid}</p>
+                <p className="text-slate-655 dark:text-slate-400 leading-relaxed text-sm font-semibold">{product.whoShouldAvoid}</p>
               </div>
             )}
           </div>
@@ -342,13 +393,13 @@ export default async function ProductDetailPage({ params }: Props) {
 
         {/* Pros and Cons Checklist */}
         {(product.pros?.length > 0 || product.cons?.length > 0) && (
-          <div className="p-8 rounded-[2.5rem] bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-sm grid grid-cols-1 sm:grid-cols-2 gap-8">
+          <div className="p-8 rounded-[2.5rem] bg-white dark:bg-slate-900/60 border border-slate-100 dark:border-slate-800 shadow-sm grid grid-cols-1 sm:grid-cols-2 gap-8">
             {product.pros?.length > 0 && (
               <div className="space-y-4">
                 <h4 className="font-black text-slate-900 dark:text-white text-base flex items-center gap-1.5 text-emerald-650">Pros (+)</h4>
                 <ul className="space-y-3">
                   {product.pros.map((pro: string, idx: number) => (
-                    <li key={idx} className="flex items-start gap-2.5 text-slate-600 dark:text-slate-450 text-sm font-semibold">
+                    <li key={idx} className="flex items-start gap-2.5 text-slate-600 dark:text-slate-400 text-sm font-semibold">
                       <span className="text-emerald-500 font-extrabold mt-0.5">+</span> <span>{pro}</span>
                     </li>
                   ))}
@@ -361,7 +412,7 @@ export default async function ProductDetailPage({ params }: Props) {
                 <h4 className="font-black text-slate-900 dark:text-white text-base flex items-center gap-1.5 text-red-500">Cons (-)</h4>
                 <ul className="space-y-3">
                   {product.cons.map((con: string, idx: number) => (
-                    <li key={idx} className="flex items-start gap-2.5 text-slate-600 dark:text-slate-450 text-sm font-semibold">
+                    <li key={idx} className="flex items-start gap-2.5 text-slate-600 dark:text-slate-400 text-sm font-semibold">
                       <span className="text-red-500 font-extrabold mt-0.5">-</span> <span>{con}</span>
                     </li>
                   ))}
@@ -374,19 +425,105 @@ export default async function ProductDetailPage({ params }: Props) {
 
       {/* Final Buying Verdict */}
       {product.buyingVerdict && (
-        <div className="mt-8 p-8 rounded-[2.5rem] bg-brand-50/50 dark:bg-brand-950/10 border border-brand-100/10 dark:border-brand-950/20 shadow-sm space-y-3">
+        <div className="mt-8 p-8 rounded-[2.5rem] bg-brand-50/40 dark:bg-brand-950/10 border border-brand-100/10 dark:border-brand-950/20 shadow-sm space-y-3">
           <h4 className="font-black text-slate-900 dark:text-white text-lg flex items-center gap-2">
             <Trophy className="w-5.5 h-5.5 text-brand-500" /> Final Buying Recommendation
           </h4>
-          <p className="text-slate-700 dark:text-slate-350 leading-relaxed text-base">
+          <p className="text-slate-700 dark:text-slate-350 leading-relaxed text-base font-semibold">
             {product.buyingVerdict}
           </p>
         </div>
       )}
 
-      {/* Meta Tags Row */}
+      {/* Product Specifications & Technical Metadata */}
+      <div className="mt-16 border-t border-slate-100 dark:border-slate-850 pt-16">
+        <h3 className="text-2xl font-black text-slate-900 dark:text-white mb-8 flex items-center gap-2.5">
+          <FileText className="w-6 h-6 text-brand-500" /> Product Specifications
+        </h3>
+        <div className="bg-slate-50/50 dark:bg-slate-900/40 rounded-[2rem] border border-slate-100 dark:border-slate-800/80 p-6 md:p-8 overflow-hidden">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-4">
+            {[
+              { label: "Manufacturer / Brand", value: product.brand || "Generic" },
+              { label: "Primary Category", value: product.category },
+              { label: "Sub-Category Section", value: product.subCategory || "Tech Gear" },
+              { label: "Smart Score Review Rating", value: `${product.smartScore.toFixed(1)} / 10.0` },
+              { label: "Value For Money Score Rating", value: `${product.valueScore.toFixed(1)} / 10.0` },
+              { label: "Durability & Purpose Index", value: product.bestFor || "Daily Workspace Comfort" },
+            ].map((spec, i) => (
+              <div key={i} className="flex justify-between py-3 border-b border-slate-150/40 dark:border-slate-800/50 text-sm font-semibold">
+                <span className="text-slate-450 dark:text-slate-400">{spec.label}</span>
+                <span className="text-slate-900 dark:text-white text-right">{spec.value}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* FAQ Accordion Section */}
+      <div className="mt-16 border-t border-slate-100 dark:border-slate-850 pt-16">
+        <h3 className="text-2xl font-black text-slate-900 dark:text-white mb-8 flex items-center gap-2.5">
+          <HelpCircle className="w-6 h-6 text-brand-500" /> Frequently Asked Questions
+        </h3>
+        <div className="space-y-4">
+          {[
+            {
+              q: `Who should buy the ${product.name}?`,
+              a: product.whoShouldBuy || `It is perfect for professionals, students, and creators looking for premium workspace tools that deliver stellar durability and clean design.`
+            },
+            {
+              q: `Is the pricing verified and fresh?`,
+              a: product.showFreshPrice ? `Yes, pricing is verified dynamically via our smartXman sync system. The last check was completed recently.` : `Amazon prices fluctuate. We highly recommend clicking 'Check Latest Price' to view live deals and promotions directly on Amazon.`
+            },
+            {
+              q: `What is the VFM (Value For Money) Index of this product?`,
+              a: `Our automated value index ranks this product at ${product.valueScore.toFixed(1)}/10, making it an exceptionally cost-effective recommendation compared to similar options on the market.`
+            }
+          ].map((faq, i) => (
+            <div key={i} className="p-6 bg-white dark:bg-slate-900/60 border border-slate-100 dark:border-slate-800 rounded-3xl space-y-2">
+              <h4 className="font-extrabold text-slate-900 dark:text-white text-sm md:text-base">
+                {faq.q}
+              </h4>
+              <p className="text-xs md:text-sm text-slate-500 dark:text-slate-400 leading-relaxed font-semibold">
+                {faq.a}
+              </p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Alternatives & Related Products Recommendation Grid */}
+      <div className="mt-16 border-t border-slate-100 dark:border-slate-850 pt-16 mb-12">
+        <div className="flex items-end justify-between mb-10">
+          <div>
+            <h3 className="text-2xl font-black text-slate-900 dark:text-white flex items-center gap-2.5">
+              <Layers className="w-6 h-6 text-brand-500" /> Alternatives & Related Products
+            </h3>
+            <p className="text-slate-500 dark:text-slate-400 font-medium mt-1 text-sm">
+              Discover other premium options handpicked for their usefulness and value.
+            </p>
+          </div>
+          <Link href="/products" className="text-xs font-black uppercase tracking-wider text-brand-650 hover:text-brand-700 transition-colors">
+            View All Products
+          </Link>
+        </div>
+
+        {/* Server-Side Loaded Related Products Grid */}
+        {relatedProducts && relatedProducts.length > 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+            {relatedProducts.map((relProduct) => (
+              <ProductCard key={relProduct.id} product={relProduct} />
+            ))}
+          </div>
+        ) : (
+          <div className="text-center p-8 bg-slate-50/50 dark:bg-slate-900/20 rounded-3xl border border-dashed border-slate-200 dark:border-slate-800">
+            <p className="text-xs text-slate-450 dark:text-slate-500 font-bold uppercase tracking-widest">No matching alternatives currently in database</p>
+          </div>
+        )}
+      </div>
+
+      {/* Discovery Meta Tags */}
       {product.tags && product.tags.length > 0 && (
-        <div className="mt-10 flex flex-wrap items-center gap-2 border-t border-slate-100 dark:border-slate-850 pt-8">
+        <div className="mt-8 flex flex-wrap items-center gap-2 border-t border-slate-100 dark:border-slate-850 pt-8">
           <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mr-2 flex items-center gap-1.5">
             <Tag className="w-3.5 h-3.5" /> Discovery Tags:
           </span>
@@ -397,6 +534,17 @@ export default async function ProductDetailPage({ params }: Props) {
           ))}
         </div>
       )}
+
+      {/* Floating Sticky CTA on Scroll */}
+      <StickyCTA
+        name={product.name}
+        image={product.image}
+        price={product.price}
+        currentPrice={product.currentPrice}
+        showFreshPrice={product.showFreshPrice}
+        affiliateLink={product.affiliateLink}
+      />
     </div>
   );
 }
+

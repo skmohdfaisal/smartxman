@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { Star, Heart, ArrowRight, ShoppingBag, Award } from "lucide-react";
+import { Star, Heart, ArrowRight, ShoppingBag, Eye, Percent, TrendingUp, Award, Zap } from "lucide-react";
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
@@ -102,152 +102,175 @@ export default function ProductCard({ product }: { product: any }) {
   const currentCategory = product.category || "Tech";
   const budgetBadge = product.budgetRange?.[0] || product.budget_range?.[0] || "";
 
+  // Dynamic single quick verdict line from available description, best_for, or truncated expert_note
+  const getQuickVerdict = () => {
+    if (product.bestFor) return product.bestFor;
+    if (product.best_for) return product.best_for;
+    if (product.buyingVerdict) return product.buyingVerdict;
+    if (product.expertNote) return product.expertNote;
+    return product.description || "Top recommended product in its category.";
+  };
+
+  const quickVerdict = getQuickVerdict();
+
+  // Define Badge System Color Rules
+  const getSecondBadge = () => {
+    if (product.isBestDeal || product.is_best_deal || (showFreshPrice && discountPercent > 0)) {
+      return { label: discountPercent > 0 ? `${discountPercent}% OFF` : "Deal", type: "deal" };
+    }
+    if (product.isBudgetPick || product.is_budget_pick) {
+      return { label: "Budget Pick", type: "budget" };
+    }
+    if (product.trending) {
+      return { label: "Trending", type: "trending" };
+    }
+    if (product.featured) {
+      return { label: "Featured", type: "featured" };
+    }
+    return null;
+  };
+
+  const secondBadge = getSecondBadge();
+
   return (
     <motion.div 
       initial={{ opacity: 0, y: 15 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ duration: 0.4 }}
-      className="group relative flex flex-col bg-white dark:bg-slate-900 rounded-[2rem] overflow-hidden border border-slate-100 dark:border-slate-800/80 shadow-sm hover:shadow-2xl hover:-translate-y-1 transition-all duration-300"
+      className="group relative flex flex-col bg-white dark:bg-slate-900 rounded-3xl overflow-hidden border border-slate-100 dark:border-slate-800/80 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] dark:shadow-none hover:shadow-[0_12px_30px_-6px_rgba(59,130,246,0.08)] hover:border-slate-200 dark:hover:border-slate-700/80 transition-all duration-300 h-full"
     >
-      {/* Category Overlay */}
-      <div className="absolute top-4 left-4 z-10 flex flex-col gap-1.5">
-        <span className="px-3 py-1 text-[10px] font-black uppercase tracking-wider bg-white/95 dark:bg-slate-900/95 backdrop-blur-sm text-slate-800 dark:text-slate-200 rounded-lg shadow-sm border border-slate-100 dark:border-slate-800">
-          {currentCategory}
-        </span>
-        {budgetBadge && (
-          <span className="px-3 py-1 text-[10px] font-black uppercase tracking-wider bg-emerald-500 text-white rounded-lg shadow-sm">
-            {budgetBadge}
+      {/* 1. Image Area with Aspect-Ratio & Wishlist */}
+      <div className="relative aspect-[4/3] w-full bg-slate-50/50 dark:bg-slate-950/20 overflow-hidden flex items-center justify-center border-b border-slate-50 dark:border-slate-800/60 p-4">
+        {/* Badges Overlay (Max 2 badges) */}
+        <div className="absolute top-3.5 left-3.5 z-10 flex flex-wrap gap-1.5 max-w-[80%]">
+          <span className="px-2.5 py-0.5 text-[9px] font-black uppercase tracking-wider bg-white/95 dark:bg-slate-900/90 backdrop-blur-sm text-slate-500 dark:text-slate-400 rounded-md shadow-[0_2px_8px_rgba(0,0,0,0.04)] border border-slate-150/40 dark:border-slate-800/80">
+            {currentCategory}
           </span>
-        )}
-        {showFreshPrice && discountPercent > 0 && (
-          <span className="px-3 py-1 text-[10px] font-black uppercase tracking-wider bg-rose-500 text-white rounded-lg shadow-sm">
-            {discountPercent}% OFF
-          </span>
-        )}
+          {secondBadge && (
+            <span className={cn(
+              "px-2.5 py-0.5 text-[9px] font-black uppercase tracking-wider rounded-md shadow-sm",
+              secondBadge.type === "deal" && "bg-amber-500 text-white shadow-amber-500/10",
+              secondBadge.type === "budget" && "bg-emerald-500 text-white shadow-emerald-500/10",
+              secondBadge.type === "trending" && "bg-indigo-500 text-white shadow-indigo-500/10",
+              secondBadge.type === "featured" && "bg-blue-500 text-white shadow-blue-500/10"
+            )}>
+              {secondBadge.label}
+            </span>
+          )}
+        </div>
+
+        {/* Wishlist Button */}
+        <button 
+          onClick={toggleSave}
+          className="absolute top-3.5 right-3.5 z-10 p-2 bg-white/90 dark:bg-slate-900/90 backdrop-blur-sm rounded-full shadow-[0_2px_8px_rgba(0,0,0,0.06)] hover:bg-white dark:hover:bg-slate-800 border border-slate-150/30 dark:border-slate-800/50 hover:scale-105 active:scale-95 transition-all"
+          aria-label={isSaved ? "Remove from wishlist" : "Add to wishlist"}
+        >
+          <Heart className={cn("w-3.5 h-3.5 transition-colors", isSaved ? "fill-red-500 text-red-500" : "text-slate-400 dark:text-slate-500")} />
+        </button>
+
+        {/* Centered Image */}
+        <Link href={`/product/${product.slug}`} className="relative w-full h-full flex items-center justify-center">
+          {product.image || product.images?.[0] ? (
+            <Image 
+              src={product.image || product.images?.[0]} 
+              alt={product.name} 
+              fill
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 33vw, 20vw"
+              className="object-contain p-4 group-hover:scale-105 transition-transform duration-500 ease-out" 
+            />
+          ) : (
+            <div className="absolute inset-0 flex items-center justify-center">
+              <span className="text-slate-350 dark:text-slate-600 text-xs font-bold uppercase tracking-wider">Coming Soon</span>
+            </div>
+          )}
+        </Link>
       </div>
-      
-      {/* Wishlist Icon */}
-      <button 
-        onClick={toggleSave}
-        className="absolute top-4 right-4 z-10 p-2.5 bg-white/95 dark:bg-slate-900/95 backdrop-blur-sm rounded-full shadow-sm hover:bg-white dark:hover:bg-slate-800 transition-colors"
-        aria-label={isSaved ? "Remove from wishlist" : "Add to wishlist"}
-      >
-        <Heart className={cn("w-4 h-4 transition-colors", isSaved ? "fill-red-500 text-red-500" : "text-slate-400")} />
-      </button>
 
-      {/* Product Image Link */}
-      <Link href={`/product/${product.slug}`} className="relative aspect-square overflow-hidden bg-slate-50 dark:bg-slate-800/20 border-b border-slate-100 dark:border-slate-800/80">
-        {product.image || product.images?.[0] ? (
-          <Image 
-            src={product.image || product.images?.[0]} 
-            alt={product.name} 
-            fill 
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
-            className="object-contain p-6 group-hover:scale-103 transition-transform duration-500" 
-          />
-        ) : (
-          <div className="absolute inset-0 flex items-center justify-center bg-slate-100 dark:bg-slate-800">
-            <span className="text-slate-400 font-medium">Image Coming Soon</span>
-          </div>
+      {/* 2. Card Content Body */}
+      <div className="p-5 flex flex-col flex-1">
+        {/* Product Identity */}
+        <div className="mb-2">
+          {product.brand && (
+            <span className="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest block mb-0.5">
+              {product.brand}
+            </span>
+          )}
+          <Link href={`/product/${product.slug}`}>
+            <h3 className="font-extrabold text-[15px] text-slate-900 dark:text-white line-clamp-2 leading-snug group-hover:text-brand-600 dark:group-hover:text-brand-400 transition-colors">
+              {product.name}
+            </h3>
+          </Link>
+        </div>
+
+        {/* Clean, Clutter-Free Quick Verdict (Max 1-2 lines) */}
+        {quickVerdict && (
+          <p className="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-2 leading-relaxed mb-4 font-medium italic mt-1.5 flex-grow">
+            {quickVerdict.replace(/"/g, "")}
+          </p>
         )}
-      </Link>
 
-      {/* Card Content Body */}
-      <div className="p-6 flex flex-col flex-1">
-        {/* Rating and Scores */}
-        <div className="flex flex-wrap items-center gap-3 mb-3 border-b border-slate-100 dark:border-slate-800/80 pb-3">
-          <div className="flex items-center gap-1">
-            <Star className="w-3.5 h-3.5 fill-yellow-400 text-yellow-400" />
-            <span className="text-xs font-black text-slate-800 dark:text-slate-200">{Number(product.rating || 0).toFixed(1)}</span>
+        {/* 3. Compact Score Row */}
+        <div className="flex flex-wrap items-center gap-2 mb-4 border-t border-b border-slate-50 dark:border-slate-800/40 py-2.5">
+          <div className="flex items-center gap-0.5 bg-slate-50 dark:bg-slate-850 px-2 py-0.5 rounded-md border border-slate-100 dark:border-slate-800/30">
+            <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+            <span className="text-[10px] font-black text-slate-800 dark:text-slate-200">{Number(product.rating || 0).toFixed(1)}</span>
           </div>
           
           {(product.smartScore || product.smart_score) && (
-            <div className="flex items-center gap-1 px-2 py-0.5 bg-brand-50/80 dark:bg-brand-950/20 border border-brand-100/10 text-brand-650 dark:text-brand-400 rounded-md text-[10px] font-black uppercase">
+            <div className="flex items-center gap-1 px-2 py-0.5 bg-brand-50/50 dark:bg-brand-950/20 border border-brand-100/10 text-brand-650 dark:text-brand-400 rounded-md text-[9px] font-black uppercase">
               Smart: {Number(product.smartScore || product.smart_score).toFixed(1)}
             </div>
           )}
           
           {(product.valueScore || product.value_score) && (
-            <div className="flex items-center gap-1 px-2 py-0.5 bg-emerald-50/80 dark:bg-emerald-950/20 border border-emerald-100/10 text-emerald-650 dark:text-emerald-400 rounded-md text-[10px] font-black uppercase">
+            <div className="flex items-center gap-1 px-2 py-0.5 bg-emerald-50/50 dark:bg-emerald-950/20 border border-emerald-100/10 text-emerald-650 dark:text-emerald-400 rounded-md text-[9px] font-black uppercase">
               VFM: {Number(product.valueScore || product.value_score).toFixed(1)}
             </div>
           )}
         </div>
 
-        {/* Brand Label */}
-        {product.brand && (
-          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none mb-1">
-            {product.brand}
-          </span>
-        )}
-
-        {/* Product Title */}
-        <Link href={`/product/${product.slug}`}>
-          <h3 className="font-extrabold text-slate-900 dark:text-white line-clamp-2 leading-snug mb-3 group-hover:text-brand-600 dark:group-hover:text-brand-400 transition-colors">
-            {product.name}
-          </h3>
-        </Link>
-        
-        {/* Short Buying Advice */}
-        {product.expertNote ? (
-          <p className="text-xs text-slate-500 dark:text-slate-400 italic line-clamp-3 mb-6 bg-slate-50/50 dark:bg-slate-950/20 p-3 rounded-2xl border border-slate-100/40 dark:border-slate-800 flex-1 leading-relaxed">
-            "{product.expertNote}"
-          </p>
-        ) : (
-          <div className="flex-1"></div>
-        )}
-
-        {/* Price & CTA Button */}
-        <div className="flex flex-col gap-3 pt-4 border-t border-slate-150 dark:border-slate-800">
-          <div className="flex items-center justify-between">
+        {/* 4. Price & CTA Area */}
+        <div className="mt-auto space-y-3.5">
+          <div className="flex items-baseline justify-between">
             <div className="flex flex-col">
               {showFreshPrice ? (
-                <>
-                  <span className="text-[9px] text-slate-400 uppercase tracking-wider font-bold">Verified Price</span>
-                  <div className="flex items-baseline gap-1.5 mt-0.5">
-                    <span className="text-lg font-black text-slate-950 dark:text-slate-100">
-                      ₹{Number(product.current_price).toLocaleString('en-IN')}
-                    </span>
-                    {product.old_price && product.old_price > product.current_price && (
-                      <span className="text-xs text-slate-400 line-through">
-                        ₹{Number(product.old_price).toLocaleString('en-IN')}
-                      </span>
-                    )}
-                  </div>
-                  <span className="text-[8px] text-slate-450 dark:text-slate-500 font-semibold mt-0.5">
-                    Checked {new Date(product.last_price_checked_at).toLocaleDateString()}
+                <div className="flex items-baseline gap-1.5">
+                  <span className="text-base font-black text-slate-900 dark:text-slate-100">
+                    ₹{Number(product.current_price).toLocaleString('en-IN')}
                   </span>
-                </>
+                  {product.old_price && product.old_price > product.current_price && (
+                    <span className="text-[11px] text-slate-400 line-through">
+                      ₹{Number(product.old_price).toLocaleString('en-IN')}
+                    </span>
+                  )}
+                </div>
               ) : (
-                <>
-                  <span className="text-[9px] text-slate-400 uppercase tracking-wider font-bold">Amazon Price</span>
-                  <span className="text-xs font-black text-amber-600 dark:text-amber-400 uppercase tracking-wider mt-1">Check Price</span>
-                </>
+                <span className="text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-wider">
+                  Price Unverified
+                </span>
               )}
             </div>
-            
+
+            {/* Secondary CTA: View Details */}
             <Link 
               href={`/product/${product.slug}`}
-              className="flex items-center gap-1.5 px-4 py-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-xs font-black uppercase tracking-wider text-slate-900 dark:text-white rounded-xl transition-all shadow-sm"
+              className="text-[11px] font-extrabold uppercase tracking-wider text-slate-550 dark:text-slate-400 hover:text-brand-600 dark:hover:text-brand-400 transition-colors inline-flex items-center gap-1.5 group/link"
             >
-              Details <ArrowRight className="w-3.5 h-3.5" />
+              View Details <Eye className="w-3.5 h-3.5 group-hover/link:scale-110 transition-transform" />
             </Link>
           </div>
 
+          {/* Primary CTA: Check Latest Price on Amazon */}
           <a 
             href={product.affiliateLink || product.affiliate_link || "#"}
             target="_blank"
             rel="noopener noreferrer"
-            className="w-full py-3 bg-amber-400 hover:bg-amber-500 text-slate-900 font-black text-xs uppercase tracking-wider rounded-xl transition-all text-center flex items-center justify-center gap-2 shadow-sm"
+            className="w-full py-3 bg-brand-600 hover:bg-brand-700 text-white font-black text-[11px] uppercase tracking-wider rounded-xl transition-all text-center flex items-center justify-center gap-2 shadow-sm shadow-brand-500/10 active:scale-[0.98]"
           >
-            <ShoppingBag className="w-3.5 h-3.5" /> {showFreshPrice ? "Buy on Amazon" : "Check Latest Price on Amazon"}
+            <ShoppingBag className="w-3.5 h-3.5" /> 
+            {showFreshPrice ? "Buy on Amazon" : "Check Latest Price on Amazon"}
           </a>
-
-          {/* Affiliate Disclosure statement */}
-          <p className="text-[8px] text-slate-400 dark:text-slate-500 leading-normal text-center mt-0.5">
-            smartXman may earn a small commission when you buy through this link. Our recommendations are based on usefulness, value, and practical needs.
-          </p>
         </div>
       </div>
     </motion.div>

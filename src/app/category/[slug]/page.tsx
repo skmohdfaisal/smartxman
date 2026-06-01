@@ -145,22 +145,22 @@ export default async function CategoryPage({
   
   return (
     <div className="flex flex-col min-h-screen">
-      <div className="bg-slate-50 dark:bg-slate-900/50 py-12 border-b border-slate-200 dark:border-slate-800">
+      <div className="bg-slate-50/50 dark:bg-slate-900/10 py-8 border-b border-slate-100 dark:border-slate-900">
         <div className="container mx-auto px-4">
-          <Link href="/" className="inline-flex items-center gap-2 text-sm text-brand-600 dark:text-brand-400 font-medium mb-6 hover:text-brand-700 dark:hover:text-brand-300 transition-colors">
-            <ArrowLeft className="w-4 h-4" /> Back to Home
+          <Link href="/" className="inline-flex items-center gap-1.5 text-xs text-brand-600 dark:text-brand-400 font-bold uppercase tracking-wider mb-4 hover:text-brand-700 dark:hover:text-brand-300 transition-colors">
+            <ArrowLeft className="w-3.5 h-3.5" /> Back to Home
           </Link>
-          <h1 className="text-4xl md:text-5xl font-bold mb-4 capitalize tracking-tight text-slate-900 dark:text-white">
+          <h1 className="text-2xl md:text-3xl font-black mb-2 tracking-tight capitalize text-slate-900 dark:text-white">
             {categoryData?.name || slug.replace('-', ' ')} Gear
           </h1>
-          <p className="text-lg text-slate-600 dark:text-slate-400 max-w-2xl">
-            Our expertly curated selection of the best products in the {categoryData?.name || slug.replace('-', ' ')} category. 
-            Handpicked for performance, design, and value.
+          <p className="text-sm text-slate-550 dark:text-slate-400 max-w-xl leading-relaxed">
+            Our expertly curated selection of the absolute best products in the {categoryData?.name?.toLowerCase() || slug.replace('-', ' ')} category. 
+            Handpicked for performance, durability, design, and value.
           </p>
         </div>
       </div>
 
-      <div className="container mx-auto px-4 py-16">
+      <div className="container mx-auto px-4 py-8">
         <div className="flex items-center justify-between mb-8">
           <h2 className="text-2xl font-semibold text-slate-900 dark:text-white">
             {displayProducts.length} Results

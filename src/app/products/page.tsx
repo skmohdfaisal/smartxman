@@ -163,23 +163,23 @@ export default async function ProductsPage({
 
   return (
     <div className="flex flex-col min-h-screen bg-white dark:bg-slate-950">
-      <div className="bg-slate-50 dark:bg-slate-900/50 py-12 border-b border-slate-200 dark:border-slate-800">
+      <div className="bg-slate-50/50 dark:bg-slate-900/10 py-8 border-b border-slate-100 dark:border-slate-900">
         <div className="container mx-auto px-4">
-          <Link href="/" className="inline-flex items-center gap-2 text-sm text-brand-600 dark:text-brand-400 font-medium mb-6 hover:text-brand-700 dark:hover:text-brand-300 transition-colors">
-            <ArrowLeft className="w-4 h-4" /> Back to Home
+          <Link href="/" className="inline-flex items-center gap-1.5 text-xs text-brand-600 dark:text-brand-400 font-bold uppercase tracking-wider mb-4 hover:text-brand-700 dark:hover:text-brand-300 transition-colors">
+            <ArrowLeft className="w-3.5 h-3.5" /> Back to Home
           </Link>
-          <h1 className="text-4xl md:text-5xl font-bold mb-4 tracking-tight text-slate-900 dark:text-white">
+          <h1 className="text-2xl md:text-3xl font-black mb-2 tracking-tight text-slate-900 dark:text-white">
             {search ? `Search results for "${search}"` : "All Products"}
           </h1>
-          <p className="text-lg text-slate-600 dark:text-slate-400 max-w-2xl">
+          <p className="text-sm text-slate-550 dark:text-slate-400 max-w-xl leading-relaxed">
             {search 
-              ? `Showing products matching your search query.` 
-              : `Explore our complete curated collection of the best tech, setup gear, and lifestyle products.`}
+              ? `Showing curated products matching your query. Handpicked by experts based on value, rating, and utility.` 
+              : `Browse our complete curated catalog of the finest tech upgrades, creator essentials, gaming setups, and smart lifestyle finds.`}
           </p>
         </div>
       </div>
 
-      <div className="container mx-auto px-4 py-12">
+      <div className="container mx-auto px-4 py-8">
         {/* Random Best Suggestion Feature */}
         {search && displayProducts.length > 0 && randomBestPick && (
           <div className="mb-10 p-4 md:p-6 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-brand-100 dark:border-brand-900/30 relative overflow-hidden group">
