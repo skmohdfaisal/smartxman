@@ -246,8 +246,8 @@ export default function ProductCard({ product }: { product: any }) {
                   )}
                 </div>
               ) : (
-                <span className="text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-wider">
-                  Price Unverified
+                <span className="text-sm font-black text-slate-900 dark:text-slate-100">
+                  {product.price || product.price_range || "Check Price"}
                 </span>
               )}
             </div>
