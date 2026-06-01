@@ -141,7 +141,7 @@ export default function ProductCard({ product }: { product: any }) {
       className="group relative flex flex-col bg-white dark:bg-slate-900 rounded-3xl overflow-hidden border border-slate-100 dark:border-slate-800/80 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] dark:shadow-none hover:shadow-[0_12px_30px_-6px_rgba(59,130,246,0.08)] hover:border-slate-200 dark:hover:border-slate-700/80 transition-all duration-300 h-full"
     >
       {/* 1. Image Area with Aspect-Ratio & Wishlist */}
-      <div className="relative aspect-[4/3] w-full bg-slate-50/50 dark:bg-slate-950/20 overflow-hidden flex items-center justify-center border-b border-slate-50 dark:border-slate-800/60 p-4">
+      <div className="relative aspect-[4/3] w-full bg-slate-50/50 dark:bg-slate-950/20 overflow-hidden border-b border-slate-50 dark:border-slate-800/60">
         {/* Badges Overlay (Max 2 badges) */}
         <div className="absolute top-3.5 left-3.5 z-10 flex flex-wrap gap-1.5 max-w-[80%]">
           <span className="px-2.5 py-0.5 text-[9px] font-black uppercase tracking-wider bg-white/95 dark:bg-slate-900/90 backdrop-blur-sm text-slate-500 dark:text-slate-400 rounded-md shadow-[0_2px_8px_rgba(0,0,0,0.04)] border border-slate-150/40 dark:border-slate-800/80">
@@ -169,15 +169,16 @@ export default function ProductCard({ product }: { product: any }) {
           <Heart className={cn("w-3.5 h-3.5 transition-colors", isSaved ? "fill-red-500 text-red-500" : "text-slate-400 dark:text-slate-500")} />
         </button>
 
-        {/* Centered Image */}
-        <Link href={`/product/${product.slug}`} className="relative w-full h-full flex items-center justify-center">
+        {/* Centered Image Link */}
+        <Link href={`/product/${product.slug}`} className="absolute inset-3 block">
           {product.image || product.images?.[0] ? (
             <Image 
               src={product.image || product.images?.[0]} 
               alt={product.name} 
               fill
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 33vw, 20vw"
-              className="object-contain p-4 group-hover:scale-105 transition-transform duration-500 ease-out" 
+              style={{ objectFit: "contain" }}
+              className="group-hover:scale-105 transition-transform duration-500 ease-out" 
             />
           ) : (
             <div className="absolute inset-0 flex items-center justify-center">
