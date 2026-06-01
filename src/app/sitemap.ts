@@ -1,6 +1,8 @@
 import { MetadataRoute } from 'next'
 import { supabase } from '@/lib/supabase'
 
+export const dynamic = 'force-dynamic'
+
 // Map page_key to URL path
 const pageKeyToPath: Record<string, string> = {
   homepage: '',
@@ -71,12 +73,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Products
   const { data: products } = await supabase
     .from('products')
-    .select('slug, updated_at, images')
-    .order('updated_at', { ascending: false });
+    .select('slug, created_at, images')
+    .order('created_at', { ascending: false });
 
   const productRoutes: MetadataRoute.Sitemap = (products || []).map((product) => ({
     url: `${baseUrl}/product/${product.slug}`,
-    lastModified: product.updated_at ? new Date(product.updated_at) : new Date(),
+    lastModified: product.created_at ? new Date(product.created_at) : new Date(),
     changeFrequency: 'daily',
     priority: 0.8,
     images: product.images && product.images.length > 0 ? product.images : undefined,
