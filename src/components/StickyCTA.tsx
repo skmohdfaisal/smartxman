@@ -87,7 +87,7 @@ export default function StickyCTA({
             className="w-full sm:w-auto px-6 py-2.5 sm:py-3 bg-brand-600 hover:bg-brand-700 text-white font-black text-xs uppercase tracking-wider rounded-xl transition-all text-center flex items-center justify-center gap-2 shadow-sm shadow-brand-500/10 active:scale-[0.98]"
           >
             <ShoppingBag className="w-3.5 h-3.5" />
-            <span>{showFreshPrice ? "Buy on Amazon" : "Check Price on Amazon"}</span>
+            <span>Check Best Price</span>
           </a>
         </div>
       </div>

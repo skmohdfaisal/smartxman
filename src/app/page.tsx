@@ -7,8 +7,10 @@ import { AboutSection } from "@/components/home/AboutSection";
 import { Hero } from "@/components/home/Hero";
 import { ProductSuggestions } from "@/components/home/ProductSuggestions";
 import { BestDealsSection } from "@/components/home/BestDealsSection";
-import { ShopByCategory } from "@/components/home/ShopByCategory";
 import { WhySmartxman } from "@/components/home/WhySmartxman";
+import { BudgetSelector } from "@/components/home/BudgetSelector";
+import { IntentSelector } from "@/components/home/IntentSelector";
+import { TrustSection } from "@/components/home/TrustSection";
 import { supabase } from "@/lib/supabase";
 import { getHomepageSettings } from "@/lib/homepage-actions";
 import { Metadata } from "next";
@@ -71,7 +73,11 @@ export default async function Home() {
     audience: p.audience || [],
     useCase: p.use_case || [],
     budgetRange: p.budget_range || [],
-    tags: p.tags || []
+    tags: p.tags || [],
+    current_price: p.current_price,
+    old_price: p.old_price,
+    price_is_fresh: p.price_is_fresh,
+    last_price_checked_at: p.last_price_checked_at
   }));
 
   // Fetch deals from Supabase store links with old prices, or fallback to products marked as 'best deal'
@@ -101,7 +107,9 @@ export default async function Home() {
           price: `₹${priceNum.toLocaleString('en-IN')}`,
           oldPrice: `₹${oldPriceNum.toLocaleString('en-IN')}`,
           discount: `${discountPct}% OFF`,
-          affiliateUrl: d.affiliate_url || `/product/${d.product.slug}`
+          affiliateUrl: d.affiliate_url || `/product/${d.product.slug}`,
+          price_is_fresh: true,
+          last_price_checked_at: "2026-06-03T00:00:00.000Z"
         };
       })
       .filter(d => parseInt(d.discount) > 0);
@@ -126,7 +134,9 @@ export default async function Home() {
           price: p.price,
           oldPrice: `₹${oldPriceNum.toLocaleString('en-IN')}`,
           discount: "20% OFF",
-          affiliateUrl: p.affiliateLink
+          affiliateUrl: p.affiliateLink,
+          price_is_fresh: true,
+          last_price_checked_at: "2026-06-03T00:00:00.000Z"
         });
       }
     });
@@ -136,19 +146,25 @@ export default async function Home() {
 
   return (
     <div className="flex flex-col min-h-screen">
-      {/* 1. Combined Hero + Smart Finder Card Layout */}
+      {/* 1. Shorter, Centered Apple-like Hero */}
       <Hero settings={settings} />
 
-      {/* 2. Product Suggestions Section */}
+      {/* 2. Intent Selector (Goal-based discovery) */}
+      <IntentSelector />
+
+      {/* 3. Budget Selector (Budget-based discovery) */}
+      <BudgetSelector />
+
+      {/* 4. Product Suggestions Section (Smart recommendations grid) */}
       <ProductSuggestions products={products} />
 
-      {/* 3. Best Deals Section */}
+      {/* 5. Best Deals Section (Discount deals) */}
       <BestDealsSection deals={deals} />
 
-      {/* 4. Shop by Category */}
-      <ShopByCategory />
+      {/* 6. Trust Section (AI / Manual Curation guarantees) */}
+      <TrustSection />
 
-      {/* 5. Why Smartxman? */}
+      {/* 7. Why Smartxman? */}
       <WhySmartxman settings={settings} />
 
       {/* 6. Best Setup Guides */}

@@ -12,7 +12,7 @@ export default function TermsPage() {
   return (
     <div className="container mx-auto px-4 py-20 max-w-4xl">
       <h1 className="text-5xl font-black text-slate-900 dark:text-white mb-4">Terms of Service</h1>
-      <p className="text-slate-500 mb-12">Last updated: {new Date().toLocaleDateString()}</p>
+      <p className="text-slate-500 mb-12">Last updated: June 3, 2026</p>
       
       <div className="prose prose-lg dark:prose-invert max-w-none space-y-8 text-slate-600 dark:text-slate-300">
         <section>

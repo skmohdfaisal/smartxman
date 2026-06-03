@@ -66,7 +66,7 @@ export function BestDealsSection({ deals }: BestDealsSectionProps) {
     current_price: Number(d.price.replace(/[^0-9]/g, "")) || 0,
     old_price: Number(d.oldPrice.replace(/[^0-9]/g, "")) || 0,
     price_is_fresh: true,
-    last_price_checked_at: new Date().toISOString(),
+    last_price_checked_at: "2026-06-03T00:00:00.000Z",
     rating: 4.8,
     category: "Special Offer",
     bestFor: `Save on your tech setup today`,
@@ -77,7 +77,7 @@ export function BestDealsSection({ deals }: BestDealsSectionProps) {
   }));
 
   return (
-    <section className="py-20 bg-slate-50/20 dark:bg-slate-900/10 border-b border-slate-100 dark:border-slate-900">
+    <section id="deals" className="py-20 bg-slate-50/20 dark:bg-slate-900/10 border-b border-slate-100 dark:border-slate-900 scroll-mt-20">
       <div className="container mx-auto px-4">
         
         {/* Section Heading */}

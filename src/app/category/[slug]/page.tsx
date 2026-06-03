@@ -128,7 +128,11 @@ export default async function CategoryPage({
     audience: p.audience || [],
     useCase: p.use_case || [],
     budgetRange: p.budget_range || [],
-    tags: p.tags || []
+    tags: p.tags || [],
+    current_price: p.current_price,
+    old_price: p.old_price,
+    price_is_fresh: p.price_is_fresh,
+    last_price_checked_at: p.last_price_checked_at
   }));
 
   // 2. Apply sorting

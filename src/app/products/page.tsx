@@ -67,15 +67,20 @@ export default async function ProductsPage({
     useCase: p.use_case || [],
     budgetRange: p.budget_range || [],
     tags: p.tags || [],
-    reviews: 840
+    reviews: 840,
+    current_price: p.current_price,
+    old_price: p.old_price,
+    price_is_fresh: p.price_is_fresh,
+    last_price_checked_at: p.last_price_checked_at
   }));
   const resolvedSearchParams = await searchParams;
   const search = typeof resolvedSearchParams.search === 'string' ? resolvedSearchParams.search : '';
   const sort = typeof resolvedSearchParams.sort === 'string' ? resolvedSearchParams.sort : 'recommended';
   const goal = typeof resolvedSearchParams.goal === 'string' ? resolvedSearchParams.goal : '';
   const budget = typeof resolvedSearchParams.budget === 'string' ? resolvedSearchParams.budget : '';
+  const typeParam = typeof resolvedSearchParams.type === 'string' ? resolvedSearchParams.type : '';
 
-  // 1. Filter products based on search, goal, and budget
+  // 1. Filter products based on search, goal, budget, and type
   let displayProducts = [...ALL_PRODUCTS];
 
   if (search) {
@@ -143,6 +148,24 @@ export default async function ProductsPage({
     }
   }
 
+  if (typeParam) {
+    if (typeParam === "deals") {
+      displayProducts = displayProducts.filter(p => 
+        p.isBestDeal || (p.price_is_fresh && p.old_price && p.current_price && p.old_price > p.current_price)
+      );
+    } else if (typeParam === "budget") {
+      displayProducts = displayProducts.filter(p => 
+        p.isBudgetPick || parsePrice(p.price) <= 3000 || p.tags.some((t: string) => t.toLowerCase().includes("budget"))
+      );
+    } else if (typeParam === "setup") {
+      displayProducts = displayProducts.filter(p => 
+        p.category.toLowerCase().includes("setup") || 
+        p.subCategory.toLowerCase().includes("setup") || 
+        p.tags.some((t: string) => t.toLowerCase().includes("setup"))
+      );
+    }
+  }
+
   // 2. Apply sorting
   if (sort === "price_asc") {
     displayProducts.sort((a, b) => parsePrice(a.price) - parsePrice(b.price));
@@ -151,15 +174,30 @@ export default async function ProductsPage({
   } else if (sort === "rating_desc") {
     displayProducts.sort((a, b) => b.rating - a.rating);
   } else {
-    // Recommended / Default - can be randomized or based on a specific logic
-    // For now, let's just keep it as is or prioritize higher reviews
-    displayProducts.sort((a, b) => b.reviews - a.reviews);
+    // Recommended / Default - sort by rating, then by reviews count
+    displayProducts.sort((a, b) => b.rating - a.rating || b.reviews - a.reviews);
   }
 
-  // Logic for "Best Suggestions" (Random high-rated products)
+  // Logic for "Best Suggestions" (Deterministic high-rated products to avoid hydration mismatch)
   const topRatedProducts = ALL_PRODUCTS.filter(p => p.rating >= 4.8);
-  const randomBestPick = topRatedProducts[Math.floor(Math.random() * topRatedProducts.length)];
-  const suggestedPicks = [...topRatedProducts].sort(() => 0.5 - Math.random()).slice(0, 3);
+  const randomBestPick = topRatedProducts.length > 0 ? topRatedProducts[0] : null;
+  const suggestedPicks = topRatedProducts.slice(1, 4).length > 0 ? topRatedProducts.slice(1, 4) : topRatedProducts.slice(0, 3);
+
+  let pageTitle = search ? `Search results for "${search}"` : "All Products";
+  if (!search && typeParam) {
+    if (typeParam === "deals") pageTitle = "Best Deals Today";
+    else if (typeParam === "budget") pageTitle = "Budget Picks";
+    else if (typeParam === "setup") pageTitle = "Setup Upgrades & Gear";
+  }
+
+  let pageDesc = search 
+    ? `Showing curated products matching your query. Handpicked by experts based on value, rating, and utility.` 
+    : `Browse our complete curated catalog of the finest tech upgrades, creator essentials, gaming setups, and smart lifestyle finds.`;
+  if (!search && typeParam) {
+    if (typeParam === "deals") pageDesc = "Verified discounts, price drops, and high score recommendations.";
+    else if (typeParam === "budget") pageDesc = "Excellent tech upgrades and desk accessories under ₹3,000 that offer maximum utility.";
+    else if (typeParam === "setup") pageDesc = "Premium gear, ergonomic stands, cables, and lighting to build the ultimate desktop setup.";
+  }
 
   return (
     <div className="flex flex-col min-h-screen bg-white dark:bg-slate-950">
@@ -169,12 +207,10 @@ export default async function ProductsPage({
             <ArrowLeft className="w-3.5 h-3.5" /> Back to Home
           </Link>
           <h1 className="text-2xl md:text-3xl font-black mb-2 tracking-tight text-slate-900 dark:text-white">
-            {search ? `Search results for "${search}"` : "All Products"}
+            {pageTitle}
           </h1>
           <p className="text-sm text-slate-550 dark:text-slate-400 max-w-xl leading-relaxed">
-            {search 
-              ? `Showing curated products matching your query. Handpicked by experts based on value, rating, and utility.` 
-              : `Browse our complete curated catalog of the finest tech upgrades, creator essentials, gaming setups, and smart lifestyle finds.`}
+            {pageDesc}
           </p>
         </div>
       </div>

@@ -2,9 +2,8 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { Star, Heart, ArrowRight, ShoppingBag, Eye, Percent, TrendingUp, Award, Zap } from "lucide-react";
+import { Star, Heart, ArrowRight, Eye } from "lucide-react";
 import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { createClient } from "@/lib/supabase-client";
 import { useRouter } from "next/navigation";
@@ -12,28 +11,11 @@ import { useRouter } from "next/navigation";
 export default function ProductCard({ product }: { product: any }) {
   const supabase = createClient();
   const [isSaved, setIsSaved] = useState(false);
-  const [freshnessWindow, setFreshnessWindow] = useState(7);
   const router = useRouter();
 
   useEffect(() => {
     checkIfSaved();
-    fetchFreshness();
   }, [product.id]);
-
-  const fetchFreshness = async () => {
-    try {
-      const { data } = await supabase
-        .from("site_settings")
-        .select("price_freshness_window")
-        .limit(1)
-        .maybeSingle();
-      if (data?.price_freshness_window) {
-        setFreshnessWindow(data.price_freshness_window);
-      }
-    } catch (err) {
-      console.warn("Failed to load price freshness window on public card, using 7 days", err);
-    }
-  };
 
   const checkIfSaved = async () => {
     const { data: { user } } = await supabase.auth.getUser();
@@ -85,12 +67,14 @@ export default function ProductCard({ product }: { product: any }) {
 
   const isPriceFresh = () => {
     if (product.current_price === null || product.current_price === undefined) return false;
-    if (!product.price_is_fresh) return false;
-    if (!product.last_price_checked_at) return false;
+    if (product.price_is_fresh === true) return true;
+    if (product.showFreshPrice === true) return true;
     
+    // Default fallback check (7 days window)
+    if (!product.last_price_checked_at) return false;
     const diffTime = Math.abs(new Date().getTime() - new Date(product.last_price_checked_at).getTime());
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    return diffDays <= freshnessWindow;
+    return diffDays <= 7;
   };
 
   const showFreshPrice = isPriceFresh();
@@ -100,7 +84,6 @@ export default function ProductCard({ product }: { product: any }) {
   }
 
   const currentCategory = product.category || "Tech";
-  const budgetBadge = product.budgetRange?.[0] || product.budget_range?.[0] || "";
 
   // Dynamic single quick verdict line from available description, best_for, or truncated expert_note
   const getQuickVerdict = () => {
@@ -114,48 +97,46 @@ export default function ProductCard({ product }: { product: any }) {
   const quickVerdict = getQuickVerdict();
 
   // Define Badge System Color Rules
-  const getSecondBadge = () => {
-    if (product.isBestDeal || product.is_best_deal || (showFreshPrice && discountPercent > 0)) {
-      return { label: discountPercent > 0 ? `${discountPercent}% OFF` : "Deal", type: "deal" };
-    }
+  const getSmartTag = () => {
     if (product.isBudgetPick || product.is_budget_pick) {
       return { label: "Budget Pick", type: "budget" };
+    }
+    if (product.isBestDeal || product.is_best_deal || (showFreshPrice && discountPercent > 0)) {
+      return { label: "Best Value", type: "deal" };
     }
     if (product.trending) {
       return { label: "Trending", type: "trending" };
     }
     if (product.featured) {
-      return { label: "Featured", type: "featured" };
+      return { label: "Editor Pick", type: "featured" };
+    }
+    if (product.smartScore >= 8.8 || product.smart_score >= 8.8) {
+      return { label: "Premium Choice", type: "premium" };
     }
     return null;
   };
 
-  const secondBadge = getSecondBadge();
+  const smartTag = getSmartTag();
 
   return (
-    <motion.div 
-      initial={{ opacity: 0, y: 15 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ duration: 0.4 }}
-      className="group relative flex flex-col bg-white dark:bg-slate-900 rounded-3xl overflow-hidden border border-slate-100 dark:border-slate-800/80 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] dark:shadow-none hover:shadow-[0_12px_30px_-6px_rgba(59,130,246,0.08)] hover:border-slate-200 dark:hover:border-slate-700/80 transition-all duration-300 h-full"
-    >
+    <div className="group relative flex flex-col bg-white dark:bg-slate-900 rounded-2xl overflow-hidden border border-slate-100 dark:border-slate-800/80 shadow-premium hover:shadow-premium-hover hover:border-brand-500/20 dark:hover:border-brand-400/20 transition-all duration-300 h-full">
       {/* 1. Image Area with Aspect-Ratio & Wishlist */}
-      <div className="relative aspect-[4/3] w-full bg-slate-50/50 dark:bg-slate-950/20 overflow-hidden border-b border-slate-50 dark:border-slate-800/60">
+      <div className="relative aspect-square w-full bg-slate-50/50 dark:bg-slate-950/20 overflow-hidden border-b border-slate-50 dark:border-slate-800/60 flex items-center justify-center">
         {/* Badges Overlay (Max 2 badges) */}
         <div className="absolute top-3.5 left-3.5 z-10 flex flex-wrap gap-1.5 max-w-[80%]">
-          <span className="px-2.5 py-0.5 text-[9px] font-black uppercase tracking-wider bg-white/95 dark:bg-slate-900/90 backdrop-blur-sm text-slate-500 dark:text-slate-400 rounded-md shadow-[0_2px_8px_rgba(0,0,0,0.04)] border border-slate-150/40 dark:border-slate-800/80">
+          <span className="px-2.5 py-0.5 text-[9px] font-black uppercase tracking-wider bg-white/95 dark:bg-slate-900/90 backdrop-blur-sm text-slate-500 dark:text-slate-400 rounded-md shadow-sm border border-slate-150/40 dark:border-slate-800/80">
             {currentCategory}
           </span>
-          {secondBadge && (
+          {smartTag && (
             <span className={cn(
               "px-2.5 py-0.5 text-[9px] font-black uppercase tracking-wider rounded-md shadow-sm",
-              secondBadge.type === "deal" && "bg-amber-500 text-white shadow-amber-500/10",
-              secondBadge.type === "budget" && "bg-emerald-500 text-white shadow-emerald-500/10",
-              secondBadge.type === "trending" && "bg-indigo-500 text-white shadow-indigo-500/10",
-              secondBadge.type === "featured" && "bg-blue-500 text-white shadow-blue-500/10"
+              smartTag.type === "deal" && "bg-amber-500 text-white shadow-amber-500/10",
+              smartTag.type === "budget" && "bg-emerald-500 text-white shadow-emerald-500/10",
+              smartTag.type === "trending" && "bg-indigo-500 text-white shadow-indigo-500/10",
+              smartTag.type === "featured" && "bg-blue-500 text-white shadow-blue-500/10",
+              smartTag.type === "premium" && "bg-purple-500 text-white shadow-purple-500/10"
             )}>
-              {secondBadge.label}
+              {smartTag.label}
             </span>
           )}
         </div>
@@ -163,14 +144,14 @@ export default function ProductCard({ product }: { product: any }) {
         {/* Wishlist Button */}
         <button 
           onClick={toggleSave}
-          className="absolute top-3.5 right-3.5 z-10 p-2 bg-white/90 dark:bg-slate-900/90 backdrop-blur-sm rounded-full shadow-[0_2px_8px_rgba(0,0,0,0.06)] hover:bg-white dark:hover:bg-slate-800 border border-slate-150/30 dark:border-slate-800/50 hover:scale-105 active:scale-95 transition-all"
+          className="absolute top-3.5 right-3.5 z-10 p-2 bg-white/90 dark:bg-slate-900/90 backdrop-blur-sm rounded-full shadow-sm hover:bg-white dark:hover:bg-slate-800 border border-slate-150/30 dark:border-slate-800/50 hover:scale-105 active:scale-95 transition-all"
           aria-label={isSaved ? "Remove from wishlist" : "Add to wishlist"}
         >
-          <Heart className={cn("w-3.5 h-3.5 transition-colors", isSaved ? "fill-red-500 text-red-500" : "text-slate-400 dark:text-slate-500")} />
+          <Heart className={cn("w-3.5 h-3.5 transition-colors", isSaved ? "fill-red-500 text-red-500" : "text-slate-450 dark:text-slate-500")} />
         </button>
 
         {/* Centered Image Link */}
-        <Link href={`/product/${product.slug}`} className="absolute inset-3 block">
+        <Link href={`/product/${product.slug}`} className="absolute inset-4 block">
           {product.image || product.images?.[0] ? (
             <Image 
               src={product.image || product.images?.[0]} 
@@ -182,7 +163,7 @@ export default function ProductCard({ product }: { product: any }) {
             />
           ) : (
             <div className="absolute inset-0 flex items-center justify-center">
-              <span className="text-slate-350 dark:text-slate-600 text-xs font-bold uppercase tracking-wider">Coming Soon</span>
+              <span className="text-slate-350 dark:text-slate-655 text-xs font-bold uppercase tracking-wider">Coming Soon</span>
             </div>
           )}
         </Link>
@@ -190,42 +171,46 @@ export default function ProductCard({ product }: { product: any }) {
 
       {/* 2. Card Content Body */}
       <div className="p-5 flex flex-col flex-1">
-        {/* Product Identity */}
-        <div className="mb-2">
-          {product.brand && (
-            <span className="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest block mb-0.5">
+        {/* Product Identity with locked height */}
+        <div className="h-[52px] mb-2 flex flex-col justify-center">
+          {product.brand ? (
+            <span className="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest block mb-0.5 leading-none">
               {product.brand}
             </span>
+          ) : (
+            <span className="h-2.5 block mb-0.5"></span>
           )}
           <Link href={`/product/${product.slug}`}>
-            <h3 className="font-extrabold text-[15px] text-slate-900 dark:text-white line-clamp-2 leading-snug group-hover:text-brand-600 dark:group-hover:text-brand-400 transition-colors">
+            <h3 className="font-extrabold text-[14px] text-slate-900 dark:text-white line-clamp-2 leading-tight group-hover:text-brand-600 dark:group-hover:text-brand-400 transition-colors">
               {product.name}
             </h3>
           </Link>
         </div>
 
-        {/* Clean, Clutter-Free Quick Verdict (Max 1-2 lines) */}
-        {quickVerdict && (
-          <p className="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-2 leading-relaxed mb-4 font-medium italic mt-1.5 flex-grow">
-            {quickVerdict.replace(/"/g, "")}
-          </p>
-        )}
+        {/* 1-line AI Quick Insight */}
+        <div className="h-5 mb-4 mt-1.5 flex items-center">
+          {quickVerdict && (
+            <p className="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-1 leading-normal font-medium italic">
+              ✦ {quickVerdict.replace(/"/g, "")}
+            </p>
+          )}
+        </div>
 
-        {/* 3. Compact Score Row */}
-        <div className="flex flex-wrap items-center gap-2 mb-4 border-t border-b border-slate-50 dark:border-slate-800/40 py-2.5">
-          <div className="flex items-center gap-0.5 bg-slate-50 dark:bg-slate-850 px-2 py-0.5 rounded-md border border-slate-100 dark:border-slate-800/30">
+        {/* 3. Compact Score System (⭐⭐ Rating, Smart Score, VFM Score) */}
+        <div className="flex items-center gap-2 mb-4 border-t border-b border-slate-50 dark:border-slate-800/40 py-2.5 h-10 overflow-hidden flex-nowrap text-[9px] font-black uppercase">
+          <div className="flex items-center gap-0.5 bg-slate-50 dark:bg-slate-850 px-2 py-0.5 rounded-md border border-slate-100/50 dark:border-slate-800/30 shrink-0 text-slate-800 dark:text-slate-200">
             <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
-            <span className="text-[10px] font-black text-slate-800 dark:text-slate-200">{Number(product.rating || 0).toFixed(1)}</span>
+            <span>{Number(product.rating || 0).toFixed(1)}</span>
           </div>
           
           {(product.smartScore || product.smart_score) && (
-            <div className="flex items-center gap-1 px-2 py-0.5 bg-brand-50/50 dark:bg-brand-950/20 border border-brand-100/10 text-brand-650 dark:text-brand-400 rounded-md text-[9px] font-black uppercase">
+            <div className="flex items-center gap-1 px-2 py-0.5 bg-brand-50/50 dark:bg-brand-950/20 border border-brand-100/10 text-brand-650 dark:text-brand-400 rounded-md shrink-0">
               Smart: {Number(product.smartScore || product.smart_score).toFixed(1)}
             </div>
           )}
           
           {(product.valueScore || product.value_score) && (
-            <div className="flex items-center gap-1 px-2 py-0.5 bg-emerald-50/50 dark:bg-emerald-950/20 border border-emerald-100/10 text-emerald-650 dark:text-emerald-400 rounded-md text-[9px] font-black uppercase">
+            <div className="flex items-center gap-1 px-2 py-0.5 bg-emerald-50/50 dark:bg-emerald-950/20 border border-emerald-100/10 text-emerald-650 dark:text-emerald-400 rounded-md shrink-0">
               VFM: {Number(product.valueScore || product.value_score).toFixed(1)}
             </div>
           )}
@@ -233,22 +218,22 @@ export default function ProductCard({ product }: { product: any }) {
 
         {/* 4. Price & CTA Area */}
         <div className="mt-auto space-y-3.5">
-          <div className="flex items-baseline justify-between">
-            <div className="flex flex-col">
+          <div className="flex items-baseline justify-between h-6">
+            <div className="flex flex-col justify-center">
               {showFreshPrice ? (
                 <div className="flex items-baseline gap-1.5">
-                  <span className="text-base font-black text-slate-900 dark:text-slate-100">
+                  <span className="text-base font-black text-slate-900 dark:text-slate-100 leading-none">
                     ₹{Number(product.current_price).toLocaleString('en-IN')}
                   </span>
                   {product.old_price && product.old_price > product.current_price && (
-                    <span className="text-[11px] text-slate-400 line-through">
+                    <span className="text-[11px] text-slate-400 line-through leading-none">
                       ₹{Number(product.old_price).toLocaleString('en-IN')}
                     </span>
                   )}
                 </div>
               ) : (
-                <span className="text-sm font-black text-slate-900 dark:text-slate-100">
-                  {product.price || product.price_range || "Check Price"}
+                <span className="text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-wide leading-none">
+                  {product.price && product.price !== "Check Price" ? product.price : "Check latest price"}
                 </span>
               )}
             </div>
@@ -256,24 +241,63 @@ export default function ProductCard({ product }: { product: any }) {
             {/* Secondary CTA: View Details */}
             <Link 
               href={`/product/${product.slug}`}
-              className="text-[11px] font-extrabold uppercase tracking-wider text-slate-550 dark:text-slate-400 hover:text-brand-600 dark:hover:text-brand-400 transition-colors inline-flex items-center gap-1.5 group/link"
+              className="text-[10px] font-black uppercase tracking-wider text-slate-450 hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-400 transition-colors inline-flex items-center gap-1 group/link"
             >
-              View Details <Eye className="w-3.5 h-3.5 group-hover/link:scale-110 transition-transform" />
+              View Details <ArrowRight className="w-3 h-3 group-hover/link:translate-x-0.5 transition-transform" />
             </Link>
           </div>
 
-          {/* Primary CTA: Check Latest Price on Amazon */}
+          {/* Primary CTA: Check Best Price (dominant button) */}
           <a 
             href={product.affiliateLink || product.affiliate_link || "#"}
             target="_blank"
             rel="noopener noreferrer"
-            className="w-full py-3 bg-brand-600 hover:bg-brand-700 text-white font-black text-[11px] uppercase tracking-wider rounded-xl transition-all text-center flex items-center justify-center gap-2 shadow-sm shadow-brand-500/10 active:scale-[0.98]"
+            className="w-full py-3 bg-brand-600 hover:bg-brand-700 text-white font-black text-[11px] uppercase tracking-wider rounded-xl transition-all text-center flex items-center justify-center gap-2 h-10 shadow-sm shadow-brand-500/10 active:scale-[0.98]"
           >
-            <ShoppingBag className="w-3.5 h-3.5" /> 
-            {showFreshPrice ? "Buy on Amazon" : "Check Latest Price on Amazon"}
+            Check Best Price
           </a>
         </div>
       </div>
-    </motion.div>
+    </div>
+  );
+}
+
+// 5. Product Card Skeleton Loader
+export function ProductCardSkeleton() {
+  return (
+    <div className="group relative flex flex-col bg-white dark:bg-slate-900 rounded-2xl overflow-hidden border border-slate-100 dark:border-slate-800/80 shadow-premium h-full animate-pulse">
+      {/* Aspect Square Image Area */}
+      <div className="w-full aspect-square bg-slate-100/80 dark:bg-slate-800/50 border-b border-slate-50 dark:border-slate-800/60"></div>
+      
+      {/* Card Content area */}
+      <div className="p-5 flex flex-col flex-1">
+        {/* Identity space */}
+        <div className="h-[52px] mb-2 flex flex-col justify-center space-y-2">
+          <div className="h-3 w-1/4 bg-slate-100 dark:bg-slate-800 rounded"></div>
+          <div className="h-4 w-11/12 bg-slate-200 dark:bg-slate-700 rounded"></div>
+        </div>
+        
+        {/* Verdict space */}
+        <div className="h-5 mb-4 mt-1.5 flex items-center">
+          <div className="h-3.5 w-3/4 bg-slate-100 dark:bg-slate-850 rounded"></div>
+        </div>
+        
+        {/* Scores row */}
+        <div className="flex items-center gap-2 mb-4 border-t border-b border-slate-50 dark:border-slate-800/40 py-2.5 h-10">
+          <div className="h-5 w-8 bg-slate-100 dark:bg-slate-850 rounded"></div>
+          <div className="h-5 w-14 bg-slate-100 dark:bg-slate-850 rounded"></div>
+          <div className="h-5 w-14 bg-slate-100 dark:bg-slate-850 rounded"></div>
+        </div>
+        
+        {/* Price & CTA */}
+        <div className="mt-auto space-y-3.5">
+          <div className="flex items-center justify-between h-6">
+            <div className="h-5 w-16 bg-slate-200 dark:bg-slate-700 rounded"></div>
+            <div className="h-4 w-20 bg-slate-100 dark:bg-slate-850 rounded"></div>
+          </div>
+          <div className="w-full h-10 bg-slate-250 dark:bg-slate-700 rounded-xl"></div>
+        </div>
+      </div>
+    </div>
   );
 }

@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap');
 
 @theme {
   --color-brand-50: #eff6ff;
@@ -20,26 +21,37 @@
   --color-accent-600: #7c3aed;
   --color-accent-900: #4c1d95;
 
-  --font-sans: var(--font-inter);
+  --font-sans: var(--font-inter), sans-serif;
+  --font-display: 'Outfit', sans-serif;
 }
 
 @variant dark (&:is(.dark *));
 
+html {
+  scrollbar-gutter: stable;
+  scroll-behavior: smooth;
+}
+
 :root {
-  --background: #ffffff;
-  --foreground: #0f172a; /* slate-900 */
+  --background: #fcfcfd; /* soft off-white/gray */
+  --foreground: #090d1f; /* dark navy/slate */
 }
 
 .dark {
-  --background: #020617; /* slate-950 */
-  --foreground: #f8fafc; /* slate-50 */
+  --background: #030712; /* deep gray/black */
+  --foreground: #f9fafb; /* pure light gray */
 }
 
 body {
   background-color: var(--background);
   color: var(--foreground);
-  font-family: var(--font-sans), sans-serif;
-  @apply antialiased selection:bg-brand-200 selection:text-brand-900 dark:selection:bg-brand-800 dark:selection:text-brand-100;
+  font-family: var(--font-sans);
+  @apply antialiased selection:bg-brand-100 selection:text-brand-900 dark:selection:bg-brand-900 dark:selection:text-brand-100;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+  letter-spacing: -0.02em;
 }
 
 /* Custom Utilities for smooth gradients and glass effects */
@@ -53,6 +65,14 @@ body {
 
 @utility bg-gradient-mesh {
   background-image: 
-    radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.15) 0px, transparent 50%),
-    radial-gradient(at 100% 0%, rgba(139, 92, 246, 0.15) 0px, transparent 50%);
+    radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.08) 0px, transparent 50%),
+    radial-gradient(at 100% 0%, rgba(139, 92, 246, 0.08) 0px, transparent 50%);
+}
+
+@utility shadow-premium {
+  box-shadow: 0 10px 30px -15px rgba(0, 0, 0, 0.04), 0 1px 3px -1px rgba(0, 0, 0, 0.01);
+}
+
+@utility shadow-premium-hover {
+  box-shadow: 0 25px 50px -12px rgba(59, 130, 246, 0.05), 0 1px 3px -1px rgba(0, 0, 0, 0.01);
 }

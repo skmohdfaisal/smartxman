@@ -140,7 +140,7 @@ export function ProductSuggestions({ products = [] }: SuggestionsProps) {
   const filteredProducts = getFilteredProducts().slice(0, 4);
 
   return (
-    <section className="py-20 bg-slate-50/50 dark:bg-slate-900/10 border-y border-slate-100 dark:border-slate-900">
+    <section id="suggestions" className="py-20 bg-slate-50/50 dark:bg-slate-900/10 border-y border-slate-100 dark:border-slate-900 scroll-mt-20">
       <div className="container mx-auto px-4">
         
         {/* Section Heading */}
@@ -188,37 +188,39 @@ export function ProductSuggestions({ products = [] }: SuggestionsProps) {
           </div>
         </div>
 
-        {/* Tab content view */}
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={activeTab}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.25 }}
-          >
-            {filteredProducts.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                {filteredProducts.map((product) => (
-                  <ProductCard key={product.id} product={product} />
-                ))}
-              </div>
-            ) : (
-              <div className="py-16 text-center border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-3xl bg-white dark:bg-slate-900/20 max-w-lg mx-auto flex flex-col items-center justify-center space-y-3">
-                <div className="p-4 bg-slate-50 dark:bg-slate-800 rounded-full text-slate-400 shadow-inner">
-                  <Inbox className="w-8 h-8" />
+        {/* Tab content view wrapper with min-h to prevent layout collapsing */}
+        <div className="min-h-[400px]">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activeTab}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.25 }}
+            >
+              {filteredProducts.length > 0 ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                  {filteredProducts.map((product) => (
+                    <ProductCard key={product.id} product={product} />
+                  ))}
                 </div>
-                <h3 className="text-lg font-black text-slate-900 dark:text-white">No products found</h3>
-                <p className="text-sm text-slate-500 dark:text-slate-400 max-w-xs mx-auto">
-                  There are currently no published products under the "{tabs.find(t => t.id === activeTab)?.label}" visibility toggle.
-                </p>
-                <Link href="/admin/products/new" className="px-5 py-2.5 bg-slate-900 hover:bg-slate-850 dark:bg-white dark:hover:bg-slate-100 text-white dark:text-slate-900 font-bold text-xs uppercase tracking-wider rounded-xl transition-all shadow-sm">
-                  Add products now
-                </Link>
-              </div>
-            )}
-          </motion.div>
-        </AnimatePresence>
+              ) : (
+                <div className="py-16 text-center border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-3xl bg-white dark:bg-slate-900/20 max-w-lg mx-auto flex flex-col items-center justify-center space-y-3">
+                  <div className="p-4 bg-slate-50 dark:bg-slate-800 rounded-full text-slate-400 shadow-inner">
+                    <Inbox className="w-8 h-8" />
+                  </div>
+                  <h3 className="text-lg font-black text-slate-900 dark:text-white">No products found</h3>
+                  <p className="text-sm text-slate-550 dark:text-slate-400 max-w-xs mx-auto">
+                    There are currently no published products under the "{tabs.find(t => t.id === activeTab)?.label}" visibility toggle.
+                  </p>
+                  <Link href="/admin/products/new" className="px-5 py-2.5 bg-slate-900 hover:bg-slate-850 dark:bg-white dark:hover:bg-slate-100 text-white dark:text-slate-900 font-bold text-xs uppercase tracking-wider rounded-xl transition-all shadow-sm">
+                    Add products now
+                  </Link>
+                </div>
+              )}
+            </motion.div>
+          </AnimatePresence>
+        </div>
 
       </div>
     </section>
