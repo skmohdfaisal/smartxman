@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { Star, Heart, ArrowRight, Eye } from "lucide-react";
+import { Star, Heart, ArrowRight, Eye, ChevronLeft, ChevronRight } from "lucide-react";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { createClient } from "@/lib/supabase-client";
@@ -11,11 +11,71 @@ import { useRouter } from "next/navigation";
 export default function ProductCard({ product }: { product: any }) {
   const supabase = createClient();
   const [isSaved, setIsSaved] = useState(false);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const router = useRouter();
 
   useEffect(() => {
+    setCurrentImageIndex(0);
     checkIfSaved();
   }, [product.id]);
+
+  const images = Array.isArray(product.images) && product.images.length > 0 
+    ? product.images 
+    : product.image 
+      ? [product.image] 
+      : [];
+
+  const handlePrevImage = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setCurrentImageIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
+  };
+
+  const handleNextImage = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setCurrentImageIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1));
+  };
+
+  const handleDotClick = (index: number, e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setCurrentImageIndex(index);
+  };
+
+  const getDisplayPriceInfo = () => {
+    if (product.current_price !== null && product.current_price !== undefined) {
+      return {
+        value: `₹${Number(product.current_price).toLocaleString('en-IN')}`,
+        hasOldPrice: !!(product.old_price && product.old_price > product.current_price),
+        oldPrice: product.old_price ? `₹${Number(product.old_price).toLocaleString('en-IN')}` : null,
+      };
+    }
+    
+    if (product.price && product.price !== "Check Price" && product.price !== "Check latest price") {
+      const numericVal = parseInt(product.price.toString().replace(/[^0-9]/g, ""));
+      if (!isNaN(numericVal) && numericVal > 0) {
+        return {
+          value: `₹${numericVal.toLocaleString('en-IN')}`,
+          hasOldPrice: false,
+          oldPrice: null,
+        };
+      }
+      return {
+        value: product.price,
+        hasOldPrice: false,
+        oldPrice: null,
+      };
+    }
+
+    return {
+      value: "Check Price",
+      hasOldPrice: false,
+      oldPrice: null,
+    };
+  };
+
+  const displayPriceInfo = getDisplayPriceInfo();
 
   const checkIfSaved = async () => {
     const { data: { user } } = await supabase.auth.getUser();
@@ -152,21 +212,70 @@ export default function ProductCard({ product }: { product: any }) {
 
         {/* Centered Image Link */}
         <Link href={`/product/${product.slug}`} className="absolute inset-4 block">
-          {product.image || product.images?.[0] ? (
-            <Image 
-              src={product.image || product.images?.[0]} 
-              alt={product.name} 
-              fill
-              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 33vw, 20vw"
-              style={{ objectFit: "contain" }}
-              className="group-hover:scale-105 transition-transform duration-500 ease-out" 
-            />
+          {images.length > 0 ? (
+            images.map((img: string, idx: number) => (
+              <Image 
+                key={idx}
+                src={img} 
+                alt={product.name} 
+                fill
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 33vw, 20vw"
+                style={{ objectFit: "contain" }}
+                className={cn(
+                  "transition-all duration-500 ease-out absolute inset-0",
+                  idx === currentImageIndex 
+                    ? "opacity-100 scale-100 group-hover:scale-105" 
+                    : "opacity-0 scale-95 pointer-events-none"
+                )} 
+              />
+            ))
           ) : (
             <div className="absolute inset-0 flex items-center justify-center">
               <span className="text-slate-350 dark:text-slate-655 text-xs font-bold uppercase tracking-wider">Coming Soon</span>
             </div>
           )}
         </Link>
+
+        {/* Left Arrow Button */}
+        {images.length > 1 && (
+          <button
+            onClick={handlePrevImage}
+            className="absolute left-2.5 top-1/2 -translate-y-1/2 z-20 w-8 h-8 rounded-full bg-white/85 dark:bg-slate-900/85 backdrop-blur-sm border border-slate-200/50 dark:border-slate-800/50 shadow-sm flex items-center justify-center text-slate-700 dark:text-slate-200 hover:bg-white dark:hover:bg-slate-800 hover:text-brand-600 dark:hover:text-brand-400 active:scale-95 transition-all duration-300 opacity-100 md:opacity-0 md:group-hover:opacity-100 cursor-pointer"
+            aria-label="Previous image"
+          >
+            <ChevronLeft className="w-4 h-4" />
+          </button>
+        )}
+
+        {/* Right Arrow Button */}
+        {images.length > 1 && (
+          <button
+            onClick={handleNextImage}
+            className="absolute right-2.5 top-1/2 -translate-y-1/2 z-20 w-8 h-8 rounded-full bg-white/85 dark:bg-slate-900/85 backdrop-blur-sm border border-slate-200/50 dark:border-slate-800/50 shadow-sm flex items-center justify-center text-slate-700 dark:text-slate-200 hover:bg-white dark:hover:bg-slate-800 hover:text-brand-600 dark:hover:text-brand-400 active:scale-95 transition-all duration-300 opacity-100 md:opacity-0 md:group-hover:opacity-100 cursor-pointer"
+            aria-label="Next image"
+          >
+            <ChevronRight className="w-4 h-4" />
+          </button>
+        )}
+
+        {/* Slide Indicator Dots */}
+        {images.length > 1 && (
+          <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-20 flex items-center gap-1.5 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-300">
+            {images.map((_: string, idx: number) => (
+              <button
+                key={idx}
+                onClick={(e) => handleDotClick(idx, e)}
+                className={cn(
+                  "h-1 rounded-full transition-all duration-300 cursor-pointer",
+                  idx === currentImageIndex 
+                    ? "bg-brand-600 dark:bg-brand-500 w-3.5" 
+                    : "bg-slate-350 dark:bg-slate-700 hover:bg-slate-450 dark:hover:bg-slate-600 w-1"
+                )}
+                aria-label={`Go to slide ${idx + 1}`}
+              />
+            ))}
+          </div>
+        )}
       </div>
 
       {/* 2. Card Content Body */}
@@ -220,22 +329,16 @@ export default function ProductCard({ product }: { product: any }) {
         <div className="mt-auto space-y-3.5">
           <div className="flex items-baseline justify-between h-6">
             <div className="flex flex-col justify-center">
-              {showFreshPrice ? (
-                <div className="flex items-baseline gap-1.5">
-                  <span className="text-base font-black text-slate-900 dark:text-slate-100 leading-none">
-                    ₹{Number(product.current_price).toLocaleString('en-IN')}
-                  </span>
-                  {product.old_price && product.old_price > product.current_price && (
-                    <span className="text-[11px] text-slate-400 line-through leading-none">
-                      ₹{Number(product.old_price).toLocaleString('en-IN')}
-                    </span>
-                  )}
-                </div>
-              ) : (
-                <span className="text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-wide leading-none">
-                  {product.price && product.price !== "Check Price" ? product.price : "Check latest price"}
+              <div className="flex items-baseline gap-1.5">
+                <span className="text-base font-black text-slate-900 dark:text-slate-100 leading-none">
+                  {displayPriceInfo.value}
                 </span>
-              )}
+                {displayPriceInfo.hasOldPrice && (
+                  <span className="text-[11px] text-slate-400 line-through leading-none">
+                    {displayPriceInfo.oldPrice}
+                  </span>
+                )}
+              </div>
             </div>
 
             {/* Secondary CTA: View Details */}
