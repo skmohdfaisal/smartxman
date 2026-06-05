@@ -7,7 +7,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return getSeoMetadata("about", {
     title: "About smartXman | Our Mission & Story",
     description: "Learn about smartXman — why we started, our mission to simplify product buying decisions, and how we curate the best product recommendations.",
-    url: "https://smartxman.vercel.app/about",
+    url: "https://www.smartxman.com/about",
   });
 }
 

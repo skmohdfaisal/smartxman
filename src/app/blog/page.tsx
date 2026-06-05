@@ -9,7 +9,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return getSeoMetadata("blog", {
     title: "Smart Buying Guides for Tech, Setup & Gadgets | smartXman",
     description: "Read simple buying guides, product comparisons, setup ideas, and budget-friendly tech recommendations for students, creators, gamers, and everyday buyers.",
-    url: "https://smartxman.vercel.app/blog",
+    url: "https://www.smartxman.com/blog",
   });
 }
 

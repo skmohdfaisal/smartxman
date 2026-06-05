@@ -11,6 +11,7 @@ import { WhySmartxman } from "@/components/home/WhySmartxman";
 import { BudgetSelector } from "@/components/home/BudgetSelector";
 import { IntentSelector } from "@/components/home/IntentSelector";
 import { TrustSection } from "@/components/home/TrustSection";
+import { ProblemSolutionFlow } from "@/components/home/ProblemSolutionFlow";
 import { supabase } from "@/lib/supabase";
 import { getHomepageSettings } from "@/lib/homepage-actions";
 import { Metadata } from "next";
@@ -20,7 +21,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return getSeoMetadata("homepage", {
     title: "smartXman | Smart Product Picks That Actually Make Sense",
     description: "Discover useful tech, setup, gaming, productivity, and lifestyle products curated for students, creators, gamers, and everyday buyers.",
-    url: "https://smartxman.vercel.app",
+    url: "https://www.smartxman.com",
   });
 }
 
@@ -148,6 +149,9 @@ export default async function Home() {
     <div className="flex flex-col min-h-screen">
       {/* 1. Shorter, Centered Apple-like Hero */}
       <Hero settings={settings} />
+
+      {/* Problem -> Solution Flow */}
+      <ProblemSolutionFlow />
 
       {/* 2. Intent Selector (Goal-based discovery) */}
       <IntentSelector />

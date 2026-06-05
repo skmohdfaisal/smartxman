@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Tag, ArrowRight } from "lucide-react";
+import { Tag, ArrowRight, Flame, Activity } from "lucide-react";
 import ProductCard from "@/components/ProductCard";
 
 export interface DealProps {
@@ -83,26 +83,33 @@ export function BestDealsSection({ deals }: BestDealsSectionProps) {
         {/* Section Heading */}
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-12">
           <div>
-            <div className="flex items-center gap-2 mb-2">
-              <div className="p-1 bg-red-50 dark:bg-red-950/30 rounded-lg text-red-600 dark:text-red-400">
-                <Tag className="w-4 h-4" />
+            <div className="flex items-center gap-3 mb-2">
+              <div className="flex items-center gap-2 px-2.5 py-1 bg-red-50 dark:bg-red-950/40 rounded-md border border-red-100 dark:border-red-900/50">
+                <Flame className="w-3.5 h-3.5 text-red-600 dark:text-red-500 animate-[pulse_1.5s_ease-in-out_infinite]" />
+                <span className="text-[10px] font-black uppercase tracking-widest text-red-600 dark:text-red-400">Trending Now</span>
               </div>
-              <span className="text-[11px] font-black uppercase tracking-[0.2em] text-red-600 dark:text-red-400">Limited Offers</span>
+              <div className="flex items-center gap-1.5 text-slate-500 dark:text-slate-400">
+                <div className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                </div>
+                <span className="text-[10px] font-bold uppercase tracking-widest">High Demand</span>
+              </div>
             </div>
-            <h2 className="text-3xl md:text-4xl font-black tracking-tighter text-slate-900 dark:text-white mb-2">
-              Best Deals Today
+            <h2 className="text-3xl md:text-5xl font-black tracking-tighter text-slate-900 dark:text-white mb-3">
+              Best Deals <span className="text-red-500">Today</span>
             </h2>
-            <p className="text-slate-500 dark:text-slate-400 font-medium">
-              Smart picks with verified discount value and ratings.
+            <p className="text-slate-500 dark:text-slate-400 font-medium text-sm">
+              Flash sales and massive price drops on curated tech. <span className="font-bold text-slate-700 dark:text-slate-300">Prices change rapidly.</span>
             </p>
           </div>
           
           <Link
             href="/products?type=deals"
-            className="mt-4 md:mt-0 px-5 py-2.5 rounded-xl bg-white hover:bg-slate-50 dark:bg-slate-900 dark:hover:bg-slate-800 text-slate-800 dark:text-slate-200 text-xs font-bold uppercase tracking-wider transition-all flex items-center gap-2 border border-slate-200 dark:border-slate-850"
+            className="mt-6 md:mt-0 px-5 py-3 rounded-xl bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-100 text-white dark:text-slate-900 text-xs font-black uppercase tracking-wider transition-all flex items-center gap-2 shadow-lg hover:shadow-xl hover:-translate-y-0.5"
           >
-            View All Deals
-            <ArrowRight className="w-3.5 h-3.5" />
+            Explore Active Deals
+            <ArrowRight className="w-4 h-4" />
           </Link>
         </div>
 

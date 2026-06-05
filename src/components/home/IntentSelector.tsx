@@ -38,44 +38,50 @@ export function IntentSelector() {
   ];
 
   return (
-    <section id="intent-selector" className="py-16 bg-slate-50/50 dark:bg-slate-900/10 border-b border-slate-100 dark:border-slate-900 scroll-mt-20">
+    <section id="intent-selector" className="py-20 bg-white dark:bg-slate-950 border-b border-slate-100 dark:border-slate-900 scroll-mt-20">
       <div className="container mx-auto px-4">
         
-        {/* Section Header */}
-        <div className="text-center mb-10">
-          <h2 className="text-3xl md:text-4xl font-black text-slate-900 dark:text-white mb-3 tracking-tighter">
-            Choose Your Intent
+        {/* Guided Step Header */}
+        <div className="text-center mb-12">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-400 text-xs font-black uppercase tracking-wider mb-4">
+            Step 1 of 2
+          </div>
+          <h2 className="text-3xl md:text-5xl font-black text-slate-900 dark:text-white mb-4 tracking-tighter">
+            What are you building today?
           </h2>
-          <p className="text-slate-500 dark:text-slate-400 max-w-md mx-auto font-medium text-sm">
-            What setup environment are you looking to build or upgrade? Select your workflow.
+          <p className="text-slate-500 dark:text-slate-400 max-w-lg mx-auto font-medium text-base">
+            Select your primary workflow. We'll filter out the noise and show you only the gear that makes sense for your setup.
           </p>
         </div>
 
-        {/* Grid Layout */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
+        {/* Guided Decision Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 max-w-6xl mx-auto">
           {intents.map((intent) => (
             <Link
               key={intent.goal}
               href={`/products?goal=${intent.goal}`}
-              className={`group p-6 rounded-3xl bg-white dark:bg-slate-900/40 border transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 flex flex-col justify-between ${intent.color}`}
+              className={`group relative p-8 rounded-[2rem] bg-slate-50 dark:bg-slate-900/40 border-2 border-transparent transition-all duration-300 hover:bg-white dark:hover:bg-slate-900 hover:shadow-xl hover:-translate-y-1 flex flex-col items-center text-center overflow-hidden ${intent.color.replace('border-', 'hover:border-')}`}
             >
-              <div>
-                {/* Icon wrapper */}
-                <div className={`w-12 h-12 rounded-2xl flex items-center justify-center mb-5 group-hover:scale-105 transition-transform ${intent.iconBg}`}>
-                  {intent.icon}
-                </div>
-                
-                <h3 className="text-lg font-extrabold text-slate-900 dark:text-white mb-2 leading-none">
-                  {intent.name}
-                </h3>
-                
-                <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed font-semibold mb-6">
-                  {intent.description}
-                </p>
+              {/* Radio-like indicator */}
+              <div className="absolute top-4 right-4 w-5 h-5 rounded-full border-2 border-slate-200 dark:border-slate-700 group-hover:border-brand-500 group-hover:bg-brand-50 transition-colors flex items-center justify-center">
+                <div className="w-2 h-2 rounded-full bg-brand-500 scale-0 group-hover:scale-100 transition-transform duration-300"></div>
               </div>
 
-              <div className="text-[11px] font-black uppercase tracking-wider text-slate-600 dark:text-slate-350 group-hover:text-brand-600 dark:group-hover:text-brand-400 transition-colors inline-flex items-center gap-1">
-                Explore setup <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+              {/* Icon */}
+              <div className={`w-16 h-16 rounded-3xl flex items-center justify-center mb-6 transition-transform duration-500 group-hover:scale-110 group-hover:-rotate-3 ${intent.iconBg}`}>
+                {intent.icon}
+              </div>
+              
+              <h3 className="text-xl font-black text-slate-900 dark:text-white mb-3">
+                {intent.name}
+              </h3>
+              
+              <p className="text-sm text-slate-500 dark:text-slate-400 font-medium mb-8">
+                {intent.description}
+              </p>
+
+              <div className="mt-auto w-full py-3 px-4 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-xs font-bold uppercase tracking-wider group-hover:bg-brand-600 group-hover:text-white transition-colors flex items-center justify-center gap-2">
+                Select Path <ArrowRight className="w-4 h-4" />
               </div>
             </Link>
           ))}

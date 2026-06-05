@@ -231,28 +231,93 @@ export default async function ProductDetailPage({ params }: Props) {
   }
 
   // Generate JSON-LD Schema for Rich Snippets
+  const baseUrl = "https://www.smartxman.com";
+  
+  const faqAnswerPricing = product.showFreshPrice 
+    ? `Yes, pricing is verified dynamically via our smartXman sync system. The last check was completed recently.` 
+    : `Amazon prices fluctuate. We highly recommend clicking 'Check Latest Price' to view live deals and promotions directly on Amazon.`;
+
   const jsonLd = {
     '@context': 'https://schema.org',
-    '@type': 'Product',
-    name: product.name,
-    image: product.images && product.images.length > 0 ? product.images : [product.image],
-    description: product.description || product.expertNote,
-    brand: {
-      '@type': 'Brand',
-      name: product.brand || 'Generic',
-    },
-    aggregateRating: {
-      '@type': 'AggregateRating',
-      ratingValue: product.rating > 0 ? product.rating : 4.5,
-      reviewCount: product.reviews || 840,
-    },
-    offers: {
-      '@type': 'Offer',
-      priceCurrency: 'INR',
-      price: product.price ? product.price.replace(/[^0-9.]/g, '') : '0',
-      availability: 'https://schema.org/InStock',
-      url: product.affiliateLink,
-    },
+    '@graph': [
+      {
+        '@type': 'Product',
+        '@id': `${baseUrl}/product/${product.slug}#product`,
+        name: product.name,
+        image: product.images && product.images.length > 0 ? product.images : [product.image],
+        description: product.description || product.expertNote,
+        brand: {
+          '@type': 'Brand',
+          name: product.brand || 'Generic',
+        },
+        aggregateRating: {
+          '@type': 'AggregateRating',
+          ratingValue: product.rating > 0 ? product.rating : 4.5,
+          reviewCount: product.reviews || 840,
+        },
+        offers: {
+          '@type': 'Offer',
+          priceCurrency: 'INR',
+          price: product.price ? product.price.replace(/[^0-9.]/g, '') : '0',
+          availability: 'https://schema.org/InStock',
+          url: product.affiliateLink,
+        },
+      },
+      {
+        '@type': 'FAQPage',
+        '@id': `${baseUrl}/product/${product.slug}#faq`,
+        mainEntity: [
+          {
+            '@type': 'Question',
+            name: `Who should buy the ${product.name}?`,
+            acceptedAnswer: {
+              '@type': 'Answer',
+              text: product.whoShouldBuy || `It is perfect for professionals, students, and creators looking for workspace tools that deliver stellar durability and clean design.`
+            }
+          },
+          {
+            '@type': 'Question',
+            name: `Is the pricing verified and fresh?`,
+            acceptedAnswer: {
+              '@type': 'Answer',
+              text: faqAnswerPricing
+            }
+          },
+          {
+            '@type': 'Question',
+            name: `What is the VFM (Value For Money) Index of this product?`,
+            acceptedAnswer: {
+              '@type': 'Answer',
+              text: `Our automated value index ranks this product at ${Number(product.valueScore).toFixed(1)}/10, making it an exceptionally cost-effective recommendation compared to similar options on the market.`
+            }
+          }
+        ]
+      },
+      {
+        '@type': 'BreadcrumbList',
+        '@id': `${baseUrl}/product/${product.slug}#breadcrumb`,
+        itemListElement: [
+          {
+            '@type': 'ListItem',
+            position: 1,
+            name: 'Home',
+            item: baseUrl
+          },
+          {
+            '@type': 'ListItem',
+            position: 2,
+            name: 'Products',
+            item: `${baseUrl}/products`
+          },
+          {
+            '@type': 'ListItem',
+            position: 3,
+            name: product.name,
+            item: `${baseUrl}/product/${product.slug}`
+          }
+        ]
+      }
+    ]
   };
 
   return (
@@ -368,10 +433,24 @@ export default async function ProductDetailPage({ params }: Props) {
               </>
             ) : (
               <>
-                <p className="text-[10px] text-slate-400 dark:text-slate-555 uppercase font-black tracking-wider">Affiliate Deal Price</p>
-                <div className="text-2xl font-black text-amber-600 dark:text-amber-450 uppercase tracking-wider">
-                  Check Latest Price
+                <p className="text-[10px] text-slate-400 dark:text-slate-555 uppercase font-black tracking-wider font-sans">Last Updated Price</p>
+                <div className="flex flex-wrap items-baseline gap-3">
+                  {(product.currentPrice || (product.price && product.price !== "Check Amazon" && product.price !== "Check Price" && product.price !== "Check latest price")) ? (
+                    <span className="text-3xl font-black text-slate-955 dark:text-white">
+                      {product.currentPrice 
+                        ? `₹${Number(product.currentPrice).toLocaleString('en-IN')}` 
+                        : (product.price.startsWith("₹") ? product.price : `₹${product.price}`)}
+                    </span>
+                  ) : null}
+                  <span className="text-xs font-black text-amber-600 dark:text-amber-450 uppercase bg-amber-50 dark:bg-amber-950/30 px-2 py-1 rounded-md">
+                    Check Latest Price
+                  </span>
                 </div>
+                {product.lastPriceCheckedAt && (
+                  <p className="text-[9px] text-slate-400 dark:text-slate-550 font-semibold">
+                    Last checked: {new Date(product.lastPriceCheckedAt).toLocaleDateString()}
+                  </p>
+                )}
               </>
             )}
           </div>

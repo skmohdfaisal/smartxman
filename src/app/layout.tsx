@@ -11,7 +11,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://smartxman.vercel.app"),
+  metadataBase: new URL("https://www.smartxman.com"),
   title: "smartXman | Smart Product Picks That Actually Make Sense",
   description: "Discover curated tech, setup, gaming, and lifestyle products recommended with real research.",
   keywords: ["tech setup", "gaming setup", "creator tools", "productivity", "best tech 2026", "smartxman"],
@@ -22,7 +22,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "smartXman | Smart Product Picks That Actually Make Sense",
     description: "Discover curated tech, setup, gaming, and lifestyle products recommended with real research.",
-    url: "https://smartxman.vercel.app",
+    url: "https://www.smartxman.com",
     siteName: "smartXman",
     images: [
       {
@@ -69,14 +69,14 @@ export default function RootLayout({
               '@context': 'https://schema.org',
               '@type': 'WebSite',
               name: 'smartXman',
-              url: 'https://smartxman.vercel.app',
+              url: 'https://www.smartxman.com',
               description: 'Discover curated tech, setup, gaming, and lifestyle products recommended with real research.',
               publisher: {
                 '@type': 'Organization',
                 name: 'smartXman',
                 logo: {
                   '@type': 'ImageObject',
-                  url: 'https://smartxman.vercel.app/icon.png'
+                  url: 'https://www.smartxman.com/icon.png'
                 }
               }
             }),

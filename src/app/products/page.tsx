@@ -11,7 +11,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return getSeoMetadata("products", {
     title: "Smart Product Recommendations for Tech, Setup & Lifestyle | smartXman",
     description: "Explore curated product picks, budget finds, setup gear, creator tools, gaming accessories, and smart gadgets with clear buying guidance.",
-    url: "https://smartxman.vercel.app/products",
+    url: "https://www.smartxman.com/products",
   });
 }
 

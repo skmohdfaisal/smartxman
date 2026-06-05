@@ -70,9 +70,18 @@ export default function StickyCTA({
                   ₹{Number(currentPrice).toLocaleString('en-IN')}
                 </span>
               ) : (
-                <span className="text-[10px] font-black text-amber-600 dark:text-amber-400 uppercase tracking-wider">
-                  Check Amazon Price
-                </span>
+                <div className="flex items-center gap-2">
+                  {(currentPrice || (price && price !== "Check Amazon" && price !== "Check Price" && price !== "Check latest price")) ? (
+                    <span className="text-xs font-black text-slate-900 dark:text-slate-100">
+                      {currentPrice 
+                        ? `₹${Number(currentPrice).toLocaleString('en-IN')}` 
+                        : (price.startsWith("₹") ? price : `₹${price}`)}
+                    </span>
+                  ) : null}
+                  <span className="text-[9px] font-black text-amber-600 dark:text-amber-400 uppercase tracking-wider">
+                    Check Price
+                  </span>
+                </div>
               )}
             </div>
           </div>

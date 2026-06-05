@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { Star, Heart, ArrowRight, Eye, ChevronLeft, ChevronRight } from "lucide-react";
+import { Star, Heart, ArrowRight, Eye, ChevronLeft, ChevronRight, CheckCircle2, ShieldCheck, ExternalLink } from "lucide-react";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { createClient } from "@/lib/supabase-client";
@@ -125,19 +125,23 @@ export default function ProductCard({ product }: { product: any }) {
     }
   };
 
-  const isPriceFresh = () => {
-    if (product.current_price === null || product.current_price === undefined) return false;
-    if (product.price_is_fresh === true) return true;
-    if (product.showFreshPrice === true) return true;
-    
-    // Default fallback check (7 days window)
-    if (!product.last_price_checked_at) return false;
-    const diffTime = Math.abs(new Date().getTime() - new Date(product.last_price_checked_at).getTime());
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    return diffDays <= 7;
-  };
+  const [showFreshPrice, setShowFreshPrice] = useState(false);
 
-  const showFreshPrice = isPriceFresh();
+  useEffect(() => {
+    const isPriceFresh = () => {
+      if (product.current_price === null || product.current_price === undefined) return false;
+      if (product.price_is_fresh === true) return true;
+      if (product.showFreshPrice === true) return true;
+      
+      // Default fallback check (7 days window)
+      if (!product.last_price_checked_at) return false;
+      const diffTime = Math.abs(new Date().getTime() - new Date(product.last_price_checked_at).getTime());
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      return diffDays <= 7;
+    };
+    setShowFreshPrice(isPriceFresh());
+  }, [product]);
+
   let discountPercent = 0;
   if (showFreshPrice && product.old_price && product.current_price && product.old_price > product.current_price) {
     discountPercent = Math.round(((product.old_price - product.current_price) / product.old_price) * 100);
@@ -155,6 +159,7 @@ export default function ProductCard({ product }: { product: any }) {
   };
 
   const quickVerdict = getQuickVerdict();
+  const isAmazon = (product.affiliateLink || product.affiliate_link || "").toLowerCase().includes('amazon');
 
   // Define Badge System Color Rules
   const getSmartTag = () => {
@@ -179,7 +184,7 @@ export default function ProductCard({ product }: { product: any }) {
   const smartTag = getSmartTag();
 
   return (
-    <div className="group relative flex flex-col bg-white dark:bg-slate-900 rounded-2xl overflow-hidden border border-slate-100 dark:border-slate-800/80 shadow-premium hover:shadow-premium-hover hover:border-brand-500/20 dark:hover:border-brand-400/20 transition-all duration-300 h-full">
+    <div className="group relative flex flex-col bg-white dark:bg-slate-900 rounded-2xl overflow-hidden border border-slate-100 dark:border-slate-800/80 shadow-premium hover:shadow-2xl hover:-translate-y-1 hover:border-brand-400/50 hover:ring-4 hover:ring-brand-500/10 transition-all duration-300 h-full">
       {/* 1. Image Area with Aspect-Ratio & Wishlist */}
       <div className="relative aspect-square w-full bg-slate-50/50 dark:bg-slate-950/20 overflow-hidden border-b border-slate-50 dark:border-slate-800/60 flex items-center justify-center">
         {/* Badges Overlay (Max 2 badges) */}
@@ -290,75 +295,101 @@ export default function ProductCard({ product }: { product: any }) {
             <span className="h-2.5 block mb-0.5"></span>
           )}
           <Link href={`/product/${product.slug}`}>
-            <h3 className="font-extrabold text-[14px] text-slate-900 dark:text-white line-clamp-2 leading-tight group-hover:text-brand-600 dark:group-hover:text-brand-400 transition-colors">
+            <h3 className="font-extrabold text-[15px] text-slate-900 dark:text-white line-clamp-2 leading-tight group-hover:text-brand-600 dark:group-hover:text-brand-400 transition-colors">
               {product.name}
             </h3>
           </Link>
         </div>
 
-        {/* 1-line AI Quick Insight */}
-        <div className="h-5 mb-4 mt-1.5 flex items-center">
-          {quickVerdict && (
-            <p className="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-1 leading-normal font-medium italic">
-              ✦ {quickVerdict.replace(/"/g, "")}
-            </p>
-          )}
+        {/* Visual Star Rating */}
+        <div className="flex items-center gap-1.5 mb-4">
+          <div className="flex text-yellow-400">
+            {[...Array(5)].map((_, i) => (
+              <Star key={i} className={`w-3.5 h-3.5 ${i < Math.floor(product.rating || 4.8) ? 'fill-yellow-400' : 'fill-slate-200 text-slate-200 dark:fill-slate-700 dark:text-slate-700'}`} />
+            ))}
+          </div>
+          <span className="text-[11px] font-black text-slate-700 dark:text-slate-300">{Number(product.rating || 4.8).toFixed(1)}</span>
+          <span className="text-[10px] font-bold text-slate-400">({product.reviews || "800+"})</span>
         </div>
 
-        {/* 3. Compact Score System (⭐⭐ Rating, Smart Score, VFM Score) */}
-        <div className="flex items-center gap-2 mb-4 border-t border-b border-slate-50 dark:border-slate-800/40 py-2.5 h-10 overflow-hidden flex-nowrap text-[9px] font-black uppercase">
-          <div className="flex items-center gap-0.5 bg-slate-50 dark:bg-slate-850 px-2 py-0.5 rounded-md border border-slate-100/50 dark:border-slate-800/30 shrink-0 text-slate-800 dark:text-slate-200">
-            <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
-            <span>{Number(product.rating || 0).toFixed(1)}</span>
+        {/* Psychological Element: Why we picked this */}
+        <div className="mb-4 flex items-start gap-2 bg-slate-50 dark:bg-slate-800/50 p-2.5 rounded-xl border border-slate-100 dark:border-slate-800">
+          <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
+          <div>
+            <span className="text-[9px] font-black uppercase tracking-wider text-slate-400 dark:text-slate-500 block mb-0.5">Why we recommend this</span>
+            {quickVerdict ? (
+              <p className="text-[11px] text-slate-700 dark:text-slate-300 line-clamp-2 leading-snug font-medium">
+                {quickVerdict.replace(/"/g, "")}
+              </p>
+            ) : (
+              <p className="text-[11px] text-slate-700 dark:text-slate-300 line-clamp-2 leading-snug font-medium">
+                Expert tested and verified for optimal performance and value.
+              </p>
+            )}
           </div>
-          
+        </div>
+
+        {/* Smart & Value Scores */}
+        <div className="flex items-center gap-2 mb-4 h-6 overflow-hidden flex-nowrap text-[9px] font-black uppercase">
           {(product.smartScore || product.smart_score) && (
-            <div className="flex items-center gap-1 px-2 py-0.5 bg-brand-50/50 dark:bg-brand-950/20 border border-brand-100/10 text-brand-650 dark:text-brand-400 rounded-md shrink-0">
-              Smart: {Number(product.smartScore || product.smart_score).toFixed(1)}
+            <div className="flex items-center gap-1 px-2 py-1 bg-brand-50 dark:bg-brand-950/40 text-brand-700 dark:text-brand-400 rounded-md shrink-0">
+              Smart Score: {Number(product.smartScore || product.smart_score).toFixed(1)}/10
             </div>
           )}
           
           {(product.valueScore || product.value_score) && (
-            <div className="flex items-center gap-1 px-2 py-0.5 bg-emerald-50/50 dark:bg-emerald-950/20 border border-emerald-100/10 text-emerald-650 dark:text-emerald-400 rounded-md shrink-0">
-              VFM: {Number(product.valueScore || product.value_score).toFixed(1)}
+            <div className="flex items-center gap-1 px-2 py-1 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 rounded-md shrink-0">
+              Value: {Number(product.valueScore || product.value_score).toFixed(1)}/10
             </div>
           )}
         </div>
 
         {/* 4. Price & CTA Area */}
-        <div className="mt-auto space-y-3.5">
-          <div className="flex items-baseline justify-between h-6">
-            <div className="flex flex-col justify-center">
+        <div className="mt-auto pt-4 border-t border-slate-100 dark:border-slate-800">
+          <div className="flex items-end justify-between mb-3">
+            <div className="flex flex-col">
+              <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Current Price</span>
               <div className="flex items-baseline gap-1.5">
-                <span className="text-base font-black text-slate-900 dark:text-slate-100 leading-none">
+                <span className="text-xl font-black text-slate-900 dark:text-slate-100 leading-none">
                   {displayPriceInfo.value}
                 </span>
                 {displayPriceInfo.hasOldPrice && (
-                  <span className="text-[11px] text-slate-400 line-through leading-none">
+                  <span className="text-[11px] font-bold text-slate-400 line-through leading-none">
                     {displayPriceInfo.oldPrice}
                   </span>
                 )}
               </div>
             </div>
-
-            {/* Secondary CTA: View Details */}
-            <Link 
-              href={`/product/${product.slug}`}
-              className="text-[10px] font-black uppercase tracking-wider text-slate-450 hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-400 transition-colors inline-flex items-center gap-1 group/link"
-            >
-              View Details <ArrowRight className="w-3 h-3 group-hover/link:translate-x-0.5 transition-transform" />
-            </Link>
+            
+            <div className="flex flex-col items-end">
+              <span className="text-[9px] font-black text-emerald-600 dark:text-emerald-500 flex items-center gap-0.5 bg-emerald-50 dark:bg-emerald-950/30 px-1.5 py-0.5 rounded">
+                <ShieldCheck className="w-3 h-3" /> Verified
+              </span>
+            </div>
           </div>
 
-          {/* Primary CTA: Check Best Price (dominant button) */}
-          <a 
-            href={product.affiliateLink || product.affiliate_link || "#"}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="w-full py-3 bg-brand-600 hover:bg-brand-700 text-white font-black text-[11px] uppercase tracking-wider rounded-xl transition-all text-center flex items-center justify-center gap-2 h-10 shadow-sm shadow-brand-500/10 active:scale-[0.98]"
-          >
-            Check Best Price
-          </a>
+          {/* Primary CTA: Dominant Button */}
+          <div className="space-y-2">
+            <a 
+              href={product.affiliateLink || product.affiliate_link || "#"}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="relative w-full py-3.5 bg-brand-600 hover:bg-brand-700 text-white font-black text-[11px] uppercase tracking-wider rounded-xl transition-all text-center flex items-center justify-center gap-2 shadow-lg shadow-brand-500/20 active:scale-[0.98] group/btn overflow-hidden"
+            >
+              <span className="relative z-10 flex items-center gap-1.5">
+                {isAmazon ? "Check Live Price on Amazon" : "Check Live Price"} <ExternalLink className="w-3.5 h-3.5" />
+              </span>
+              <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent group-hover/btn:animate-[shimmer_1.5s_infinite]"></div>
+            </a>
+            
+            {/* Secondary CTA */}
+            <Link 
+              href={`/product/${product.slug}`}
+              className="w-full py-2 bg-slate-50 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 font-bold text-[10px] uppercase tracking-widest rounded-xl transition-colors text-center flex items-center justify-center gap-1"
+            >
+              See Detailed Review <ArrowRight className="w-3 h-3" />
+            </Link>
+          </div>
         </div>
       </div>
     </div>

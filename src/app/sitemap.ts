@@ -20,7 +20,7 @@ const pageKeyToPath: Record<string, string> = {
 };
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = 'https://smartxman.vercel.app'
+  const baseUrl = 'https://www.smartxman.com'
 
   // ─── Fetch SEO settings for static pages ───
   let seoSettings: any[] = [];
@@ -96,5 +96,19 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.6,
   }));
 
-  return [...staticRoutes, ...categoryRoutes, ...productRoutes];
+  // Blogs
+  const { data: blogs } = await supabase
+    .from('blogs')
+    .select('slug, updated_at, cover_image')
+    .eq('status', 'published');
+
+  const blogRoutes: MetadataRoute.Sitemap = (blogs || []).map((blog) => ({
+    url: `${baseUrl}/blog/${blog.slug}`,
+    lastModified: blog.updated_at ? new Date(blog.updated_at) : new Date(),
+    changeFrequency: 'weekly',
+    priority: 0.7,
+    images: blog.cover_image ? [blog.cover_image] : undefined,
+  }));
+
+  return [...staticRoutes, ...categoryRoutes, ...productRoutes, ...blogRoutes];
 }
