@@ -25,10 +25,10 @@ export function AboutSection() {
             </h2>
             <div className="space-y-4 text-lg text-slate-600 dark:text-slate-400 mb-8">
               <p>
-                smartXman helps you find useful products without wasting hours online.
+                smartXman helps you find the best smart product picks without wasting hours online.
               </p>
               <p>
-                We recommend tech accessories, setup products, gaming gear, creator tools, productivity essentials, home decor, and budget-friendly finds in a simple and practical way.
+                We recommend smart picks for tech accessories, setup products, gaming gear, creator tools, productivity essentials, home decor, and budget-friendly finds in a simple and practical way.
               </p>
               <p className="font-medium text-slate-800 dark:text-slate-200">
                 Our goal is not to make you buy more.

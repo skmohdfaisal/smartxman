@@ -51,7 +51,7 @@ export async function getSeoMetadata(
 
   const title = seo?.meta_title || fallback.title;
   const description = seo?.meta_description || fallback.description;
-  const canonicalUrl = seo?.canonical_url || fallback.url || "https://www.smartxman.com";
+  const canonicalUrl = seo?.canonical_url || fallback.url || "https://smartxman.com";
   const ogTitle = seo?.og_title || title;
   const ogDescription = seo?.og_description || description;
   const ogImage = seo?.og_image_url || "/og-image.png";

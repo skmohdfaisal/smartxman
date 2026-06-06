@@ -1,8 +1,12 @@
 User-agent: *
 Allow: /
+Allow: /products
+Allow: /blogs
+Allow: /categories
+Allow: /deals
 
 # Disallow admin and auth routes
 Disallow: /admin/
 Disallow: /auth/
 
-Sitemap: https://www.smartxman.com/sitemap.xml
+Sitemap: https://smartxman.com/sitemap.xml

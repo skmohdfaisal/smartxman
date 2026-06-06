@@ -5,6 +5,8 @@ import { ProductFilters } from "@/components/ProductFilters";
 import { supabase } from "@/lib/supabase";
 import { Metadata } from "next";
 
+export const revalidate = 3600;
+
 // Helper to parse price string to number for sorting
 const parsePrice = (priceStr: string | undefined | null) => {
   if (!priceStr) return 0;

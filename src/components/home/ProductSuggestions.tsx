@@ -151,7 +151,7 @@ export function ProductSuggestions({ products = [] }: SuggestionsProps) {
               <span className="text-[11px] font-black uppercase tracking-[0.2em] text-brand-600 dark:text-brand-400">Smart Recommendation Platform</span>
             </div>
             <h2 className="text-3xl md:text-4xl font-black tracking-tighter text-slate-900 dark:text-white mb-2">
-              Explore Curated Suggestions
+              Top Smart Product Picks for 2026
             </h2>
             <p className="text-slate-500 dark:text-slate-400 font-medium">
               We help you buy better, not more. Browse by expert scores and custom setups.

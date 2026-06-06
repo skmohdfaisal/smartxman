@@ -20,7 +20,7 @@ const pageKeyToPath: Record<string, string> = {
 };
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = 'https://www.smartxman.com'
+  const baseUrl = 'https://smartxman.com'
 
   // ─── Fetch SEO settings for static pages ───
   let seoSettings: any[] = [];

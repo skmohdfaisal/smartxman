@@ -19,9 +19,9 @@ import { getSeoMetadata } from "@/lib/seo";
 
 export async function generateMetadata(): Promise<Metadata> {
   return getSeoMetadata("homepage", {
-    title: "smartXman | Smart Product Picks That Actually Make Sense",
-    description: "Discover useful tech, setup, gaming, productivity, and lifestyle products curated for students, creators, gamers, and everyday buyers.",
-    url: "https://www.smartxman.com",
+    title: "Best Smart Tech & Gadget Picks in India (2026) | SmartXman",
+    description: "Discover the best smart product picks, gaming gear, and tech accessories for your setup. Curated budget gadgets in India for students and creators.",
+    url: "https://smartxman.com",
   });
 }
 

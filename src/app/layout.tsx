@@ -11,18 +11,15 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://www.smartxman.com"),
+  metadataBase: new URL("https://smartxman.com"),
   title: "smartXman | Smart Product Picks That Actually Make Sense",
   description: "Discover curated tech, setup, gaming, and lifestyle products recommended with real research.",
-  keywords: ["tech setup", "gaming setup", "creator tools", "productivity", "best tech 2026", "smartxman"],
+  keywords: ["smart product picks", "smart picks", "best smart product picks", "tech setup", "gaming setup", "creator tools", "productivity", "best tech 2026", "smartxman"],
   authors: [{ name: "smartXman Team" }],
-  verification: {
-    google: "YOUR_GOOGLE_SEARCH_CONSOLE_VERIFICATION_CODE", // Replace this with your actual code
-  },
   openGraph: {
     title: "smartXman | Smart Product Picks That Actually Make Sense",
     description: "Discover curated tech, setup, gaming, and lifestyle products recommended with real research.",
-    url: "https://www.smartxman.com",
+    url: "https://smartxman.com",
     siteName: "smartXman",
     images: [
       {
@@ -69,14 +66,14 @@ export default function RootLayout({
               '@context': 'https://schema.org',
               '@type': 'WebSite',
               name: 'smartXman',
-              url: 'https://www.smartxman.com',
+              url: 'https://smartxman.com',
               description: 'Discover curated tech, setup, gaming, and lifestyle products recommended with real research.',
               publisher: {
                 '@type': 'Organization',
                 name: 'smartXman',
                 logo: {
                   '@type': 'ImageObject',
-                  url: 'https://www.smartxman.com/icon.png'
+                  url: 'https://smartxman.com/icon.png'
                 }
               }
             }),

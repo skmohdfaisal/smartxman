@@ -14,6 +14,8 @@ interface Props {
   params: Promise<{ slug: string }>;
 }
 
+export const revalidate = 3600;
+
 async function getProduct(slug: string) {
   const { data, error } = await supabase
     .from('products')
@@ -231,7 +233,7 @@ export default async function ProductDetailPage({ params }: Props) {
   }
 
   // Generate JSON-LD Schema for Rich Snippets
-  const baseUrl = "https://www.smartxman.com";
+  const baseUrl = "https://smartxman.com";
   
   const faqAnswerPricing = product.showFreshPrice 
     ? `Yes, pricing is verified dynamically via our smartXman sync system. The last check was completed recently.` 

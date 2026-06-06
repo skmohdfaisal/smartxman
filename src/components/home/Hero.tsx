@@ -29,12 +29,12 @@ export function Hero({ settings }: { settings?: any }) {
         
         {/* Title - Hook (Emotion/Curiosity) */}
         <h1 className="text-4xl md:text-6xl lg:text-[4rem] font-black tracking-tighter mb-6 text-slate-900 dark:text-white leading-[1.05]">
-          Stop Wasting Money on <span className="text-brand-600 block sm:inline">Tech You'll Regret.</span>
+          Curated <span className="text-brand-600 block sm:inline">Smart Product Picks.</span> Stop Wasting Money on Tech You'll Regret.
         </h1>
         
         {/* Subtext - Clarity */}
         <p className="text-base md:text-lg text-slate-500 dark:text-slate-400 max-w-2xl mx-auto mb-10 leading-relaxed font-semibold">
-          We analyze thousands of gadgets to find the top 1% of products for your specific needs—whether it's gaming, productivity, or just saving money.
+          We analyze thousands of gadgets to find the top 1% of smart product picks for your specific needs—whether it's gaming, productivity, or just saving money.
         </p>
         
         {/* CTA & Micro Social Proof */}
