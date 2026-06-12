@@ -12,13 +12,13 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://smartxman.com"),
-  title: "smartXman | Smart Product Picks That Actually Make Sense",
-  description: "Discover curated tech, setup, gaming, and lifestyle products recommended with real research.",
-  keywords: ["smart product picks", "smart picks", "best smart product picks", "tech setup", "gaming setup", "creator tools", "productivity", "best tech 2026", "smartxman"],
-  authors: [{ name: "smartXman Team" }],
+  title: "SmartXMan | Make Smarter Buying Decisions",
+  description: "SmartXMan helps students, creators, and professionals discover products worth buying through research-backed recommendations, buying guides, and setup planning.",
+  keywords: ["smart product picks", "tech setup", "gaming setup", "creator tools", "productivity", "best tech 2026", "smartxman", "buying guides", "product reviews"],
+  authors: [{ name: "SmartXMan Team" }],
   openGraph: {
-    title: "smartXman | Smart Product Picks That Actually Make Sense",
-    description: "Discover curated tech, setup, gaming, and lifestyle products recommended with real research.",
+    title: "SmartXMan | Make Smarter Buying Decisions",
+    description: "SmartXMan helps students, creators, and professionals discover products worth buying through research-backed recommendations, buying guides, and setup planning.",
     url: "https://smartxman.com",
     siteName: "smartXman",
     images: [
@@ -34,8 +34,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "smartXman | Smart Product Picks",
-    description: "Discover curated tech and setup recommendations.",
+    title: "SmartXMan | Make Smarter Buying Decisions",
+    description: "Research-backed recommendations for your setup.",
     images: ["/og-image.png"],
     creator: "@smartxman",
   },
@@ -65,12 +65,12 @@ export default function RootLayout({
             __html: JSON.stringify({
               '@context': 'https://schema.org',
               '@type': 'WebSite',
-              name: 'smartXman',
+              name: 'SmartXMan',
               url: 'https://smartxman.com',
-              description: 'Discover curated tech, setup, gaming, and lifestyle products recommended with real research.',
+              description: 'SmartXMan helps students, creators, and professionals discover products worth buying through research-backed recommendations.',
               publisher: {
                 '@type': 'Organization',
-                name: 'smartXman',
+                name: 'SmartXMan',
                 logo: {
                   '@type': 'ImageObject',
                   url: 'https://smartxman.com/icon.png'

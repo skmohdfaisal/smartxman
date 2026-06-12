@@ -1,26 +1,27 @@
-import ProductCard from "@/components/ProductCard";
-import { type ProductProps } from "@/lib/constants";
-import Link from "next/link";
-import Image from "next/image";
-import { ArrowRight, Trophy } from "lucide-react";
-import { AboutSection } from "@/components/home/AboutSection";
+import { Metadata } from "next";
+import { getSeoMetadata } from "@/lib/seo";
+import { supabase } from "@/lib/supabase";
+import { getHomepageSettings } from "@/lib/homepage-actions";
+
+// Existing Components
 import { Hero } from "@/components/home/Hero";
 import { ProductSuggestions } from "@/components/home/ProductSuggestions";
 import { BestDealsSection } from "@/components/home/BestDealsSection";
-import { WhySmartxman } from "@/components/home/WhySmartxman";
-import { BudgetSelector } from "@/components/home/BudgetSelector";
-import { IntentSelector } from "@/components/home/IntentSelector";
-import { TrustSection } from "@/components/home/TrustSection";
-import { ProblemSolutionFlow } from "@/components/home/ProblemSolutionFlow";
-import { supabase } from "@/lib/supabase";
-import { getHomepageSettings } from "@/lib/homepage-actions";
-import { Metadata } from "next";
-import { getSeoMetadata } from "@/lib/seo";
+
+// New Components
+import { FounderStory } from "@/components/home/FounderStory";
+import { HowItWorks } from "@/components/home/HowItWorks";
+import { ResearchStandard } from "@/components/home/ResearchStandard";
+import { SetupFinder } from "@/components/home/SetupFinder";
+import { FeaturedGuides } from "@/components/home/FeaturedGuides";
+import { CommunityJoin } from "@/components/home/CommunityJoin";
+import { SocialProof } from "@/components/home/SocialProof";
+import { FinalCTA } from "@/components/home/FinalCTA";
 
 export async function generateMetadata(): Promise<Metadata> {
   return getSeoMetadata("homepage", {
-    title: "Best Smart Tech & Gadget Picks in India (2026) | SmartXman",
-    description: "Discover the best smart product picks, gaming gear, and tech accessories for your setup. Curated budget gadgets in India for students and creators.",
+    title: "SmartXMan | Make Smarter Buying Decisions",
+    description: "SmartXMan helps students, creators, and professionals discover products worth buying through research-backed recommendations and buying guides.",
     url: "https://smartxman.com",
   });
 }
@@ -37,7 +38,7 @@ export default async function Home() {
     .select('*, primary_category:categories!products_primary_category_id_fkey(*)')
     .order('created_at', { ascending: false });
 
-  // Only show published products, respecting the admin workflow
+  // Only show published products
   const activeProducts = (dbProducts || []).filter(
     p => p.is_active !== false && p.status === 'published'
   );
@@ -49,7 +50,7 @@ export default async function Home() {
     description: p.description,
     price: p.price_range || "Check Price",
     rating: Number(p.rating) || 0,
-    reviews: 840, // standard reviews count
+    reviews: 840,
     image: p.images?.[0] || "/placeholder-product.png",
     images: p.images || [],
     category: p.primary_category?.name || "Tech Accessories",
@@ -81,7 +82,7 @@ export default async function Home() {
     last_price_checked_at: p.last_price_checked_at
   }));
 
-  // Fetch deals from Supabase store links with old prices, or fallback to products marked as 'best deal'
+  // Fetch deals
   const { data: dbDeals } = await supabase
     .from('product_store_links')
     .select('*, product:products(*)')
@@ -116,13 +117,10 @@ export default async function Home() {
       .filter(d => parseInt(d.discount) > 0);
   }
 
-  // If we have fewer than 3 deals from store links, append products that have the 'is_best_deal' or 'show_in_deals' toggle enabled
   if (deals.length < 3) {
     const dealsProducts = products.filter(p => p.isBestDeal || p.showInDeals);
     dealsProducts.forEach(p => {
-      // Avoid duplication
       if (!deals.some(d => d.slug === p.slug)) {
-        // Parse numerical price or estimate discount
         const cleanPrice = p.price.replace(/[^0-9]/g, "");
         const priceNum = cleanPrice ? parseInt(cleanPrice) : 2500;
         const oldPriceNum = Math.round(priceNum * 1.25);
@@ -147,67 +145,48 @@ export default async function Home() {
 
   return (
     <div className="flex flex-col min-h-screen">
-      {/* 1. Shorter, Centered Apple-like Hero */}
+      {/* 1. Hero Section */}
       <Hero settings={settings} />
 
-      {/* Problem -> Solution Flow */}
-      <ProblemSolutionFlow />
+      {/* 2. Founder Story */}
+      <FounderStory />
 
-      {/* 2. Intent Selector (Goal-based discovery) */}
-      <IntentSelector />
+      {/* 3. How It Works */}
+      <HowItWorks />
 
-      {/* 3. Budget Selector (Budget-based discovery) */}
-      <BudgetSelector />
+      {/* 4. Research Standard */}
+      <ResearchStandard />
 
-      {/* 4. Product Suggestions Section (Smart recommendations grid) */}
-      <ProductSuggestions products={products} />
+      {/* 5. Setup Finder */}
+      <div id="setup-finder">
+        <SetupFinder />
+      </div>
 
-      {/* 5. Best Deals Section (Discount deals) */}
-      <BestDealsSection deals={deals} />
+      {/* 6. Featured Guides */}
+      <FeaturedGuides />
 
-      {/* 6. Trust Section (AI / Manual Curation guarantees) */}
-      <TrustSection />
-
-      {/* 7. Why Smartxman? */}
-      <WhySmartxman settings={settings} />
-
-      {/* 6. Best Setup Guides */}
-      <section className="py-24 bg-white dark:bg-slate-950">
-        <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between mb-16">
-            <div>
-              <h2 className="text-4xl font-black tracking-tighter text-slate-900 dark:text-white mb-2">Build Your Setup</h2>
-              <p className="text-slate-600 dark:text-slate-400">Expert guides to help you build the perfect environment.</p>
-            </div>
-            <Link href="/blog" className="hidden md:flex items-center gap-2 text-brand-600 font-bold uppercase text-xs tracking-widest">
-              Read All Guides <ArrowRight className="w-4 h-4" />
-            </Link>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {[
-              { title: "Ultimate Student Desk", tag: "Budget", image: "/blog/wfh-guide.png", slug: "ultimate-wfh-desk-setup-guide-2026" },
-              { title: "Minimalist Creator Station", tag: "Premium", image: "/blog/switches-guide.png", slug: "mechanical-keyboards-switches-explained" },
-              { title: "Pro Gaming Environment", tag: "Performance", image: "/categories/setup.png", slug: "cable-management-101-hide-those-wires" }
-            ].map((guide) => (
-              <Link key={guide.slug} href={`/blog/${guide.slug}`} className="group block">
-                <div className="relative aspect-[16/10] rounded-[2rem] overflow-hidden mb-6 border border-slate-100 dark:border-slate-800">
-                  <Image src={guide.image} alt={guide.title} fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
-                  <div className="absolute top-4 left-4">
-                    <span className="px-3 py-1 bg-white/90 backdrop-blur-sm dark:bg-slate-900/90 text-slate-900 dark:text-white text-[10px] font-black uppercase tracking-widest rounded-full">
-                      {guide.tag}
-                    </span>
-                  </div>
-                </div>
-                <h3 className="text-xl font-black text-slate-900 dark:text-white group-hover:text-brand-600 transition-colors">{guide.title}</h3>
-              </Link>
-            ))}
-          </div>
+      {/* Legacy/Existing Data Integrations (Products & Deals) */}
+      <div className="bg-slate-50 dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 pt-12">
+        <div className="container mx-auto px-4 max-w-7xl text-center mb-8">
+          <h2 className="text-3xl font-black tracking-tighter text-slate-900 dark:text-white">
+            Current <span className="text-brand-600">Smart Picks</span>
+          </h2>
+          <p className="text-slate-600 dark:text-slate-400 font-medium mt-2">
+            The top-rated products across all our research categories.
+          </p>
         </div>
-      </section>
+        <ProductSuggestions products={products} />
+        {deals.length > 0 && <BestDealsSection deals={deals} />}
+      </div>
 
-      {/* About Section */}
-      <AboutSection />
+      {/* 7. Community Join */}
+      <CommunityJoin />
+
+      {/* 8. Social Proof */}
+      <SocialProof />
+
+      {/* 9. Final CTA */}
+      <FinalCTA />
     </div>
   );
 }
