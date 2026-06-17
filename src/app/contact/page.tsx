@@ -5,7 +5,7 @@ export const metadata: Metadata = {
   title: "Contact Us | smartXman",
   description: "Have a question, want to suggest a product, or interested in a partnership? We'd love to hear from you.",
   alternates: {
-    canonical: "/contact",
+    canonical: "https://smartxman.com/contact",
   },
 };
 

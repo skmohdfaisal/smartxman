@@ -7,6 +7,20 @@ import { Metadata } from "next";
 
 export const revalidate = 3600;
 
+// Pre-render all category pages at build time
+export async function generateStaticParams() {
+  try {
+    const { data: categories } = await supabase
+      .from('categories')
+      .select('slug');
+
+    return (categories || []).map((c) => ({ slug: c.slug }));
+  } catch (_) {
+    return [];
+  }
+}
+
+
 // Helper to parse price string to number for sorting
 const parsePrice = (priceStr: string | undefined | null) => {
   if (!priceStr) return 0;
@@ -37,10 +51,10 @@ export async function generateMetadata({
       title,
       description,
       type: 'website',
-      url: `/category/${slug}`,
+      url: `https://smartxman.com/category/${slug}`,
     },
     alternates: {
-      canonical: `/category/${slug}`,
+      canonical: `https://smartxman.com/category/${slug}`,
     },
   };
 }

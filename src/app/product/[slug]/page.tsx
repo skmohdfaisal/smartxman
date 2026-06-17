@@ -16,6 +16,25 @@ interface Props {
 
 export const revalidate = 3600;
 
+// Pre-render all published product pages at build time
+export async function generateStaticParams() {
+  try {
+    const { data: products } = await supabase
+      .from('products')
+      .select('slug')
+      .eq('status', 'published')
+      .eq('is_active', true);
+
+    return (products || [])
+      // Guard: skip slugs that exceed Windows MAX_PATH during local builds
+      .filter((p) => p.slug && p.slug.length <= 180)
+      .map((p) => ({ slug: p.slug }));
+  } catch (_) {
+    return [];
+  }
+}
+
+
 async function getProduct(slug: string) {
   const { data, error } = await supabase
     .from('products')
@@ -141,7 +160,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       images: [product.image],
     },
     alternates: {
-      canonical: `/product/${resolvedParams.slug}`,
+      canonical: `https://smartxman.com/product/${resolvedParams.slug}`,
     },
   };
 }

@@ -1,114 +1,79 @@
 import { MetadataRoute } from 'next'
 import { supabase } from '@/lib/supabase'
 
-export const dynamic = 'force-dynamic'
+// ISR — regenerate sitemap every hour, not on every request
+export const revalidate = 3600
 
-// Map page_key to URL path
-const pageKeyToPath: Record<string, string> = {
-  homepage: '',
-  products: '/products',
-  categories: '/categories',
-  'build-my-setup': '/build-my-setup',
-  'budget-picks': '/budget-picks',
-  deals: '/deals',
-  blog: '/blog',
-  about: '/about',
-  'affiliate-disclosure': '/affiliate-disclosure',
-  'privacy-policy': '/privacy',
-  terms: '/terms',
-  contact: '/contact',
-};
+const BASE_URL = 'https://smartxman.com'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = 'https://smartxman.com'
 
-  // ─── Fetch SEO settings for static pages ───
-  let seoSettings: any[] = [];
+  // ─── Static routes ───────────────────────────────
+  const staticRoutes: MetadataRoute.Sitemap = [
+    { url: BASE_URL,                              lastModified: new Date(), changeFrequency: 'daily',   priority: 1.0 },
+    { url: `${BASE_URL}/products`,                lastModified: new Date(), changeFrequency: 'daily',   priority: 0.9 },
+    { url: `${BASE_URL}/deals`,                   lastModified: new Date(), changeFrequency: 'daily',   priority: 0.8 },
+    { url: `${BASE_URL}/blog`,                    lastModified: new Date(), changeFrequency: 'weekly',  priority: 0.8 },
+    { url: `${BASE_URL}/about`,                   lastModified: new Date(), changeFrequency: 'monthly', priority: 0.6 },
+    { url: `${BASE_URL}/contact`,                 lastModified: new Date(), changeFrequency: 'monthly', priority: 0.4 },
+    { url: `${BASE_URL}/privacy`,                 lastModified: new Date(), changeFrequency: 'monthly', priority: 0.3 },
+    { url: `${BASE_URL}/terms`,                   lastModified: new Date(), changeFrequency: 'monthly', priority: 0.3 },
+    { url: `${BASE_URL}/affiliate-disclosure`,    lastModified: new Date(), changeFrequency: 'monthly', priority: 0.3 },
+  ]
+
+  // ─── Published products ───────────────────────────
+  let productRoutes: MetadataRoute.Sitemap = []
   try {
-    const { data, error } = await supabase
-      .from('seo_settings')
-      .select('page_key, canonical_url, sitemap_priority, change_frequency, include_in_sitemap, noindex');
-    
-    if (!error && data) {
-      seoSettings = data.filter(
-        (row: any) => row.include_in_sitemap !== false && !row.noindex
-      );
-    }
-  } catch (_) {
-    // Supabase unavailable — use hardcoded fallback
-  }
+    const { data: products } = await supabase
+      .from('products')
+      .select('slug, updated_at, created_at, images')
+      .eq('status', 'published')
+      .eq('is_active', true)
+      .order('created_at', { ascending: false })
 
-  // ─── Build static routes ───────────────────
-  let staticRoutes: MetadataRoute.Sitemap = [];
+    productRoutes = (products || []).map((p) => ({
+      url: `${BASE_URL}/product/${p.slug}`,
+      lastModified: p.updated_at ? new Date(p.updated_at) : new Date(p.created_at),
+      changeFrequency: 'weekly' as const,
+      priority: 0.8,
+    }))
+  } catch (_) {}
 
-  if (seoSettings.length > 0) {
-    // Use DB settings
-    for (const row of seoSettings) {
-      const urlPath = pageKeyToPath[row.page_key];
-      if (urlPath === undefined) continue; // Skip dynamic templates
+  // ─── Categories ──────────────────────────────────
+  let categoryRoutes: MetadataRoute.Sitemap = []
+  try {
+    const { data: categories } = await supabase
+      .from('categories')
+      .select('slug')
 
-      staticRoutes.push({
-        url: row.canonical_url || `${baseUrl}${urlPath}`,
-        lastModified: new Date(),
-        changeFrequency: (row.change_frequency || 'weekly') as any,
-        priority: row.sitemap_priority ?? 0.5,
-      });
-    }
-  } else {
-    // Hardcoded fallback
-    staticRoutes = [
-      { url: baseUrl, lastModified: new Date(), changeFrequency: 'daily', priority: 1 },
-      { url: `${baseUrl}/products`, lastModified: new Date(), changeFrequency: 'daily', priority: 0.9 },
-      { url: `${baseUrl}/blog`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.8 },
-      { url: `${baseUrl}/deals`, lastModified: new Date(), changeFrequency: 'daily', priority: 0.8 },
-      { url: `${baseUrl}/about`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.5 },
-      { url: `${baseUrl}/contact`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.5 },
-      { url: `${baseUrl}/privacy`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.3 },
-      { url: `${baseUrl}/terms`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.3 },
-    ];
-  }
+    categoryRoutes = (categories || []).map((c) => ({
+      url: `${BASE_URL}/category/${c.slug}`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly' as const,
+      priority: 0.7,
+    }))
+  } catch (_) {}
 
-  // ─── Fetch dynamic routes ──────────────────
+  // ─── Published blog posts ─────────────────────────
+  let blogRoutes: MetadataRoute.Sitemap = []
+  try {
+    const { data: blogs } = await supabase
+      .from('blogs')
+      .select('slug, updated_at')
+      .eq('status', 'published')
 
-  // Products
-  const { data: products } = await supabase
-    .from('products')
-    .select('slug, created_at, images')
-    .order('created_at', { ascending: false });
+    blogRoutes = (blogs || []).map((b) => ({
+      url: `${BASE_URL}/blog/${b.slug}`,
+      lastModified: b.updated_at ? new Date(b.updated_at) : new Date(),
+      changeFrequency: 'weekly' as const,
+      priority: 0.7,
+    }))
+  } catch (_) {}
 
-  const productRoutes: MetadataRoute.Sitemap = (products || []).map((product) => ({
-    url: `${baseUrl}/product/${product.slug}`,
-    lastModified: product.created_at ? new Date(product.created_at) : new Date(),
-    changeFrequency: 'daily',
-    priority: 0.8,
-    images: product.images && product.images.length > 0 ? product.images : undefined,
-  }));
-
-  // Categories
-  const { data: categories } = await supabase
-    .from('categories')
-    .select('slug');
-
-  const categoryRoutes: MetadataRoute.Sitemap = (categories || []).map((category) => ({
-    url: `${baseUrl}/category/${category.slug}`,
-    lastModified: new Date(),
-    changeFrequency: 'weekly',
-    priority: 0.6,
-  }));
-
-  // Blogs
-  const { data: blogs } = await supabase
-    .from('blogs')
-    .select('slug, updated_at, cover_image')
-    .eq('status', 'published');
-
-  const blogRoutes: MetadataRoute.Sitemap = (blogs || []).map((blog) => ({
-    url: `${baseUrl}/blog/${blog.slug}`,
-    lastModified: blog.updated_at ? new Date(blog.updated_at) : new Date(),
-    changeFrequency: 'weekly',
-    priority: 0.7,
-    images: blog.cover_image ? [blog.cover_image] : undefined,
-  }));
-
-  return [...staticRoutes, ...categoryRoutes, ...productRoutes, ...blogRoutes];
+  return [
+    ...staticRoutes,
+    ...categoryRoutes,
+    ...productRoutes,
+    ...blogRoutes,
+  ]
 }
