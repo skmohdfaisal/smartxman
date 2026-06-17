@@ -3,25 +3,20 @@ import { getSeoMetadata } from "@/lib/seo";
 import { supabase } from "@/lib/supabase";
 import { getHomepageSettings } from "@/lib/homepage-actions";
 
-// Existing Components
+// Homepage sections (ordered)
 import { Hero } from "@/components/home/Hero";
-import { ProductSuggestions } from "@/components/home/ProductSuggestions";
-import { BestDealsSection } from "@/components/home/BestDealsSection";
-
-// New Components
-import { FounderStory } from "@/components/home/FounderStory";
-import { HowItWorks } from "@/components/home/HowItWorks";
-import { ResearchStandard } from "@/components/home/ResearchStandard";
 import { SetupFinder } from "@/components/home/SetupFinder";
-import { FeaturedGuides } from "@/components/home/FeaturedGuides";
+import { TrendingPicksSection } from "@/components/home/TrendingPicksSection";
+import { BestBudgetSection } from "@/components/home/BestBudgetSection";
+import { BestDealsSection } from "@/components/home/BestDealsSection";
+import { FounderStory } from "@/components/home/FounderStory";
 import { CommunityJoin } from "@/components/home/CommunityJoin";
-import { SocialProof } from "@/components/home/SocialProof";
-import { FinalCTA } from "@/components/home/FinalCTA";
 
 export async function generateMetadata(): Promise<Metadata> {
   return getSeoMetadata("homepage", {
-    title: "SmartXMan | Make Smarter Buying Decisions",
-    description: "SmartXMan helps students, creators, and professionals discover products worth buying through research-backed recommendations and buying guides.",
+    title: "SmartXman | Find Products Worth Buying",
+    description:
+      "SmartXman helps students, creators, gamers and everyday buyers find useful products without wasting hours comparing reviews, videos and specifications.",
     url: "https://smartxman.com",
   });
 }
@@ -32,18 +27,17 @@ export default async function Home() {
   const homeSettingsRes = await getHomepageSettings();
   const settings = homeSettingsRes?.success ? homeSettingsRes.data : null;
 
-  // Fetch real products from Supabase with categories
+  // Fetch published products
   const { data: dbProducts } = await supabase
-    .from('products')
-    .select('*, primary_category:categories!products_primary_category_id_fkey(*)')
-    .order('created_at', { ascending: false });
+    .from("products")
+    .select("*, primary_category:categories!products_primary_category_id_fkey(*)")
+    .order("created_at", { ascending: false });
 
-  // Only show published products
   const activeProducts = (dbProducts || []).filter(
-    p => p.is_active !== false && p.status === 'published'
+    (p) => p.is_active !== false && p.status === "published"
   );
 
-  const products = activeProducts.map(p => ({
+  const products = activeProducts.map((p) => ({
     id: p.id,
     name: p.name,
     slug: p.slug,
@@ -79,63 +73,89 @@ export default async function Home() {
     current_price: p.current_price,
     old_price: p.old_price,
     price_is_fresh: p.price_is_fresh,
-    last_price_checked_at: p.last_price_checked_at
+    last_price_checked_at: p.last_price_checked_at,
   }));
+
+  // Split products by type — SSR, no client tabs
+  const trendingProducts = products
+    .filter((p) => p.trending)
+    .slice(0, 6);
+
+  // Fall back to first 6 if none flagged as trending
+  const trendingDisplay =
+    trendingProducts.length > 0 ? trendingProducts : products.slice(0, 6);
+
+  const budgetProducts = products
+    .filter((p) => p.isBudgetPick)
+    .slice(0, 6);
+
+  // Fall back to lowest-priced products if none flagged
+  const budgetDisplay =
+    budgetProducts.length > 0
+      ? budgetProducts
+      : [...products]
+          .sort((a, b) => {
+            const priceA = parseInt(a.price.replace(/[^0-9]/g, "") || "0");
+            const priceB = parseInt(b.price.replace(/[^0-9]/g, "") || "0");
+            return priceA - priceB;
+          })
+          .slice(0, 6);
 
   // Fetch deals
   const { data: dbDeals } = await supabase
-    .from('product_store_links')
-    .select('*, product:products(*)')
-    .not('old_price', 'is', null)
-    .order('created_at', { ascending: false });
+    .from("product_store_links")
+    .select("*, product:products(*)")
+    .not("old_price", "is", null)
+    .order("created_at", { ascending: false });
 
   let deals: any[] = [];
 
   if (dbDeals && dbDeals.length > 0) {
     deals = dbDeals
-      .filter(d => d.product && d.product.status === 'published')
-      .map(d => {
+      .filter((d) => d.product && d.product.status === "published")
+      .map((d) => {
         const priceNum = Number(d.price) || 0;
         const oldPriceNum = Number(d.old_price) || 0;
-        const discountPct = oldPriceNum > priceNum 
-          ? Math.round(((oldPriceNum - priceNum) / oldPriceNum) * 100)
-          : 0;
+        const discountPct =
+          oldPriceNum > priceNum
+            ? Math.round(((oldPriceNum - priceNum) / oldPriceNum) * 100)
+            : 0;
 
         return {
           id: d.id,
           name: d.product.name,
           slug: d.product.slug,
           image: d.product.images?.[0] || "/placeholder-product.png",
-          price: `₹${priceNum.toLocaleString('en-IN')}`,
-          oldPrice: `₹${oldPriceNum.toLocaleString('en-IN')}`,
+          price: `₹${priceNum.toLocaleString("en-IN")}`,
+          oldPrice: `₹${oldPriceNum.toLocaleString("en-IN")}`,
           discount: `${discountPct}% OFF`,
           affiliateUrl: d.affiliate_url || `/product/${d.product.slug}`,
           price_is_fresh: true,
-          last_price_checked_at: "2026-06-03T00:00:00.000Z"
+          last_price_checked_at: "2026-06-03T00:00:00.000Z",
         };
       })
-      .filter(d => parseInt(d.discount) > 0);
+      .filter((d) => parseInt(d.discount) > 0);
   }
 
   if (deals.length < 3) {
-    const dealsProducts = products.filter(p => p.isBestDeal || p.showInDeals);
-    dealsProducts.forEach(p => {
-      if (!deals.some(d => d.slug === p.slug)) {
+    const dealsProducts = products.filter((p) => p.isBestDeal || p.showInDeals);
+    dealsProducts.forEach((p) => {
+      if (!deals.some((d) => d.slug === p.slug)) {
         const cleanPrice = p.price.replace(/[^0-9]/g, "");
         const priceNum = cleanPrice ? parseInt(cleanPrice) : 2500;
         const oldPriceNum = Math.round(priceNum * 1.25);
-        
+
         deals.push({
           id: `deal-${p.id}`,
           name: p.name,
           slug: p.slug,
           image: p.image,
           price: p.price,
-          oldPrice: `₹${oldPriceNum.toLocaleString('en-IN')}`,
+          oldPrice: `₹${oldPriceNum.toLocaleString("en-IN")}`,
           discount: "20% OFF",
           affiliateUrl: p.affiliateLink,
           price_is_fresh: true,
-          last_price_checked_at: "2026-06-03T00:00:00.000Z"
+          last_price_checked_at: "2026-06-03T00:00:00.000Z",
         });
       }
     });
@@ -145,48 +165,26 @@ export default async function Home() {
 
   return (
     <div className="flex flex-col min-h-screen">
-      {/* 1. Hero Section */}
+      {/* 1. Hero */}
       <Hero settings={settings} />
 
-      {/* 2. Founder Story */}
+      {/* 2. Shop By Goal */}
+      <SetupFinder />
+
+      {/* 3. Trending Picks */}
+      <TrendingPicksSection products={trendingDisplay} />
+
+      {/* 4. Best Budget Picks */}
+      <BestBudgetSection products={budgetDisplay} />
+
+      {/* 5. Latest Deals */}
+      {deals.length > 0 && <BestDealsSection deals={deals} />}
+
+      {/* 6. Why Trust SmartXman */}
       <FounderStory />
 
-      {/* 3. How It Works */}
-      <HowItWorks />
-
-      {/* 4. Research Standard */}
-      <ResearchStandard />
-
-      {/* 5. Setup Finder */}
-      <div id="setup-finder">
-        <SetupFinder />
-      </div>
-
-      {/* 6. Featured Guides */}
-      <FeaturedGuides />
-
-      {/* Legacy/Existing Data Integrations (Products & Deals) */}
-      <div className="bg-slate-50 dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 pt-12">
-        <div className="container mx-auto px-4 max-w-7xl text-center mb-8">
-          <h2 className="text-3xl font-black tracking-tighter text-slate-900 dark:text-white">
-            Current <span className="text-brand-600">Smart Picks</span>
-          </h2>
-          <p className="text-slate-600 dark:text-slate-400 font-medium mt-2">
-            The top-rated products across all our research categories.
-          </p>
-        </div>
-        <ProductSuggestions products={products} />
-        {deals.length > 0 && <BestDealsSection deals={deals} />}
-      </div>
-
-      {/* 7. Community Join */}
+      {/* 7. Newsletter */}
       <CommunityJoin />
-
-      {/* 8. Social Proof */}
-      <SocialProof />
-
-      {/* 9. Final CTA */}
-      <FinalCTA />
     </div>
   );
 }

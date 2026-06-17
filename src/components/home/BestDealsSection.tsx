@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Tag, ArrowRight, Flame, Activity } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import ProductCard from "@/components/ProductCard";
 
 export interface DealProps {
@@ -55,12 +55,11 @@ export function BestDealsSection({ deals }: BestDealsSectionProps) {
 
   const displayDeals = deals && deals.length > 0 ? deals.slice(0, 3) : defaultDeals;
 
-  // Map minimal deal structures to standard ProductProps for ProductCard compatibility
   const productDeals = displayDeals.map(d => ({
     id: d.id,
     name: d.name,
     slug: d.slug,
-    brand: "Deal Alert",
+    brand: "",
     image: d.image,
     images: [d.image],
     current_price: Number(d.price.replace(/[^0-9]/g, "")) || 0,
@@ -69,7 +68,7 @@ export function BestDealsSection({ deals }: BestDealsSectionProps) {
     last_price_checked_at: "2026-06-03T00:00:00.000Z",
     rating: 4.8,
     category: "Special Offer",
-    bestFor: `Save on your tech setup today`,
+    bestFor: `Strong value pick — ${d.discount} off current price`,
     affiliateLink: d.affiliateUrl || "#",
     isBestDeal: true,
     smartScore: 9.0,
@@ -77,43 +76,28 @@ export function BestDealsSection({ deals }: BestDealsSectionProps) {
   }));
 
   return (
-    <section id="deals" className="py-20 bg-slate-50/20 dark:bg-slate-900/10 border-b border-slate-100 dark:border-slate-900 scroll-mt-20">
-      <div className="container mx-auto px-4">
-        
-        {/* Section Heading */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between mb-12">
+    <section id="deals" className="py-24 bg-white dark:bg-slate-950 border-t border-slate-100 dark:border-slate-800/60 scroll-mt-20">
+      <div className="container mx-auto px-4 max-w-7xl">
+
+        {/* Header */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
           <div>
-            <div className="flex items-center gap-3 mb-2">
-              <div className="flex items-center gap-2 px-2.5 py-1 bg-red-50 dark:bg-red-950/40 rounded-md border border-red-100 dark:border-red-900/50">
-                <Flame className="w-3.5 h-3.5 text-red-600 dark:text-red-500 animate-[pulse_1.5s_ease-in-out_infinite]" />
-                <span className="text-[10px] font-black uppercase tracking-widest text-red-600 dark:text-red-400">Trending Now</span>
-              </div>
-              <div className="flex items-center gap-1.5 text-slate-500 dark:text-slate-400">
-                <div className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-                </div>
-                <span className="text-[10px] font-bold uppercase tracking-widest">High Demand</span>
-              </div>
-            </div>
-            <h2 className="text-3xl md:text-5xl font-black tracking-tighter text-slate-900 dark:text-white mb-3">
-              Best Deals <span className="text-red-500">Today</span>
+            <h2 className="text-3xl md:text-4xl font-black tracking-tighter text-slate-900 dark:text-white mb-2">
+              Deals Worth Checking
             </h2>
-            <p className="text-slate-500 dark:text-slate-400 font-medium text-sm">
-              Flash sales and massive price drops on curated tech. <span className="font-bold text-slate-700 dark:text-slate-300">Prices change rapidly.</span>
+            <p className="text-slate-500 dark:text-slate-400 font-medium">
+              Current picks that offer strong value for the price.
             </p>
           </div>
-          
           <Link
             href="/products?type=deals"
-            className="mt-6 md:mt-0 px-5 py-3 rounded-xl bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-100 text-white dark:text-slate-900 text-xs font-black uppercase tracking-wider transition-all flex items-center gap-2 shadow-lg hover:shadow-xl hover:-translate-y-0.5"
+            className="flex items-center gap-1.5 text-brand-600 dark:text-brand-400 font-bold text-sm hover:opacity-80 transition-opacity shrink-0 group"
           >
-            Explore Active Deals
-            <ArrowRight className="w-4 h-4" />
+            See all deals <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
           </Link>
         </div>
 
-        {/* Deals Cards Layout using ProductCard */}
+        {/* Deal Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {productDeals.map((product) => (
             <ProductCard key={product.id} product={product} />
