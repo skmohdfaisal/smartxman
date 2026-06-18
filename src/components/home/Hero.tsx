@@ -6,12 +6,25 @@ import { Check } from "lucide-react";
 export function Hero({ settings }: { settings?: any }) {
   const router = useRouter();
 
+  // Use settings from Supabase (admin panel) with fallbacks to current design
+  const badge = settings?.hero_badge || "Your personal buying assistant";
+  const titleFallback = settings?.hero_title_fallback || "Not sure";
+  const titleAccent = settings?.hero_title_accent || "what to buy?";
+  const description = settings?.hero_description ||
+    "We help students, creators, gamers and everyday buyers find useful products without wasting hours comparing reviews, videos and specifications.";
+  const primaryCtaText = settings?.primary_cta_text || "Explore Smart Picks";
+
   const handlePrimaryCTA = () => {
-    const el = document.getElementById("trending-picks");
-    if (el) {
-      el.scrollIntoView({ behavior: "smooth" });
+    const link = settings?.primary_cta_link;
+    if (link && link !== "/products") {
+      router.push(link);
     } else {
-      router.push("/products");
+      const el = document.getElementById("trending-picks");
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth" });
+      } else {
+        router.push("/products");
+      }
     }
   };
 
@@ -28,19 +41,18 @@ export function Hero({ settings }: { settings?: any }) {
 
         {/* Eyebrow label */}
         <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-brand-50 dark:bg-brand-950/50 border border-brand-100 dark:border-brand-900/50 text-brand-600 dark:text-brand-400 text-[11px] font-black uppercase tracking-widest mb-8">
-          Your personal buying assistant
+          {badge}
         </div>
 
         {/* Headline */}
         <h1 className="text-5xl md:text-6xl lg:text-7xl font-black tracking-tighter mb-6 text-slate-900 dark:text-white leading-[1.05]">
-          Not sure{" "}
-          <span className="text-brand-600">what to buy?</span>
+          {titleFallback}{" "}
+          <span className="text-brand-600">{titleAccent}</span>
         </h1>
 
         {/* Subheadline */}
         <p className="text-lg md:text-xl text-slate-500 dark:text-slate-400 max-w-2xl mx-auto mb-10 leading-relaxed font-medium">
-          We help students, creators, gamers and everyday buyers find useful products
-          without wasting hours comparing reviews, videos and specifications.
+          {description}
         </p>
 
         {/* CTAs */}
@@ -50,7 +62,7 @@ export function Hero({ settings }: { settings?: any }) {
             onClick={handlePrimaryCTA}
             className="group relative px-8 py-4 bg-brand-600 hover:bg-brand-700 text-white font-bold text-sm rounded-2xl transition-all shadow-xl shadow-brand-500/25 active:scale-[0.98] w-full sm:w-auto"
           >
-            Explore Smart Picks
+            {primaryCtaText}
           </button>
 
           <button
