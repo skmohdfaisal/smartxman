@@ -42,7 +42,6 @@ export function FounderStory() {
             </ul>
           </div>
         </div>
-      </div>
     </section>
   );
 }
