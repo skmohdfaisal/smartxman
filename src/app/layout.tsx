@@ -5,6 +5,8 @@ import "./globals.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { ThemeProvider } from "@/components/ThemeProvider";
+import { SmartSearchProvider } from "@/components/SmartSearchProvider";
+import SmartSearchOverlay from "@/components/SmartSearchOverlay";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -98,11 +100,14 @@ export default function RootLayout({
 
       <body className="min-h-full flex flex-col bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-50">
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
-          <Navbar />
-          <main className="flex-1 flex flex-col">
-            {children}
-          </main>
-          <Footer />
+          <SmartSearchProvider>
+            <SmartSearchOverlay />
+            <Navbar />
+            <main className="flex-1 flex flex-col">
+              {children}
+            </main>
+            <Footer />
+          </SmartSearchProvider>
         </ThemeProvider>
       </body>
     </html>

@@ -83,42 +83,128 @@ export default async function ProductsPage({
   // 1. Filter products based on search, goal, budget, and type
   let displayProducts = [...ALL_PRODUCTS];
 
-  if (search) {
-    const s = search.toLowerCase();
-    displayProducts = displayProducts.filter(product => {
-      const matchName = product.name.toLowerCase().includes(s);
-      const matchCategory = product.category.toLowerCase().includes(s);
-      const matchSubCategory = product.subCategory.toLowerCase().includes(s);
-      const matchBrand = product.brand.toLowerCase().includes(s);
-      const matchDescription = product.description.toLowerCase().includes(s);
-      const matchNote = product.expertNote.toLowerCase().includes(s);
-      const matchVerdict = product.buyingVerdict.toLowerCase().includes(s);
-      const matchWhoShouldBuy = product.whoShouldBuy.toLowerCase().includes(s);
-      const matchWhoShouldAvoid = product.whoShouldAvoid.toLowerCase().includes(s);
-      const matchTags = product.tags.some((t: string) => t.toLowerCase().includes(s));
-      const matchAudience = product.audience.some((a: string) => a.toLowerCase().includes(s));
-      const matchUseCase = product.useCase.some((u: string) => u.toLowerCase().includes(s));
-      const matchBudget = product.budgetRange.some((b: string) => b.toLowerCase().includes(s));
-      const matchPros = product.pros.some((p: string) => p.toLowerCase().includes(s));
-      const matchCons = product.cons.some((c: string) => c.toLowerCase().includes(s));
+  let searchScores: Record<string, number> = {};
 
-      return (
-        matchName || 
-        matchCategory || 
-        matchSubCategory ||
-        matchBrand ||
-        matchDescription ||
-        matchNote || 
-        matchVerdict ||
-        matchWhoShouldBuy ||
-        matchWhoShouldAvoid ||
-        matchTags || 
-        matchAudience || 
-        matchUseCase || 
-        matchBudget ||
-        matchPros ||
-        matchCons
-      );
+  if (search) {
+    const searchTerms = search.toLowerCase().split(/\s+/).filter(Boolean);
+
+    // Advanced synonym mapping for a wide variety of tech and setup terms
+    const synonyms: Record<string, string[]> = {
+      // Audio
+      'mic': ['mic', 'microphone'],
+      'mics': ['mic', 'microphone', 'mics'],
+      'earphone': ['earphone', 'earphones', 'earbuds', 'headphones', 'iem', 'headset', 'tws', 'airpods'],
+      'earphones': ['earphone', 'earphones', 'earbuds', 'headphones', 'iem', 'headset', 'tws', 'airpods'],
+      'headphone': ['headphone', 'headphones', 'headset', 'earphones', 'over-ear', 'on-ear', 'cans'],
+      'headphones': ['headphone', 'headphones', 'headset', 'earphones', 'over-ear', 'on-ear', 'cans'],
+      'speaker': ['speaker', 'speakers', 'soundbar', 'audio'],
+      'speakers': ['speaker', 'speakers', 'soundbar', 'audio'],
+      
+      // Peripherals
+      'keyboard': ['keyboard', 'keyboards', 'mechanical keyboard', 'keeb'],
+      'keyboards': ['keyboard', 'keyboards', 'mechanical keyboard', 'keeb'],
+      'mouse': ['mouse', 'mice', 'trackball'],
+      'mice': ['mouse', 'mice', 'trackball'],
+      'webcam': ['webcam', 'camera', 'cam'],
+      'camera': ['camera', 'webcam', 'dslr', 'mirrorless'],
+      
+      // Displays & Devices
+      'monitor': ['monitor', 'monitors', 'display', 'screen'],
+      'monitors': ['monitor', 'monitors', 'display', 'screen'],
+      'laptop': ['laptop', 'laptops', 'notebook', 'macbook'],
+      'laptops': ['laptop', 'laptops', 'notebook', 'macbook'],
+      'pc': ['pc', 'desktop', 'computer', 'tower'],
+      'desktop': ['pc', 'desktop', 'computer', 'tower'],
+      'computer': ['pc', 'desktop', 'computer', 'tower'],
+      'ipad': ['ipad', 'tablet', 'tab'],
+      'tablet': ['tablet', 'ipad', 'tab'],
+      'phone': ['phone', 'smartphone', 'mobile', 'iphone', 'android'],
+      'smartphone': ['phone', 'smartphone', 'mobile', 'iphone', 'android'],
+      
+      // Accessories & Power
+      'cable': ['cable', 'cables', 'wire', 'cord'],
+      'cables': ['cable', 'cables', 'wire', 'cord'],
+      'charger': ['charger', 'chargers', 'adapter', 'power brick', 'power adapter'],
+      'chargers': ['charger', 'chargers', 'adapter', 'power brick', 'power adapter'],
+      'powerbank': ['powerbank', 'power bank', 'portable charger', 'battery pack', 'power brick'],
+      
+      // Furniture & Environment
+      'desk': ['desk', 'desks', 'table', 'standing desk'],
+      'desks': ['desk', 'desks', 'table', 'standing desk'],
+      'chair': ['chair', 'chairs', 'seat', 'ergonomic chair'],
+      'chairs': ['chair', 'chairs', 'seat', 'ergonomic chair'],
+      'light': ['light', 'lights', 'lighting', 'lamp', 'rgb', 'led'],
+      'lights': ['light', 'lights', 'lighting', 'lamp', 'rgb', 'led'],
+      'rgb': ['rgb', 'lighting', 'lights', 'led'],
+      'led': ['led', 'lighting', 'lights', 'rgb'],
+      
+      // Storage & Extras
+      'ssd': ['ssd', 'storage', 'hard drive', 'flash drive'],
+      'hdd': ['hdd', 'storage', 'hard drive', 'harddisk'],
+      'storage': ['storage', 'ssd', 'hdd', 'hard drive', 'drive', 'pendrive', 'flash drive'],
+      'stand': ['stand', 'mount', 'arm', 'holder']
+    };
+
+    displayProducts = displayProducts.filter(product => {
+      const name = product.name.toLowerCase();
+      const brand = product.brand.toLowerCase();
+      const category = product.category.toLowerCase();
+      const subCategory = product.subCategory.toLowerCase();
+      
+      const otherText = [
+        product.description,
+        product.expertNote,
+        product.buyingVerdict,
+        product.whoShouldBuy,
+        product.whoShouldAvoid,
+        ...(product.tags || []),
+        ...(product.audience || []),
+        ...(product.useCase || []),
+        ...(product.budgetRange || []),
+        ...(product.pros || []),
+        ...(product.cons || [])
+      ].filter(Boolean).join(" ").toLowerCase();
+
+      let searchScore = 0;
+
+      // Check if ALL search terms are present in the product details
+      const matchesAll = searchTerms.every(term => {
+        // Remove trailing 's' for simple singularization if term is long enough
+        const singularTerm = (term.length > 3 && term.endsWith('s') && !term.endsWith('ss')) 
+          ? term.slice(0, -1) 
+          : term;
+          
+        const termsToCheck = synonyms[term] || synonyms[singularTerm] || [term, singularTerm];
+        
+        let termMatched = false;
+        let highestScoreForTerm = 0;
+
+        for (const t of termsToCheck) {
+          // Weight matches based on field importance
+          if (brand === t || brand.includes(t)) {
+            highestScoreForTerm = Math.max(highestScoreForTerm, 100);
+            termMatched = true;
+          } else if (name.includes(t)) {
+            highestScoreForTerm = Math.max(highestScoreForTerm, 50);
+            termMatched = true;
+          } else if (category.includes(t) || subCategory.includes(t)) {
+            highestScoreForTerm = Math.max(highestScoreForTerm, 20);
+            termMatched = true;
+          } else if (otherText.includes(t)) {
+            highestScoreForTerm = Math.max(highestScoreForTerm, 5);
+            termMatched = true;
+          }
+        }
+
+        searchScore += highestScoreForTerm;
+        return termMatched;
+      });
+
+      if (matchesAll) {
+        searchScores[product.id] = searchScore;
+        return true;
+      }
+      return false;
     });
   }
 
@@ -174,8 +260,17 @@ export default async function ProductsPage({
   } else if (sort === "rating_desc") {
     displayProducts.sort((a, b) => b.rating - a.rating);
   } else {
-    // Recommended / Default - sort by rating, then by reviews count
-    displayProducts.sort((a, b) => b.rating - a.rating || b.reviews - a.reviews);
+    // Recommended / Default - sort by search score first (if searching), then by rating, then by reviews count
+    displayProducts.sort((a, b) => {
+      if (search) {
+        const scoreA = searchScores[a.id] || 0;
+        const scoreB = searchScores[b.id] || 0;
+        if (scoreB !== scoreA) {
+          return scoreB - scoreA;
+        }
+      }
+      return b.rating - a.rating || b.reviews - a.reviews;
+    });
   }
 
   // Logic for "Best Suggestions" (Deterministic high-rated products to avoid hydration mismatch)
