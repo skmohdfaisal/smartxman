@@ -259,13 +259,13 @@ export default function SmartSearchOverlay() {
 
       {/* Main Search Modal */}
       <div 
-        className="relative w-full max-w-3xl bg-white dark:bg-slate-950 rounded-2xl shadow-2xl overflow-hidden border border-slate-200/60 dark:border-slate-800 flex flex-col max-h-[85vh] sm:max-h-[80vh] animate-in zoom-in-95 slide-in-from-top-4 duration-300"
+        className="relative w-full max-w-2xl bg-white dark:bg-slate-950 rounded-2xl shadow-2xl overflow-hidden border border-slate-200/60 dark:border-slate-800 flex flex-col max-h-[85vh] sm:max-h-[80vh] animate-in zoom-in-95 slide-in-from-top-4 duration-300"
         onClick={e => e.stopPropagation()}
       >
         {/* Search Header */}
         <div className="flex items-center px-4 py-4 border-b border-slate-100 dark:border-slate-800/80 bg-slate-50/50 dark:bg-slate-900/50">
-          <Search className="w-6 h-6 text-brand-500 shrink-0 ml-2" />
-          <form onSubmit={handleSearchSubmit} className="flex-1 ml-4">
+          <Search className="w-5 h-5 text-brand-500 shrink-0 ml-1" />
+          <form onSubmit={handleSearchSubmit} className="flex-1 ml-3">
             <input
               ref={inputRef}
               type="text"
@@ -274,24 +274,24 @@ export default function SmartSearchOverlay() {
                 setQuery(e.target.value);
                 setActiveIndex(-1);
               }}
-              placeholder="Search products, brands, setups..."
-              className="w-full bg-transparent border-none outline-none text-xl md:text-2xl font-semibold text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500"
+              placeholder="Search products, brands..."
+              className="w-full bg-transparent border-none outline-none text-lg md:text-xl font-semibold text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500"
               autoComplete="off"
               spellCheck="false"
             />
           </form>
           
           {isLoading && (
-            <div className="w-5 h-5 border-2 border-brand-500/30 border-t-brand-500 rounded-full animate-spin shrink-0 mx-2" />
+            <div className="w-4 h-4 border-2 border-brand-500/30 border-t-brand-500 rounded-full animate-spin shrink-0 mx-2" />
           )}
 
           <div className="flex items-center gap-2 shrink-0">
             {query && (
               <button onClick={() => setQuery("")} className="p-1.5 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 rounded-md hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors">
-                <X className="w-5 h-5" />
+                <X className="w-4 h-4" />
               </button>
             )}
-            <kbd className="hidden sm:inline-flex items-center gap-1 px-2 py-1 rounded bg-slate-200 dark:bg-slate-800 text-[10px] font-mono font-medium text-slate-500 dark:text-slate-400 border border-slate-300 dark:border-slate-700">
+            <kbd className="hidden sm:inline-flex items-center gap-1 px-1.5 py-1 rounded bg-slate-200 dark:bg-slate-800 text-[10px] font-mono font-medium text-slate-500 dark:text-slate-400 border border-slate-300 dark:border-slate-700">
               ESC
             </kbd>
           </div>
@@ -302,73 +302,33 @@ export default function SmartSearchOverlay() {
           
           {/* EMPTY STATE */}
           {!query.trim() && (
-            <div className="p-4 space-y-8 fade-in animate-in">
-              {recentSearches.length > 0 && (
+            <div className="p-4 space-y-4 fade-in animate-in">
+              {recentSearches.length > 0 ? (
                 <div>
                   <div className="flex items-center justify-between mb-3 px-2">
-                    <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 flex items-center gap-2">
-                      <History className="w-3.5 h-3.5" /> Recent
+                    <h3 className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 flex items-center gap-2">
+                      <History className="w-3.5 h-3.5" /> Recent Searches
                     </h3>
-                    <button onClick={clearRecent} className="text-xs font-semibold text-slate-500 hover:text-brand-600 transition-colors">Clear</button>
+                    <button onClick={clearRecent} className="text-[10px] font-bold text-slate-400 hover:text-brand-600 transition-colors">Clear</button>
                   </div>
                   <div className="flex flex-wrap gap-2">
                     {recentSearches.map((s, i) => (
                       <button 
                         key={i}
                         onClick={() => { setQuery(s); inputRef.current?.focus(); }}
-                        className="px-3 py-1.5 bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-full text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors"
+                        className="px-3 py-1.5 bg-slate-50 dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800 rounded-full text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-brand-600 transition-all"
                       >
                         {s}
                       </button>
                     ))}
                   </div>
                 </div>
+              ) : (
+                 <div className="text-center py-8 text-slate-400 dark:text-slate-500">
+                   <Search className="w-8 h-8 mx-auto mb-3 opacity-20" />
+                   <p className="text-sm font-medium">Type something to start searching...</p>
+                 </div>
               )}
-
-              <div>
-                <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-3 px-2 flex items-center gap-2">
-                  <TrendingUp className="w-3.5 h-3.5" /> Trending
-                </h3>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                  {TRENDING_SEARCHES.map((s, i) => (
-                    <button 
-                      key={i}
-                      onClick={() => { setQuery(s); inputRef.current?.focus(); }}
-                      className="text-left px-4 py-3 rounded-xl bg-slate-50 hover:bg-brand-50 dark:bg-slate-900/50 dark:hover:bg-slate-800 transition-colors border border-transparent hover:border-brand-200 dark:hover:border-slate-700 flex items-center justify-between group"
-                    >
-                      <span className="text-sm font-semibold text-slate-700 dark:text-slate-300">{s}</span>
-                      <ArrowRight className="w-3 h-3 text-slate-400 opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-all" />
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div>
-                <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-3 px-2">Discover By Setup</h3>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                  <Link href="/products?search=student" onClick={closeSearch} className="flex items-center gap-3 p-3 rounded-xl bg-blue-50/50 dark:bg-blue-950/20 hover:bg-blue-100 dark:hover:bg-blue-900/40 border border-blue-100 dark:border-blue-900/50 transition-colors">
-                    <div className="p-2 bg-blue-500/10 text-blue-600 rounded-lg"><Briefcase className="w-5 h-5" /></div>
-                    <div>
-                      <h4 className="text-sm font-bold text-slate-800 dark:text-slate-200">Student Setup</h4>
-                      <p className="text-[10px] text-slate-500 font-medium mt-0.5">Dorm & Study</p>
-                    </div>
-                  </Link>
-                  <Link href="/products?search=gaming" onClick={closeSearch} className="flex items-center gap-3 p-3 rounded-xl bg-purple-50/50 dark:bg-purple-950/20 hover:bg-purple-100 dark:hover:bg-purple-900/40 border border-purple-100 dark:border-purple-900/50 transition-colors">
-                    <div className="p-2 bg-purple-500/10 text-purple-600 rounded-lg"><Gamepad2 className="w-5 h-5" /></div>
-                    <div>
-                      <h4 className="text-sm font-bold text-slate-800 dark:text-slate-200">Gaming Setup</h4>
-                      <p className="text-[10px] text-slate-500 font-medium mt-0.5">RGB & High FPS</p>
-                    </div>
-                  </Link>
-                  <Link href="/products?search=desk" onClick={closeSearch} className="flex items-center gap-3 p-3 rounded-xl bg-emerald-50/50 dark:bg-emerald-950/20 hover:bg-emerald-100 dark:hover:bg-emerald-900/40 border border-emerald-100 dark:border-emerald-900/50 transition-colors">
-                    <div className="p-2 bg-emerald-500/10 text-emerald-600 rounded-lg"><Monitor className="w-5 h-5" /></div>
-                    <div>
-                      <h4 className="text-sm font-bold text-slate-800 dark:text-slate-200">Desk Setup</h4>
-                      <p className="text-[10px] text-slate-500 font-medium mt-0.5">Productivity Core</p>
-                    </div>
-                  </Link>
-                </div>
-              </div>
             </div>
           )}
 
