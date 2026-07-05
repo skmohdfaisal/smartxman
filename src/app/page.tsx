@@ -168,14 +168,14 @@ export default async function Home() {
       {/* 1. Hero */}
       <Hero settings={settings} />
 
-      {/* 2. Shop By Goal */}
+      {/* 2. Best Budget Picks (Best Value Finds) */}
+      <BestBudgetSection products={budgetDisplay} />
+
+      {/* 3. Shop By Goal (What are you shopping for) */}
       <SetupFinder />
 
-      {/* 3. Trending Picks */}
+      {/* 4. Trending Picks */}
       <TrendingPicksSection products={trendingDisplay} />
-
-      {/* 4. Best Budget Picks */}
-      <BestBudgetSection products={budgetDisplay} />
 
       {/* 5. Latest Deals */}
       {deals.length > 0 && <BestDealsSection deals={deals} />}
