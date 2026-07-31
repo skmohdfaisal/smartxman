@@ -379,8 +379,7 @@ export default function Navbar() {
           {/* Mobile Search Button Overlay Trigger */}
           <button 
             onClick={() => {
-              setIsMenuOpen(false);
-              openSearch();
+              setIsMenuOpen(true);
             }}
             className="p-2 text-slate-600 hover:text-brand-600 dark:text-slate-350 transition-colors md:hidden rounded-full hover:bg-slate-50 dark:hover:bg-slate-900"
             aria-label="Open search"
