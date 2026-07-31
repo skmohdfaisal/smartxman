@@ -7,7 +7,7 @@ import { useState, useEffect, useRef } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { createClient } from "@/lib/supabase-client";
 import { User as SupabaseUser } from "@supabase/supabase-js";
-import { useSmartSearch } from "./SmartSearchProvider";
+import SmartSearchBar from "./SmartSearchBar";
 
 import { FEATURED_PRODUCTS } from "@/lib/constants";
 
@@ -24,7 +24,6 @@ export default function Navbar() {
   // Custom states for premium UX
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileCategoriesOpen, setIsMobileCategoriesOpen] = useState(false);
-  const { openSearch } = useSmartSearch();
   const router = useRouter();
   const pathname = usePathname();
   const [typeParam, setTypeParam] = useState("");
@@ -56,7 +55,7 @@ export default function Navbar() {
     }
   }, []);
 
-  // Note: Global keyboard listener for Ctrl + K is now in SmartSearchProvider
+  // Global keyboard listener is now in SmartSearchBar
 
   // 4. Open global search when mobile menu is opened? No, just keep menu open.
   useEffect(() => {
@@ -373,17 +372,8 @@ export default function Navbar() {
         <div className="flex items-center gap-3">
           
           {/* Desktop Search Button Trigger */}
-          <div className="hidden md:flex relative shrink-0">
-            <button 
-              onClick={openSearch}
-              className="relative flex items-center justify-between w-60 lg:w-72 pl-9 pr-3 py-2 rounded-full bg-slate-100 dark:bg-slate-900/60 border border-transparent hover:border-brand-500/20 hover:bg-white dark:hover:bg-slate-900 transition-all text-left group"
-            >
-              <Search className="absolute left-3.5 w-4 h-4 text-slate-400 group-hover:text-brand-500 transition-colors" />
-              <span className="text-xs text-slate-400 dark:text-slate-500 group-hover:text-slate-600 dark:group-hover:text-slate-300">Search products, setups...</span>
-              <span className="flex items-center gap-0.5 px-2 py-0.5 rounded bg-slate-200/50 dark:bg-slate-800/70 text-[9px] font-mono text-slate-500 uppercase shrink-0 shadow-sm border border-slate-200 dark:border-slate-700">
-                {shortcutText}
-              </span>
-            </button>
+          <div className="hidden md:flex relative shrink-0 z-50">
+            <SmartSearchBar />
           </div>
           
           {/* Mobile Search Button Overlay Trigger */}
@@ -487,17 +477,8 @@ export default function Navbar() {
             <nav className="container mx-auto px-4 py-6 flex flex-col gap-5">
               
               {/* Mobile Search Button Trigger */}
-              <div className="w-full">
-                <button 
-                  onClick={() => {
-                    setIsMenuOpen(false);
-                    openSearch();
-                  }}
-                  className="w-full relative flex items-center justify-between pl-10 pr-4 py-3 rounded-2xl bg-slate-100 dark:bg-slate-800 border border-transparent hover:border-brand-500/30 transition-all group"
-                >
-                  <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-hover:text-brand-500 transition-colors" />
-                  <span className="text-sm text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-300">Search products...</span>
-                </button>
+              <div className="w-full relative z-50">
+                <SmartSearchBar mobile={true} />
               </div>
               
               {/* Core Links list */}
