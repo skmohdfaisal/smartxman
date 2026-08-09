@@ -59,7 +59,7 @@ export default function Footer() {
             <h4 className="font-semibold mb-4 text-slate-900 dark:text-slate-100">Explore</h4>
             <ul className="space-y-2 text-sm text-slate-500 dark:text-slate-400">
               <li><Link href="/products" className="hover:text-brand-600 dark:hover:text-brand-400 transition-colors">All Products</Link></li>
-              <li><Link href="/blog" className="hover:text-brand-600 dark:hover:text-brand-400 transition-colors">Buying Guides & Blog</Link></li>
+              <li><Link href="/blog" className="hover:text-brand-600 dark:hover:text-brand-400 transition-colors">Smart Guides & Blog</Link></li>
               <li><Link href="/category/tech" className="hover:text-brand-600 dark:hover:text-brand-400 transition-colors">Tech Accessories</Link></li>
               <li><Link href="/category/creator" className="hover:text-brand-600 dark:hover:text-brand-400 transition-colors">Creator Setup</Link></li>
               <li><Link href="/category/gaming" className="hover:text-brand-600 dark:hover:text-brand-400 transition-colors">Gaming Setup</Link></li>

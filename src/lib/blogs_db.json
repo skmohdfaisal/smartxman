@@ -23,7 +23,9 @@
         "label": "BenQ ScreenBar Halo",
         "url": "/product/benq-screenbar-halo"
       }
-    ]
+    ],
+    "is_popular": false,
+    "view_count": 0
   },
   {
     "id": "2",
@@ -41,7 +43,9 @@
         "label": "Keychron K2 Keyboard",
         "url": "/product/keychron-k2-v2"
       }
-    ]
+    ],
+    "is_popular": false,
+    "view_count": 0
   },
   {
     "id": "3",
@@ -59,7 +63,9 @@
         "label": "Sony WH-1000XM5",
         "url": "/product/sony-wh-1000xm5"
       }
-    ]
+    ],
+    "is_popular": false,
+    "view_count": 0
   },
   {
     "id": "4",
@@ -77,7 +83,9 @@
         "label": "BenQ ScreenBar Halo",
         "url": "/product/benq-screenbar-halo"
       }
-    ]
+    ],
+    "is_popular": false,
+    "view_count": 0
   },
   {
     "title": "dhddthfb",
@@ -90,7 +98,9 @@
     "reference_links": [],
     "status": "published",
     "id": "5",
-    "created_at": "2026-05-18T19:31:35.500Z"
+    "created_at": "2026-05-18T19:31:35.500Z",
+    "is_popular": false,
+    "view_count": 0
   },
   {
     "title": "Test Blog Post",
@@ -103,7 +113,9 @@
     "reference_links": [],
     "status": "published",
     "id": "6",
-    "created_at": "2026-05-18T19:38:02.054Z"
+    "created_at": "2026-05-18T19:38:02.054Z",
+    "is_popular": false,
+    "view_count": 0
   },
   {
     "title": "Test Blog Post",
@@ -116,7 +128,9 @@
     "reference_links": [],
     "status": "published",
     "id": "7",
-    "created_at": "2026-05-18T19:38:25.571Z"
+    "created_at": "2026-05-18T19:38:25.571Z",
+    "is_popular": false,
+    "view_count": 0
   },
   {
     "title": "Test Blog Post",
@@ -129,7 +143,9 @@
     "reference_links": [],
     "status": "published",
     "id": "8",
-    "created_at": "2026-05-18T19:39:36.485Z"
+    "created_at": "2026-05-18T19:39:36.485Z",
+    "is_popular": false,
+    "view_count": 0
   },
   {
     "title": "Test Blog Post",
@@ -142,7 +158,9 @@
     "reference_links": [],
     "status": "published",
     "id": "9",
-    "created_at": "2026-05-18T19:40:17.320Z"
+    "created_at": "2026-05-18T19:40:17.320Z",
+    "is_popular": false,
+    "view_count": 0
   },
   {
     "title": "Second Test Post",
@@ -155,7 +173,9 @@
     "reference_links": [],
     "status": "published",
     "id": "10",
-    "created_at": "2026-05-18T19:41:23.787Z"
+    "created_at": "2026-05-18T19:41:23.787Z",
+    "is_popular": false,
+    "view_count": 0
   },
   {
     "title": "Second Test Post",
@@ -168,7 +188,9 @@
     "reference_links": [],
     "status": "published",
     "id": "11",
-    "created_at": "2026-05-18T19:41:31.884Z"
+    "created_at": "2026-05-18T19:41:31.884Z",
+    "is_popular": false,
+    "view_count": 0
   },
   {
     "title": "Second Test Post",
@@ -181,7 +203,9 @@
     "reference_links": [],
     "status": "published",
     "id": "12",
-    "created_at": "2026-05-18T19:42:15.222Z"
+    "created_at": "2026-05-18T19:42:15.222Z",
+    "is_popular": false,
+    "view_count": 0
   },
   {
     "title": "Next-Gen Gaming Setups 2026",
@@ -194,7 +218,9 @@
     "reference_links": [],
     "status": "published",
     "id": "13",
-    "created_at": "2026-05-18T19:48:47.739Z"
+    "created_at": "2026-05-18T19:48:47.739Z",
+    "is_popular": false,
+    "view_count": 0
   },
   {
     "title": "Next-Gen Gaming Setups 2026",
@@ -207,7 +233,9 @@
     "reference_links": [],
     "status": "published",
     "id": "14",
-    "created_at": "2026-05-18T19:50:50.570Z"
+    "created_at": "2026-05-18T19:50:50.570Z",
+    "is_popular": false,
+    "view_count": 0
   },
   {
     "title": "Awesome Gaming 2026",
@@ -220,7 +248,9 @@
     "reference_links": [],
     "status": "published",
     "id": "15",
-    "created_at": "2026-05-18T19:52:17.507Z"
+    "created_at": "2026-05-18T19:52:17.507Z",
+    "is_popular": false,
+    "view_count": 0
   },
   {
     "title": "Amazing Gaming Setup 2026",
@@ -233,6 +263,8 @@
     "reference_links": [],
     "status": "published",
     "id": "16",
-    "created_at": "2026-05-18T19:54:11.598Z"
+    "created_at": "2026-05-18T19:54:11.598Z",
+    "is_popular": false,
+    "view_count": 0
   }
 ]

@@ -75,17 +75,41 @@ export default function SmartSearchBar({ mobile = false }: { mobile?: boolean })
     const cached = localStorage.getItem("smartxman_search_index");
     const cacheTime = localStorage.getItem("smartxman_search_time");
     if (cached && cacheTime && Date.now() - parseInt(cacheTime) < 3600000) {
-      setProducts(JSON.parse(cached));
-      return;
+      try {
+        const parsed = JSON.parse(cached);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setProducts(parsed);
+          return;
+        }
+      } catch (e) {
+        // Cache is corrupted, continue to fetch
+      }
     }
     setIsLoading(true);
     try {
-      const { data } = await supabase
+      // Try with category join first
+      let data: any[] | null = null;
+      const res = await supabase
         .from("products")
-        .select("id, name, slug, brand, price_range, rating, images, tags, primary_category:categories(name)")
+        .select("id, name, slug, brand, price_range, rating, images, tags, primary_category:categories!products_primary_category_id_fkey(name)")
         .eq("status", "published");
+      
+      if (res.error || !res.data || res.data.length === 0) {
+        console.warn("Search index: primary query failed or empty, trying without join", res.error?.message);
+        // Fallback: fetch without category join
+        const fallback = await supabase
+          .from("products")
+          .select("id, name, slug, brand, price_range, rating, images, tags")
+          .eq("status", "published");
+        data = fallback.data;
+        if (fallback.error) {
+          console.error("Search index: fallback also failed", fallback.error.message);
+        }
+      } else {
+        data = res.data;
+      }
 
-      if (data) {
+      if (data && data.length > 0) {
         const index = data.map(p => ({
           id: p.id,
           name: p.name,
@@ -95,9 +119,11 @@ export default function SmartSearchBar({ mobile = false }: { mobile?: boolean })
           rating: p.rating || 0,
           image: p.images?.[0] || "/placeholder-product.png",
           tags: p.tags || [],
-          category: (Array.isArray(p.primary_category)
-            ? p.primary_category[0]?.name
-            : (p.primary_category as any)?.name) || "Tech"
+          category: (p.primary_category
+            ? (Array.isArray(p.primary_category)
+              ? p.primary_category[0]?.name
+              : (p.primary_category as any)?.name)
+            : null) || "Tech"
         }));
         setProducts(index);
         localStorage.setItem("smartxman_search_index", JSON.stringify(index));
@@ -236,7 +262,13 @@ export default function SmartSearchBar({ mobile = false }: { mobile?: boolean })
           type="text"
           placeholder={mobile ? "Search products..." : "Search products, setups..."}
           value={query}
-          onFocus={() => setIsOpen(true)}
+          onFocus={() => {
+            setIsOpen(true);
+            // Retry loading index if it's empty (handles initial load failure)
+            if (products.length === 0 && !isLoading) {
+              loadIndex();
+            }
+          }}
           onChange={(e) => {
             setQuery(e.target.value);
             setIsOpen(true);
@@ -304,8 +336,24 @@ export default function SmartSearchBar({ mobile = false }: { mobile?: boolean })
             ) : (
               <div className="space-y-4">
                 {results.items.length === 0 && results.brands.length === 0 && results.categories.length === 0 && (
-                  <div className="text-center py-6">
-                    <p className="text-sm font-bold">No exact match found.</p>
+                  <div className="text-center py-6 space-y-3">
+                    {isLoading || products.length === 0 ? (
+                      <>
+                        <div className="w-5 h-5 border-2 border-brand-500/30 border-t-brand-500 rounded-full animate-spin mx-auto" />
+                        <p className="text-xs text-slate-400 font-medium">Loading product index...</p>
+                      </>
+                    ) : (
+                      <>
+                        <p className="text-sm font-bold">No exact match found.</p>
+                        <Link 
+                          href={`/products?search=${encodeURIComponent(query)}`} 
+                          onClick={closeSearch}
+                          className="inline-flex items-center gap-1.5 text-xs font-bold text-brand-600 hover:text-brand-700 transition-colors"
+                        >
+                          <Search className="w-3.5 h-3.5" /> Search all products for &quot;{query}&quot;
+                        </Link>
+                      </>
+                    )}
                   </div>
                 )}
 

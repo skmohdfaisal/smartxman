@@ -218,7 +218,7 @@ export default function AboutPage() {
                 Explore Products
               </Link>
               <Link href="/blog" className="w-full sm:w-auto px-8 py-4 bg-transparent border-2 border-white/30 hover:border-white text-white rounded-full font-semibold transition-colors">
-                Read Buying Guides
+                Read Smart Guides
               </Link>
             </div>
           </div>

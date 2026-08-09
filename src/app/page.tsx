@@ -2,13 +2,16 @@ import { Metadata } from "next";
 import { getSeoMetadata } from "@/lib/seo";
 import { supabase } from "@/lib/supabase";
 import { getHomepageSettings } from "@/lib/homepage-actions";
+import { getBlogs } from "@/lib/blogs-actions";
 
 // Homepage sections (ordered)
 import { Hero } from "@/components/home/Hero";
-import { SetupFinder } from "@/components/home/SetupFinder";
 import { TrendingPicksSection } from "@/components/home/TrendingPicksSection";
+import { ShopByCategory } from "@/components/home/ShopByCategory";
 import { BestBudgetSection } from "@/components/home/BestBudgetSection";
-import { BestDealsSection } from "@/components/home/BestDealsSection";
+import { SetupFinder } from "@/components/home/SetupFinder";
+import { ArticleGrid } from "@/components/home/ArticleGrid";
+import { FinalCTA } from "@/components/home/FinalCTA";
 import { FounderStory } from "@/components/home/FounderStory";
 import { CommunityJoin } from "@/components/home/CommunityJoin";
 
@@ -76,22 +79,12 @@ export default async function Home() {
     last_price_checked_at: p.last_price_checked_at,
   }));
 
-  // Split products by type — SSR, no client tabs
-  const trendingProducts = products
-    .filter((p) => p.trending)
-    .slice(0, 6);
+  // Split products by type
+  const trendingProducts = products.filter((p) => p.trending).slice(0, 6);
+  const trendingDisplay = trendingProducts.length > 0 ? trendingProducts : products.slice(0, 6);
 
-  // Fall back to first 6 if none flagged as trending
-  const trendingDisplay =
-    trendingProducts.length > 0 ? trendingProducts : products.slice(0, 6);
-
-  const budgetProducts = products
-    .filter((p) => p.isBudgetPick)
-    .slice(0, 6);
-
-  // Fall back to lowest-priced products if none flagged
-  const budgetDisplay =
-    budgetProducts.length > 0
+  const budgetProducts = products.filter((p) => p.isBudgetPick).slice(0, 6);
+  const budgetDisplay = budgetProducts.length > 0
       ? budgetProducts
       : [...products]
           .sort((a, b) => {
@@ -101,89 +94,107 @@ export default async function Home() {
           })
           .slice(0, 6);
 
-  // Fetch deals
-  const { data: dbDeals } = await supabase
-    .from("product_store_links")
-    .select("*, product:products(*)")
-    .not("old_price", "is", null)
-    .order("created_at", { ascending: false });
+  // Fetch blogs
+  const blogsRes = await getBlogs();
+  const allBlogs = blogsRes.success && Array.isArray(blogsRes.data) ? blogsRes.data : [];
+  const publishedBlogs = allBlogs.filter((b) => b.status === "published" || b.status === "Published");
 
-  let deals: any[] = [];
-
-  if (dbDeals && dbDeals.length > 0) {
-    deals = dbDeals
-      .filter((d) => d.product && d.product.status === "published")
-      .map((d) => {
-        const priceNum = Number(d.price) || 0;
-        const oldPriceNum = Number(d.old_price) || 0;
-        const discountPct =
-          oldPriceNum > priceNum
-            ? Math.round(((oldPriceNum - priceNum) / oldPriceNum) * 100)
-            : 0;
-
-        return {
-          id: d.id,
-          name: d.product.name,
-          slug: d.product.slug,
-          image: d.product.images?.[0] || "/placeholder-product.png",
-          price: `₹${priceNum.toLocaleString("en-IN")}`,
-          oldPrice: `₹${oldPriceNum.toLocaleString("en-IN")}`,
-          discount: `${discountPct}% OFF`,
-          affiliateUrl: d.affiliate_url || `/product/${d.product.slug}`,
-          price_is_fresh: true,
-          last_price_checked_at: "2026-06-03T00:00:00.000Z",
-        };
-      })
-      .filter((d) => parseInt(d.discount) > 0);
+  // 1. Latest Guides: Max 3, sorted by date. Must be published. 
+  // Optionally filter by show_on_homepage if you want strict editorial control, 
+  // but if none found, fallback to latest 3.
+  let latestGuides = publishedBlogs
+    .filter((b) => b.show_on_homepage)
+    .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+    .slice(0, 3);
+  
+  if (latestGuides.length === 0) {
+    latestGuides = publishedBlogs
+      .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+      .slice(0, 3);
   }
 
-  if (deals.length < 3) {
-    const dealsProducts = products.filter((p) => p.isBestDeal || p.showInDeals);
-    dealsProducts.forEach((p) => {
-      if (!deals.some((d) => d.slug === p.slug)) {
-        const cleanPrice = p.price.replace(/[^0-9]/g, "");
-        const priceNum = cleanPrice ? parseInt(cleanPrice) : 2500;
-        const oldPriceNum = Math.round(priceNum * 1.25);
-
-        deals.push({
-          id: `deal-${p.id}`,
-          name: p.name,
-          slug: p.slug,
-          image: p.image,
-          price: p.price,
-          oldPrice: `₹${oldPriceNum.toLocaleString("en-IN")}`,
-          discount: "20% OFF",
-          affiliateUrl: p.affiliateLink,
-          price_is_fresh: true,
-          last_price_checked_at: "2026-06-03T00:00:00.000Z",
-        });
-      }
-    });
+  // 2. Popular Guides: Max 3. Ranked by is_popular flag, fallback to view_count, fallback to older ones.
+  // Must not overlap with latestGuides if possible.
+  const latestGuidesIds = new Set(latestGuides.map(g => g.id));
+  
+  let popularGuides = publishedBlogs
+    .filter((b) => b.is_popular && !latestGuidesIds.has(b.id))
+    .slice(0, 3);
+    
+  if (popularGuides.length < 3) {
+    const fallbackPopular = publishedBlogs
+      .filter((b) => !latestGuidesIds.has(b.id) && !popularGuides.some(p => p.id === b.id))
+      .sort((a, b) => (b.view_count || 0) - (a.view_count || 0))
+      .slice(0, 3 - popularGuides.length);
+    popularGuides = [...popularGuides, ...fallbackPopular];
   }
 
-  deals = deals.slice(0, 3);
+  // Map to Guide interface
+  const mapBlogToGuide = (b: any) => ({
+    title: b.title,
+    tag: b.category,
+    readTime: b.read_time,
+    image: b.cover_image_url || b.cover_image || "/categories/tech.png",
+    href: `/blog/${b.slug}`
+  });
+
+  const latestGuideProps = latestGuides.map(mapBlogToGuide);
+  const popularGuideProps = popularGuides.map(mapBlogToGuide);
 
   return (
     <div className="flex flex-col min-h-screen">
       {/* 1. Hero */}
       <Hero settings={settings} />
 
-      {/* 2. Best Budget Picks (Best Value Finds) */}
-      <BestBudgetSection products={budgetDisplay} />
-
-      {/* 3. Shop By Goal (What are you shopping for) */}
-      <SetupFinder />
-
-      {/* 4. Trending Picks */}
+      {/* 2. Popular / Featured Products */}
       <TrendingPicksSection products={trendingDisplay} />
 
-      {/* 5. Latest Deals */}
-      {deals.length > 0 && <BestDealsSection deals={deals} />}
+      {/* 3. Browse By Category */}
+      <ShopByCategory />
 
-      {/* 6. Why Trust SmartXman */}
+      {/* 4. Best Budget Picks */}
+      <BestBudgetSection products={budgetDisplay} />
+
+      {/* 5. Setup / Use-case discovery */}
+      <SetupFinder />
+
+      {/* 6. Latest Smart Guides */}
+      {latestGuideProps.length > 0 && (
+        <ArticleGrid 
+          title={
+            <>
+              Latest <span className="text-brand-600">Smart Guides</span>
+            </>
+          }
+          subtitle="In-depth research and comparisons so you don't have to read 50 Reddit threads."
+          guides={latestGuideProps}
+          linkHref="/blog"
+          linkText="Read All Guides"
+          bgClass="bg-white dark:bg-slate-950"
+        />
+      )}
+
+      {/* 7. Popular Guides */}
+      {popularGuideProps.length > 0 && (
+        <ArticleGrid 
+          title={
+            <>
+              Popular <span className="text-brand-600">Guides</span>
+            </>
+          }
+          subtitle="The most read setups and product reviews from our community."
+          guides={popularGuideProps}
+          bgClass="bg-slate-50 dark:bg-slate-900/30"
+        />
+      )}
+
+      {/* 8. Explore Products CTA */}
+      <FinalCTA />
+
+      {/* 9. Trust / Why SmartXman */}
       <FounderStory />
 
-      {/* 7. Newsletter */}
+      {/* 10. Newsletter */}
       <CommunityJoin />
     </div>
   );

@@ -295,8 +295,8 @@ export default async function ProductsPage({
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-white dark:bg-slate-950">
-      <div className="bg-slate-50/50 dark:bg-slate-900/10 py-8 border-b border-slate-100 dark:border-slate-900">
+    <div className="flex flex-col min-h-screen">
+      <div className="py-8 border-b border-slate-100 dark:border-slate-800/50">
         <div className="container mx-auto px-4">
           <Link href="/" className="inline-flex items-center gap-1.5 text-xs text-brand-600 dark:text-brand-400 font-bold uppercase tracking-wider mb-4 hover:text-brand-700 dark:hover:text-brand-300 transition-colors">
             <ArrowLeft className="w-3.5 h-3.5" /> Back to Home

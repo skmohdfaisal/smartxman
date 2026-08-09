@@ -19,4 +19,4 @@ Disallow: /auth/
 Disallow: /api/
 Disallow: /profile/
 
-Sitemap: https://smartxman.com/sitemap.xml
+Sitemap: https://www.smartxman.com/sitemap.xml

@@ -9,6 +9,8 @@ import ProductShareButton from "@/components/ProductShareButton";
 import StickyCTA from "@/components/StickyCTA";
 import ProductCard from "@/components/ProductCard";
 import { notFound } from "next/navigation";
+import { ArticleGrid } from "@/components/home/ArticleGrid";
+import { getBlogs } from "@/lib/blogs-actions";
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -249,6 +251,27 @@ export default async function ProductDetailPage({ params }: Props) {
     }
   } catch (err) {
     console.warn("Failed to load related products", err);
+  }
+
+  // Fetch blogs to find related buying guides
+  let relatedGuides: any[] = [];
+  try {
+    const blogsRes = await getBlogs();
+    if (blogsRes.success && Array.isArray(blogsRes.data)) {
+      relatedGuides = blogsRes.data
+        .filter((b) => b.status === "published" || b.status === "Published")
+        .filter((b) => b.category === product.category || (b.tags && product.tags && b.tags.some((t: string) => product.tags.includes(t))))
+        .slice(0, 3)
+        .map((b) => ({
+          title: b.title,
+          tag: b.category,
+          readTime: b.read_time,
+          image: b.cover_image_url || b.cover_image || "/categories/tech.png",
+          href: `/blog/${b.slug}`
+        }));
+    }
+  } catch (err) {
+    console.warn("Failed to load related guides", err);
   }
 
   // Generate JSON-LD Schema for Rich Snippets
@@ -869,6 +892,24 @@ export default async function ProductDetailPage({ params }: Props) {
               #{tag}
             </span>
           ))}
+        </div>
+      )}
+
+      {/* Related Smart Guides */}
+      {relatedGuides && relatedGuides.length > 0 && (
+        <div className="pt-6 mt-6 border-t border-slate-100 dark:border-slate-850">
+          <ArticleGrid 
+            title={
+              <span className="text-2xl flex items-center gap-2 font-display">
+                <FileText className="w-5 h-5 text-brand-500" /> Related <span className="text-brand-600">Guides</span>
+              </span>
+            }
+            subtitle="Learn more with our expert buying guides and reviews."
+            guides={relatedGuides}
+            linkHref="/blog"
+            linkText="View All Guides"
+            bgClass="bg-transparent border-none !py-6"
+          />
         </div>
       )}
 

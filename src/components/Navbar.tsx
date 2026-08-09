@@ -230,7 +230,7 @@ export default function Navbar() {
               <button 
                 className={`flex items-center gap-1 px-3.5 py-1.5 rounded-full hover:bg-slate-50 dark:hover:bg-slate-900 transition-all font-semibold ${
                   pathname.startsWith("/category")
-                    ? "text-brand-600 dark:text-brand-400 bg-brand-50/50 dark:bg-brand-950/15"
+                    ? "text-brand-600 dark:text-brand-400 bg-brand-50/50 dark:bg-brand-900/20"
                     : "text-slate-655 hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-400"
                 }`}
               >
@@ -325,7 +325,7 @@ export default function Navbar() {
               href="/products?type=setup" 
               className={`flex items-center px-3.5 py-1.5 rounded-full hover:bg-slate-50 dark:hover:bg-slate-900 transition-all ${
                 isActive("/products", "setup")
-                  ? "text-brand-600 dark:text-brand-400 bg-brand-50/50 dark:bg-brand-950/15 font-bold"
+                  ? "text-brand-600 dark:text-brand-400 bg-brand-50/50 dark:bg-brand-900/20 font-bold"
                   : "text-slate-655 hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-400"
               }`}
             >
@@ -336,7 +336,7 @@ export default function Navbar() {
               href="/products?type=budget" 
               className={`flex items-center px-3.5 py-1.5 rounded-full hover:bg-slate-50 dark:hover:bg-slate-900 transition-all ${
                 isActive("/products", "budget")
-                  ? "text-brand-600 dark:text-brand-400 bg-brand-50/50 dark:bg-brand-950/15 font-bold"
+                  ? "text-brand-600 dark:text-brand-400 bg-brand-50/50 dark:bg-brand-900/20 font-bold"
                   : "text-slate-655 hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-400"
               }`}
             >
@@ -347,18 +347,18 @@ export default function Navbar() {
               href="/blog" 
               className={`flex items-center px-3.5 py-1.5 rounded-full hover:bg-slate-50 dark:hover:bg-slate-900 transition-all ${
                 isActive("/blog")
-                  ? "text-brand-600 dark:text-brand-400 bg-brand-50/50 dark:bg-brand-950/15 font-bold"
+                  ? "text-brand-600 dark:text-brand-400 bg-brand-50/50 dark:bg-brand-900/20 font-bold"
                   : "text-slate-655 hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-400"
               }`}
             >
-              Buying Guides
+              Smart Guides
             </Link>
             
             <Link 
               href="/products?type=deals" 
               className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full hover:bg-slate-50 dark:hover:bg-slate-900 transition-all ${
                 isActive("/products", "deals")
-                  ? "text-brand-600 dark:text-brand-400 bg-brand-50/50 dark:bg-brand-950/15 font-bold"
+                  ? "text-brand-600 dark:text-brand-400 bg-brand-50/50 dark:bg-brand-900/20 font-bold"
                   : "text-slate-655 hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-400"
               }`}
             >
@@ -549,12 +549,12 @@ export default function Navbar() {
                 </Link>
                 
                 <Link href="/blog" onClick={() => setIsMenuOpen(false)} className="font-bold text-slate-800 dark:text-slate-200 py-3 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between text-base">
-                  <span>Buying Guides</span>
+                  <span>Smart Guides</span>
                 </Link>
                 
                 <Link href="/products?type=deals" onClick={() => setIsMenuOpen(false)} className="font-bold text-brand-600 dark:text-brand-400 py-3 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between text-base">
                   <span>Deals</span>
-                  <span className="px-2 py-0.5 bg-brand-50 dark:bg-brand-950/30 text-brand-600 dark:text-brand-400 rounded text-xs">Hot</span>
+                  <span className="px-2 py-0.5 bg-brand-50 dark:bg-brand-900/40 text-brand-600 dark:text-brand-400 rounded text-xs">Hot</span>
                 </Link>
                 
                 <Link href="/wishlist" onClick={() => setIsMenuOpen(false)} className="font-bold text-slate-800 dark:text-slate-200 py-3 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between text-base">

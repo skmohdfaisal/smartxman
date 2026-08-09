@@ -210,8 +210,39 @@ export default async function BlogDetailPage({ params }: { params: Promise<{ slu
     }))
   } : null;
 
+  // Article Schema JSON-LD builder
+  const articleSchema = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": blog.seo_title || blog.title,
+    "description": blog.seo_description || blog.excerpt,
+    "image": blog.cover_image_url || blog.cover_image || "",
+    "datePublished": blog.published_at || blog.created_at,
+    "dateModified": blog.updated_at || blog.created_at,
+    "author": {
+      "@type": "Person",
+      "name": blog.author || "SmartXman Team",
+      "url": "https://www.smartxman.com/about",
+      ...(blog.author_image ? { "image": blog.author_image } : {})
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "SmartXman",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://www.smartxman.com/logo.png"
+      }
+    }
+  };
+
   return (
     <article className="min-h-screen bg-slate-50/50 dark:bg-slate-950 pb-20">
+      {/* Inject Article Schema */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}
+      />
+      
       {/* Inject FAQ Rich Schema */}
       {faqSchema && (
         <script
@@ -398,6 +429,30 @@ export default async function BlogDetailPage({ params }: { params: Promise<{ slu
                 </div>
               </div>
             )}
+
+            {/* E-E-A-T Author Block */}
+            <div className="mt-12 p-8 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-3xl flex flex-col sm:flex-row gap-6 items-start sm:items-center">
+              <div className="w-20 h-20 rounded-full overflow-hidden bg-slate-200 dark:bg-slate-800 flex-shrink-0 border-4 border-white dark:border-slate-950 shadow-sm">
+                {blog.author_image ? (
+                  <img src={blog.author_image} alt={blog.author} className="w-full h-full object-cover" />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center bg-brand-100 text-brand-600 font-bold text-2xl uppercase">
+                    {(blog.author || "A").charAt(0)}
+                  </div>
+                )}
+              </div>
+              <div>
+                <h4 className="text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">
+                  Written by Content Expert
+                </h4>
+                <h3 className="text-xl font-black text-slate-900 dark:text-white mb-2">
+                  {blog.author || "SmartXman Expert"}
+                </h3>
+                <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+                  {blog.author_bio || "Tech enthusiast and setup optimization expert dedicated to finding the best gear for modern workflows and gaming."}
+                </p>
+              </div>
+            </div>
           </div>
 
           {/* Reference Links & Sidebar widgets */}

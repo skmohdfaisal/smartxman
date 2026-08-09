@@ -95,7 +95,7 @@ export default function RootLayout({
         `}
       </Script>
 
-      <body className="min-h-full flex flex-col bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-50">
+      <body className="min-h-full flex flex-col antialiased">
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
           <Navbar />
           <main className="flex-1 flex flex-col">

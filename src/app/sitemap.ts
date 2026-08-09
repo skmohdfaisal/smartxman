@@ -4,7 +4,7 @@ import { supabase } from '@/lib/supabase'
 // ISR — regenerate sitemap every hour, not on every request
 export const revalidate = 3600
 
-const BASE_URL = 'https://smartxman.com'
+const BASE_URL = 'https://www.smartxman.com'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
@@ -59,15 +59,17 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   try {
     const { data: blogs } = await supabase
       .from('blogs')
-      .select('slug, updated_at')
+      .select('slug, updated_at, noindex')
       .eq('status', 'published')
 
-    blogRoutes = (blogs || []).map((b) => ({
-      url: `${BASE_URL}/blog/${b.slug}`,
-      lastModified: b.updated_at ? new Date(b.updated_at) : new Date(),
-      changeFrequency: 'weekly' as const,
-      priority: 0.7,
-    }))
+    blogRoutes = (blogs || [])
+      .filter((b) => !b.noindex)
+      .map((b) => ({
+        url: `${BASE_URL}/blog/${b.slug}`,
+        lastModified: b.updated_at ? new Date(b.updated_at) : new Date(),
+        changeFrequency: 'weekly' as const,
+        priority: 0.7,
+      }))
   } catch (_) {}
 
   return [
