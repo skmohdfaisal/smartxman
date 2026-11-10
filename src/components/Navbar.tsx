@@ -231,7 +231,7 @@ export default function Navbar() {
                 className={`flex items-center gap-1 px-3.5 py-1.5 rounded-full hover:bg-slate-50 dark:hover:bg-slate-900 transition-all font-semibold ${
                   pathname.startsWith("/category")
                     ? "text-brand-600 dark:text-brand-400 bg-brand-50/50 dark:bg-brand-900/20"
-                    : "text-slate-655 hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-400"
+                    : "text-slate-600 hover:text-brand-600 dark:text-slate-300 dark:hover:text-brand-400"
                 }`}
               >
                 <span>Categories</span>
@@ -244,30 +244,30 @@ export default function Navbar() {
                   
                   {/* Column 1: Shop by Category */}
                   <div className="space-y-4">
-                    <h4 className="text-[11px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-550">Shop by Category</h4>
+                    <h4 className="text-[11px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-400">Shop by Category</h4>
                     <div className="flex flex-col gap-2.5">
-                      <Link href="/category/tech-accessories" className="text-sm font-semibold text-slate-655 dark:text-slate-300 hover:text-brand-600 dark:hover:text-brand-400 transition-colors">
+                      <Link href="/category/tech-accessories" className="text-sm font-semibold text-slate-700 dark:text-slate-200 hover:text-brand-600 dark:hover:text-brand-400 transition-colors">
                         Tech Accessories
                       </Link>
-                      <Link href="/category/creator-setup" className="text-sm font-semibold text-slate-655 dark:text-slate-300 hover:text-brand-600 dark:hover:text-brand-400 transition-colors">
+                      <Link href="/category/creator-setup" className="text-sm font-semibold text-slate-700 dark:text-slate-200 hover:text-brand-600 dark:hover:text-brand-400 transition-colors">
                         Creator Setup
                       </Link>
-                      <Link href="/category/gaming-setup" className="text-sm font-semibold text-slate-655 dark:text-slate-300 hover:text-brand-600 dark:hover:text-brand-400 transition-colors">
+                      <Link href="/category/gaming-setup" className="text-sm font-semibold text-slate-700 dark:text-slate-200 hover:text-brand-600 dark:hover:text-brand-400 transition-colors">
                         Gaming Setup
                       </Link>
-                      <Link href="/category/student-essentials" className="text-sm font-semibold text-slate-655 dark:text-slate-300 hover:text-brand-600 dark:hover:text-brand-400 transition-colors">
+                      <Link href="/category/student-essentials" className="text-sm font-semibold text-slate-700 dark:text-slate-200 hover:text-brand-600 dark:hover:text-brand-400 transition-colors">
                         Student Essentials
                       </Link>
-                      <Link href="/category/desk-setup" className="text-sm font-semibold text-slate-655 dark:text-slate-300 hover:text-brand-600 dark:hover:text-brand-400 transition-colors">
+                      <Link href="/category/desk-setup" className="text-sm font-semibold text-slate-700 dark:text-slate-200 hover:text-brand-600 dark:hover:text-brand-400 transition-colors">
                         Desk Setup
                       </Link>
-                      <Link href="/category/productivity" className="text-sm font-semibold text-slate-655 dark:text-slate-300 hover:text-brand-600 dark:hover:text-brand-400 transition-colors">
+                      <Link href="/category/productivity" className="text-sm font-semibold text-slate-700 dark:text-slate-200 hover:text-brand-600 dark:hover:text-brand-400 transition-colors">
                         Productivity
                       </Link>
-                      <Link href="/category/smart-gadgets" className="text-sm font-semibold text-slate-655 dark:text-slate-300 hover:text-brand-600 dark:hover:text-brand-400 transition-colors">
+                      <Link href="/category/smart-gadgets" className="text-sm font-semibold text-slate-700 dark:text-slate-200 hover:text-brand-600 dark:hover:text-brand-400 transition-colors">
                         Smart Gadgets
                       </Link>
-                      <Link href="/category/home-decor" className="text-sm font-semibold text-slate-655 dark:text-slate-300 hover:text-brand-600 dark:hover:text-brand-400 transition-colors">
+                      <Link href="/category/home-decor" className="text-sm font-semibold text-slate-700 dark:text-slate-200 hover:text-brand-600 dark:hover:text-brand-400 transition-colors">
                         Home Decor
                       </Link>
                     </div>
@@ -275,21 +275,21 @@ export default function Navbar() {
 
                   {/* Column 2: Shop by Budget */}
                   <div className="space-y-4">
-                    <h4 className="text-[11px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-550">Shop by Budget</h4>
+                    <h4 className="text-[11px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-400">Shop by Budget</h4>
                     <div className="flex flex-col gap-2.5">
-                      <Link href="/products?budget=500" className="text-sm font-semibold text-slate-655 dark:text-slate-300 hover:text-brand-600 dark:hover:text-brand-400 transition-colors">
+                      <Link href="/products?budget=500" className="text-sm font-semibold text-slate-700 dark:text-slate-200 hover:text-brand-600 dark:hover:text-brand-400 transition-colors">
                         Under ₹500
                       </Link>
-                      <Link href="/products?budget=1000" className="text-sm font-semibold text-slate-655 dark:text-slate-300 hover:text-brand-600 dark:hover:text-brand-400 transition-colors">
+                      <Link href="/products?budget=1000" className="text-sm font-semibold text-slate-700 dark:text-slate-200 hover:text-brand-600 dark:hover:text-brand-400 transition-colors">
                         Under ₹1000
                       </Link>
-                      <Link href="/products?budget=3000" className="text-sm font-semibold text-slate-655 dark:text-slate-300 hover:text-brand-600 dark:hover:text-brand-400 transition-colors">
+                      <Link href="/products?budget=3000" className="text-sm font-semibold text-slate-700 dark:text-slate-200 hover:text-brand-600 dark:hover:text-brand-400 transition-colors">
                         Under ₹3000
                       </Link>
-                      <Link href="/products?budget=5000" className="text-sm font-semibold text-slate-655 dark:text-slate-300 hover:text-brand-600 dark:hover:text-brand-400 transition-colors">
+                      <Link href="/products?budget=5000" className="text-sm font-semibold text-slate-700 dark:text-slate-200 hover:text-brand-600 dark:hover:text-brand-400 transition-colors">
                         Under ₹5000
                       </Link>
-                      <Link href="/products?sort=price_desc" className="text-sm font-semibold text-slate-655 dark:text-slate-300 hover:text-brand-600 dark:hover:text-brand-400 transition-colors">
+                      <Link href="/products?sort=price_desc" className="text-sm font-semibold text-slate-700 dark:text-slate-200 hover:text-brand-600 dark:hover:text-brand-400 transition-colors">
                         Premium Picks
                       </Link>
                     </div>
@@ -297,21 +297,21 @@ export default function Navbar() {
 
                   {/* Column 3: Shop by User */}
                   <div className="space-y-4">
-                    <h4 className="text-[11px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-550">Shop by User</h4>
+                    <h4 className="text-[11px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-400">Shop by User</h4>
                     <div className="flex flex-col gap-2.5">
-                      <Link href="/products?search=student" className="text-sm font-semibold text-slate-655 dark:text-slate-300 hover:text-brand-600 dark:hover:text-brand-400 transition-colors">
+                      <Link href="/products?search=student" className="text-sm font-semibold text-slate-700 dark:text-slate-200 hover:text-brand-600 dark:hover:text-brand-400 transition-colors">
                         For Students
                       </Link>
-                      <Link href="/products?search=creator" className="text-sm font-semibold text-slate-655 dark:text-slate-300 hover:text-brand-600 dark:hover:text-brand-400 transition-colors">
+                      <Link href="/products?search=creator" className="text-sm font-semibold text-slate-700 dark:text-slate-200 hover:text-brand-600 dark:hover:text-brand-400 transition-colors">
                         For Creators
                       </Link>
-                      <Link href="/products?search=gaming" className="text-sm font-semibold text-slate-655 dark:text-slate-300 hover:text-brand-600 dark:hover:text-brand-400 transition-colors">
+                      <Link href="/products?search=gaming" className="text-sm font-semibold text-slate-700 dark:text-slate-200 hover:text-brand-600 dark:hover:text-brand-400 transition-colors">
                         For Gamers
                       </Link>
-                      <Link href="/products?search=wfh" className="text-sm font-semibold text-slate-655 dark:text-slate-300 hover:text-brand-600 dark:hover:text-brand-400 transition-colors">
+                      <Link href="/products?search=wfh" className="text-sm font-semibold text-slate-700 dark:text-slate-200 hover:text-brand-600 dark:hover:text-brand-400 transition-colors">
                         For Work From Home
                       </Link>
-                      <Link href="/products?search=setup" className="text-sm font-semibold text-slate-655 dark:text-slate-300 hover:text-brand-600 dark:hover:text-brand-400 transition-colors">
+                      <Link href="/products?search=setup" className="text-sm font-semibold text-slate-700 dark:text-slate-200 hover:text-brand-600 dark:hover:text-brand-400 transition-colors">
                         For Setup Lovers
                       </Link>
                     </div>
@@ -326,7 +326,7 @@ export default function Navbar() {
               className={`flex items-center px-3.5 py-1.5 rounded-full hover:bg-slate-50 dark:hover:bg-slate-900 transition-all ${
                 isActive("/products", "setup")
                   ? "text-brand-600 dark:text-brand-400 bg-brand-50/50 dark:bg-brand-900/20 font-bold"
-                  : "text-slate-655 hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-400"
+                  : "text-slate-600 hover:text-brand-600 dark:text-slate-300 dark:hover:text-brand-400"
               }`}
             >
               Build My Setup
@@ -337,7 +337,7 @@ export default function Navbar() {
               className={`flex items-center px-3.5 py-1.5 rounded-full hover:bg-slate-50 dark:hover:bg-slate-900 transition-all ${
                 isActive("/products", "budget")
                   ? "text-brand-600 dark:text-brand-400 bg-brand-50/50 dark:bg-brand-900/20 font-bold"
-                  : "text-slate-655 hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-400"
+                  : "text-slate-600 hover:text-brand-600 dark:text-slate-300 dark:hover:text-brand-400"
               }`}
             >
               Budget Picks
@@ -348,7 +348,7 @@ export default function Navbar() {
               className={`flex items-center px-3.5 py-1.5 rounded-full hover:bg-slate-50 dark:hover:bg-slate-900 transition-all ${
                 isActive("/blog")
                   ? "text-brand-600 dark:text-brand-400 bg-brand-50/50 dark:bg-brand-900/20 font-bold"
-                  : "text-slate-655 hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-400"
+                  : "text-slate-600 hover:text-brand-600 dark:text-slate-300 dark:hover:text-brand-400"
               }`}
             >
               Smart Guides
@@ -359,7 +359,7 @@ export default function Navbar() {
               className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full hover:bg-slate-50 dark:hover:bg-slate-900 transition-all ${
                 isActive("/products", "deals")
                   ? "text-brand-600 dark:text-brand-400 bg-brand-50/50 dark:bg-brand-900/20 font-bold"
-                  : "text-slate-655 hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-400"
+                  : "text-slate-600 hover:text-brand-600 dark:text-slate-300 dark:hover:text-brand-400"
               }`}
             >
               <span>Deals</span>
@@ -381,7 +381,7 @@ export default function Navbar() {
             onClick={() => {
               setIsMenuOpen(true);
             }}
-            className="p-2 text-slate-600 hover:text-brand-600 dark:text-slate-350 transition-colors md:hidden rounded-full hover:bg-slate-50 dark:hover:bg-slate-900"
+            className="p-2 text-slate-600 hover:text-brand-600 dark:text-slate-300 transition-colors md:hidden rounded-full hover:bg-slate-50 dark:hover:bg-slate-900"
             aria-label="Open search"
           >
             <Search className="w-5 h-5" />
@@ -390,7 +390,7 @@ export default function Navbar() {
           {/* Wishlist Icon with count badge & premium hover state / tooltip */}
           <Link 
             href="/wishlist" 
-            className="p-2 text-slate-600 hover:text-brand-600 dark:text-slate-350 transition-colors relative group/wishlist rounded-full hover:bg-slate-50 dark:hover:bg-slate-900 shrink-0"
+            className="p-2 text-slate-600 hover:text-brand-600 dark:text-slate-300 transition-colors relative group/wishlist rounded-full hover:bg-slate-50 dark:hover:bg-slate-900 shrink-0"
           >
             <ShoppingBag className="w-5 h-5" />
             {wishlistCount > 0 && (
@@ -500,14 +500,14 @@ export default function Navbar() {
                       <div>
                         <h4 className="text-[10px] font-black uppercase tracking-wider text-slate-400 mb-2">Shop by Category</h4>
                         <div className="grid grid-cols-2 gap-2 text-sm font-semibold">
-                          <Link href="/category/tech-accessories" onClick={() => setIsMenuOpen(false)} className="text-slate-655 dark:text-slate-350 hover:text-brand-600 py-1">Tech Accessories</Link>
-                          <Link href="/category/creator-setup" onClick={() => setIsMenuOpen(false)} className="text-slate-655 dark:text-slate-350 hover:text-brand-600 py-1">Creator Setup</Link>
-                          <Link href="/category/gaming-setup" onClick={() => setIsMenuOpen(false)} className="text-slate-655 dark:text-slate-350 hover:text-brand-600 py-1">Gaming Setup</Link>
-                          <Link href="/category/student-essentials" onClick={() => setIsMenuOpen(false)} className="text-slate-655 dark:text-slate-350 hover:text-brand-600 py-1">Student Essentials</Link>
-                          <Link href="/category/desk-setup" onClick={() => setIsMenuOpen(false)} className="text-slate-655 dark:text-slate-350 hover:text-brand-600 py-1">Desk Setup</Link>
-                          <Link href="/category/productivity" onClick={() => setIsMenuOpen(false)} className="text-slate-655 dark:text-slate-350 hover:text-brand-600 py-1">Productivity</Link>
-                          <Link href="/category/smart-gadgets" onClick={() => setIsMenuOpen(false)} className="text-slate-655 dark:text-slate-350 hover:text-brand-600 py-1">Smart Gadgets</Link>
-                          <Link href="/category/home-decor" onClick={() => setIsMenuOpen(false)} className="text-slate-655 dark:text-slate-350 hover:text-brand-600 py-1">Home Decor</Link>
+                          <Link href="/category/tech-accessories" onClick={() => setIsMenuOpen(false)} className="text-slate-600 dark:text-slate-300 hover:text-brand-600 py-1">Tech Accessories</Link>
+                          <Link href="/category/creator-setup" onClick={() => setIsMenuOpen(false)} className="text-slate-600 dark:text-slate-300 hover:text-brand-600 py-1">Creator Setup</Link>
+                          <Link href="/category/gaming-setup" onClick={() => setIsMenuOpen(false)} className="text-slate-600 dark:text-slate-300 hover:text-brand-600 py-1">Gaming Setup</Link>
+                          <Link href="/category/student-essentials" onClick={() => setIsMenuOpen(false)} className="text-slate-600 dark:text-slate-300 hover:text-brand-600 py-1">Student Essentials</Link>
+                          <Link href="/category/desk-setup" onClick={() => setIsMenuOpen(false)} className="text-slate-600 dark:text-slate-300 hover:text-brand-600 py-1">Desk Setup</Link>
+                          <Link href="/category/productivity" onClick={() => setIsMenuOpen(false)} className="text-slate-600 dark:text-slate-300 hover:text-brand-600 py-1">Productivity</Link>
+                          <Link href="/category/smart-gadgets" onClick={() => setIsMenuOpen(false)} className="text-slate-600 dark:text-slate-300 hover:text-brand-600 py-1">Smart Gadgets</Link>
+                          <Link href="/category/home-decor" onClick={() => setIsMenuOpen(false)} className="text-slate-600 dark:text-slate-300 hover:text-brand-600 py-1">Home Decor</Link>
                         </div>
                       </div>
                       
@@ -515,11 +515,11 @@ export default function Navbar() {
                       <div>
                         <h4 className="text-[10px] font-black uppercase tracking-wider text-slate-400 mb-2">Shop by Budget</h4>
                         <div className="grid grid-cols-2 gap-2 text-sm font-semibold">
-                          <Link href="/products?budget=500" onClick={() => setIsMenuOpen(false)} className="text-slate-655 dark:text-slate-350 hover:text-brand-600 py-1">Under ₹500</Link>
-                          <Link href="/products?budget=1000" onClick={() => setIsMenuOpen(false)} className="text-slate-655 dark:text-slate-350 hover:text-brand-600 py-1">Under ₹1000</Link>
-                          <Link href="/products?budget=3000" onClick={() => setIsMenuOpen(false)} className="text-slate-655 dark:text-slate-350 hover:text-brand-600 py-1">Under ₹3000</Link>
-                          <Link href="/products?budget=5000" onClick={() => setIsMenuOpen(false)} className="text-slate-655 dark:text-slate-350 hover:text-brand-600 py-1">Under ₹5000</Link>
-                          <Link href="/products?sort=price_desc" onClick={() => setIsMenuOpen(false)} className="text-slate-655 dark:text-slate-350 hover:text-brand-600 py-1 col-span-2">Premium Picks</Link>
+                          <Link href="/products?budget=500" onClick={() => setIsMenuOpen(false)} className="text-slate-600 dark:text-slate-300 hover:text-brand-600 py-1">Under ₹500</Link>
+                          <Link href="/products?budget=1000" onClick={() => setIsMenuOpen(false)} className="text-slate-600 dark:text-slate-300 hover:text-brand-600 py-1">Under ₹1000</Link>
+                          <Link href="/products?budget=3000" onClick={() => setIsMenuOpen(false)} className="text-slate-600 dark:text-slate-300 hover:text-brand-600 py-1">Under ₹3000</Link>
+                          <Link href="/products?budget=5000" onClick={() => setIsMenuOpen(false)} className="text-slate-600 dark:text-slate-300 hover:text-brand-600 py-1">Under ₹5000</Link>
+                          <Link href="/products?sort=price_desc" onClick={() => setIsMenuOpen(false)} className="text-slate-600 dark:text-slate-300 hover:text-brand-600 py-1 col-span-2">Premium Picks</Link>
                         </div>
                       </div>
 
@@ -527,11 +527,11 @@ export default function Navbar() {
                       <div>
                         <h4 className="text-[10px] font-black uppercase tracking-wider text-slate-400 mb-2">Shop by User</h4>
                         <div className="grid grid-cols-2 gap-2 text-sm font-semibold">
-                          <Link href="/products?search=student" onClick={() => setIsMenuOpen(false)} className="text-slate-655 dark:text-slate-350 hover:text-brand-600 py-1">For Students</Link>
-                          <Link href="/products?search=creator" onClick={() => setIsMenuOpen(false)} className="text-slate-655 dark:text-slate-350 hover:text-brand-600 py-1">For Creators</Link>
-                          <Link href="/products?search=gaming" onClick={() => setIsMenuOpen(false)} className="text-slate-655 dark:text-slate-350 hover:text-brand-600 py-1">For Gamers</Link>
-                          <Link href="/products?search=wfh" onClick={() => setIsMenuOpen(false)} className="text-slate-655 dark:text-slate-350 hover:text-brand-600 py-1">For WFH</Link>
-                          <Link href="/products?search=setup" onClick={() => setIsMenuOpen(false)} className="text-slate-655 dark:text-slate-350 hover:text-brand-600 py-1 col-span-2">For Setup Lovers</Link>
+                          <Link href="/products?search=student" onClick={() => setIsMenuOpen(false)} className="text-slate-600 dark:text-slate-300 hover:text-brand-600 py-1">For Students</Link>
+                          <Link href="/products?search=creator" onClick={() => setIsMenuOpen(false)} className="text-slate-600 dark:text-slate-300 hover:text-brand-600 py-1">For Creators</Link>
+                          <Link href="/products?search=gaming" onClick={() => setIsMenuOpen(false)} className="text-slate-600 dark:text-slate-300 hover:text-brand-600 py-1">For Gamers</Link>
+                          <Link href="/products?search=wfh" onClick={() => setIsMenuOpen(false)} className="text-slate-600 dark:text-slate-300 hover:text-brand-600 py-1">For WFH</Link>
+                          <Link href="/products?search=setup" onClick={() => setIsMenuOpen(false)} className="text-slate-600 dark:text-slate-300 hover:text-brand-600 py-1 col-span-2">For Setup Lovers</Link>
                         </div>
                       </div>
                       
@@ -560,7 +560,7 @@ export default function Navbar() {
                 <Link href="/wishlist" onClick={() => setIsMenuOpen(false)} className="font-bold text-slate-800 dark:text-slate-200 py-3 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between text-base">
                   <span>Saved Products</span>
                   {wishlistCount > 0 && (
-                    <span className="px-2.5 py-0.5 bg-slate-100 dark:bg-slate-800 rounded-full text-xs text-slate-655 dark:text-slate-300 font-extrabold">{wishlistCount}</span>
+                    <span className="px-2.5 py-0.5 bg-slate-100 dark:bg-slate-800 rounded-full text-xs text-slate-700 dark:text-slate-300 font-extrabold">{wishlistCount}</span>
                   )}
                 </Link>
               </div>
@@ -582,7 +582,7 @@ export default function Navbar() {
                     </div>
                   </div>
                   <div className="grid grid-cols-2 gap-2 text-center text-sm font-bold">
-                    <Link href="/profile" onClick={() => setIsMenuOpen(false)} className="py-3 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-750 text-slate-800 dark:text-slate-200 rounded-xl transition-colors">
+                    <Link href="/profile" onClick={() => setIsMenuOpen(false)} className="py-3 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 rounded-xl transition-colors">
                       Profile Settings
                     </Link>
                     <button 

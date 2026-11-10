@@ -7,11 +7,11 @@
   --color-brand-200: #bfdbfe;
   --color-brand-300: #93c5fd;
   --color-brand-400: #60a5fa;
-  --color-brand-500: #3b82f6;
-  --color-brand-600: #2563eb;
-  --color-brand-700: #1d4ed8;
-  --color-brand-800: #1e40af;
-  --color-brand-900: #1e3a8a;
+  --color-brand-500: #3f79f8;
+  --color-brand-600: #2864F5;
+  --color-brand-700: #1b53e0;
+  --color-brand-800: #1844b8;
+  --color-brand-900: #163792;
 
   --color-accent-50: #f5f3ff;
   --color-accent-100: #ede9fe;
@@ -20,6 +20,16 @@
   --color-accent-500: #8b5cf6;
   --color-accent-600: #7c3aed;
   --color-accent-900: #4c1d95;
+
+  /* Seamless token fallbacks for legacy custom slate scales */
+  --color-slate-150: #f1f5f9;
+  --color-slate-250: #e2e8f0;
+  --color-slate-350: #cbd5e1;
+  --color-slate-450: #94a3b8;
+  --color-slate-550: #64748b;
+  --color-slate-650: #475569;
+  --color-slate-655: #475569;
+  --color-slate-850: #0f172a;
 
   --font-sans: var(--font-inter), sans-serif;
   --font-display: 'Outfit', sans-serif;
@@ -74,5 +84,18 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 @utility shadow-premium-hover {
-  box-shadow: 0 25px 50px -12px rgba(59, 130, 246, 0.05), 0 1px 3px -1px rgba(0, 0, 0, 0.01);
+  box-shadow: 0 20px 40px -15px rgba(40, 100, 245, 0.08), 0 2px 6px -1px rgba(0, 0, 0, 0.02);
+}
+
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@utility bg-grid-pattern {
+  background-size: 32px 32px;
+  background-image: 
+    linear-gradient(to right, rgba(148, 163, 184, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(148, 163, 184, 0.05) 1px, transparent 1px);
 }
