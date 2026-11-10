@@ -4,22 +4,20 @@ import { supabase } from "@/lib/supabase";
 import { getHomepageSettings } from "@/lib/homepage-actions";
 import { getBlogs } from "@/lib/blogs-actions";
 
-// Homepage sections (ordered)
+// Homepage sections (ordered per Human-Centric Editorial Design Structure)
 import { Hero } from "@/components/home/Hero";
-import { TrendingPicksSection } from "@/components/home/TrendingPicksSection";
+import { ExploreByBudget } from "@/components/home/ExploreByBudget";
+import { HandpickedPicks } from "@/components/home/HandpickedPicks";
 import { ShopByCategory } from "@/components/home/ShopByCategory";
-import { BestBudgetSection } from "@/components/home/BestBudgetSection";
-import { SetupFinder } from "@/components/home/SetupFinder";
+import { BuildYourSetup } from "@/components/home/BuildYourSetup";
 import { ArticleGrid } from "@/components/home/ArticleGrid";
-import { FinalCTA } from "@/components/home/FinalCTA";
 import { FounderStory } from "@/components/home/FounderStory";
-import { CommunityJoin } from "@/components/home/CommunityJoin";
 
 export async function generateMetadata(): Promise<Metadata> {
   return getSeoMetadata("homepage", {
-    title: "SmartXman | Find Products Worth Buying",
+    title: "SmartXman | Good Tech. Better Choices.",
     description:
-      "SmartXman helps students, creators, gamers and everyday buyers find useful products without wasting hours comparing reviews, videos and specifications.",
+      "Useful gadgets, smarter setups, and products worth your money. Handpicked recommendations for students, creators, gamers, and everyday buyers.",
     url: "https://smartxman.com",
   });
 }
@@ -79,123 +77,61 @@ export default async function Home() {
     last_price_checked_at: p.last_price_checked_at,
   }));
 
-  // Split products by type
-  const trendingProducts = products.filter((p) => p.trending).slice(0, 6);
-  const trendingDisplay = trendingProducts.length > 0 ? trendingProducts : products.slice(0, 6);
-
-  const budgetProducts = products.filter((p) => p.isBudgetPick).slice(0, 6);
-  const budgetDisplay = budgetProducts.length > 0
-      ? budgetProducts
-      : [...products]
-          .sort((a, b) => {
-            const priceA = parseInt(a.price.replace(/[^0-9]/g, "") || "0");
-            const priceB = parseInt(b.price.replace(/[^0-9]/g, "") || "0");
-            return priceA - priceB;
-          })
-          .slice(0, 6);
-
   // Fetch blogs
   const blogsRes = await getBlogs();
   const allBlogs = blogsRes.success && Array.isArray(blogsRes.data) ? blogsRes.data : [];
   const publishedBlogs = allBlogs.filter((b) => b.status === "published" || b.status === "Published");
 
-  // 1. Latest Guides: Max 3, sorted by date. Must be published. 
-  // Optionally filter by show_on_homepage if you want strict editorial control, 
-  // but if none found, fallback to latest 3.
-  let latestGuides = publishedBlogs
-    .filter((b) => b.show_on_homepage)
+  // Show strictly 3 latest published guides
+  const latestGuides = publishedBlogs
     .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
     .slice(0, 3);
-  
-  if (latestGuides.length === 0) {
-    latestGuides = publishedBlogs
-      .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
-      .slice(0, 3);
-  }
 
-  // 2. Popular Guides: Max 3. Ranked by is_popular flag, fallback to view_count, fallback to older ones.
-  // Must not overlap with latestGuides if possible.
-  const latestGuidesIds = new Set(latestGuides.map(g => g.id));
-  
-  let popularGuides = publishedBlogs
-    .filter((b) => b.is_popular && !latestGuidesIds.has(b.id))
-    .slice(0, 3);
-    
-  if (popularGuides.length < 3) {
-    const fallbackPopular = publishedBlogs
-      .filter((b) => !latestGuidesIds.has(b.id) && !popularGuides.some(p => p.id === b.id))
-      .sort((a, b) => (b.view_count || 0) - (a.view_count || 0))
-      .slice(0, 3 - popularGuides.length);
-    popularGuides = [...popularGuides, ...fallbackPopular];
-  }
-
-  // Map to Guide interface
-  const mapBlogToGuide = (b: any) => ({
+  const guideProps = latestGuides.map((b: any) => ({
     title: b.title,
     tag: b.category,
     readTime: b.read_time,
     image: b.cover_image_url || b.cover_image || "/categories/tech.png",
-    href: `/blog/${b.slug}`
-  });
-
-  const latestGuideProps = latestGuides.map(mapBlogToGuide);
-  const popularGuideProps = popularGuides.map(mapBlogToGuide);
+    href: `/blog/${b.slug}`,
+  }));
 
   return (
     <div className="flex flex-col min-h-screen">
-      {/* 1. Hero */}
-      <Hero settings={settings} />
+      {/* Section 1 — Editorial Hero */}
+      <Hero settings={settings} featuredProducts={products} />
 
-      {/* 2. Popular / Featured Products */}
-      <TrendingPicksSection products={trendingDisplay} />
+      {/* Section 2 — Explore by Budget (Interactive Discovery) */}
+      <ExploreByBudget />
 
-      {/* 3. Browse By Category */}
+      {/* Section 3 — Handpicked Smart Picks (4–6 actual products) */}
+      <HandpickedPicks products={products} />
+
+      {/* Section 4 — Explore by Category (Clean visual directory) */}
       <ShopByCategory />
 
-      {/* 4. Best Budget Picks */}
-      <BestBudgetSection products={budgetDisplay} />
+      {/* Section 5 — Build Your Setup */}
+      <BuildYourSetup />
 
-      {/* 5. Setup / Use-case discovery */}
-      <SetupFinder />
-
-      {/* 6. Latest Smart Guides */}
-      {latestGuideProps.length > 0 && (
-        <ArticleGrid 
+      {/* Section 6 — Smart Guides (3 latest articles) */}
+      {guideProps.length > 0 && (
+        <ArticleGrid
           title={
             <>
-              Latest <span className="text-brand-600">Smart Guides</span>
+              Smart Guides <span className="text-brand-600 dark:text-brand-400">&amp; Buying Advice</span>
             </>
           }
-          subtitle="In-depth research and comparisons so you don't have to read 50 Reddit threads."
-          guides={latestGuideProps}
+          subtitle="In-depth research and comparisons so you don't have to waste hours on 50 Reddit threads."
+          guides={guideProps}
           linkHref="/blog"
           linkText="Read All Guides"
           bgClass="bg-white dark:bg-slate-950"
         />
       )}
 
-      {/* 7. Popular Guides */}
-      {popularGuideProps.length > 0 && (
-        <ArticleGrid 
-          title={
-            <>
-              Popular <span className="text-brand-600">Guides</span>
-            </>
-          }
-          subtitle="The most read setups and product reviews from our community."
-          guides={popularGuideProps}
-          bgClass="bg-slate-50 dark:bg-slate-900/30"
-        />
-      )}
-
-      {/* 8. Explore Products CTA */}
-      <FinalCTA />
-
-      {/* 9. Trust / Why SmartXman */}
+      {/* Section 7 — Founder Editorial Note */}
       <FounderStory />
 
-      {/* 10. Newsletter */}
-      <CommunityJoin />
+      {/* Section 8 — Footer (Rendered automatically by RootLayout) */}
     </div>
   );
 }
