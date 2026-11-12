@@ -143,10 +143,11 @@ export function Hero({ settings, featuredProducts = [] }: HeroProps) {
 
           {/* Right Column: Real Product Showcase from DB */}
           <div className="lg:col-span-5 relative">
-            <div className="relative mx-auto max-w-md lg:max-w-none">
+            {/* pb-14 makes room for the bottom-floating secondary card */}
+            <div className="relative mx-auto max-w-md lg:max-w-none pb-14">
               
-              {/* Main Featured Showcase Card */}
-              <div className="relative p-6 sm:p-7 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 shadow-[0_20px_50px_-15px_rgba(40,100,245,0.08)]">
+              {/* Main Featured Showcase Card — z-10 keeps it above floating cards */}
+              <div className="relative z-10 p-6 sm:p-7 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 shadow-[0_20px_50px_-15px_rgba(40,100,245,0.08)]">
                 
                 {/* Header Row */}
                 <div className="flex items-center justify-between mb-4">
@@ -209,9 +210,9 @@ export function Hero({ settings, featuredProducts = [] }: HeroProps) {
                 )}
               </div>
 
-              {/* Secondary Floating Overlap Card */}
+              {/* Secondary Floating Card — sits in the pb-14 space below the main card */}
               {secondary && (
-                <div className="hidden sm:flex items-center gap-3 p-3.5 rounded-xl bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border border-slate-200/90 dark:border-slate-800 shadow-xl absolute -bottom-6 -left-6 z-20 max-w-[280px]">
+                <div className="hidden sm:flex items-center gap-3 p-3.5 rounded-xl bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border border-slate-200/90 dark:border-slate-800 shadow-xl absolute bottom-0 -left-6 z-20 max-w-[280px]">
                   <div className="relative w-12 h-12 rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-800 flex items-center justify-center shrink-0 p-1">
                     <Image
                       src={secondary.image}
