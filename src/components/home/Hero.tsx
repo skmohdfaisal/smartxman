@@ -3,17 +3,48 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowRight, Sparkles, SlidersHorizontal, CheckCircle2 } from "lucide-react";
+import { ArrowRight, SlidersHorizontal, CheckCircle2 } from "lucide-react";
+
+interface ShowcaseProduct {
+  name: string;
+  slug: string;
+  image: string;
+  price: string;
+  category: string;
+  expertNote?: string;
+  tag?: string;
+}
 
 interface HeroProps {
   settings?: any;
   featuredProducts?: any[];
 }
 
+function buildShowcase(products: any[]): ShowcaseProduct[] {
+  return products.slice(0, 3).map((p, i) => ({
+    name: p.name,
+    slug: p.slug,
+    image: p.image || "/placeholder-product.png",
+    price: p.price || "Check Price",
+    category: p.category || "Tech",
+    expertNote: p.expertNote || p.expert_note || "",
+    tag: i === 0 ? "Editor Pick" : i === 1 ? "Top Value" : "Verified Pick",
+  }));
+}
+
+const PLACEHOLDER: ShowcaseProduct = {
+  name: "SmartXMan Pick",
+  slug: "",
+  image: "/placeholder-product.png",
+  price: "",
+  category: "Tech",
+  expertNote: "Carefully curated for you.",
+  tag: "Editor Pick",
+};
+
 export function Hero({ settings, featuredProducts = [] }: HeroProps) {
   const router = useRouter();
 
-  const headline = settings?.hero_headline || "Good tech. Better choices.";
   const supportingCopy =
     settings?.hero_description ||
     "Useful gadgets, smarter setups, and products worth your money. Find something that fits your budget and the way you live.";
@@ -36,36 +67,11 @@ export function Hero({ settings, featuredProducts = [] }: HeroProps) {
     }
   };
 
-  // Curated showcase products using actual smartxman assets
-  const showcase = [
-    {
-      name: "Logitech MX Master 3S",
-      category: "Productivity",
-      price: "₹8,995",
-      tag: "Editor Pick",
-      slug: "logitech-mx-master-3s",
-      image: "/products/logitech-mx-master-3s.png",
-      note: "The benchmark for ergonomic desk workflows.",
-    },
-    {
-      name: "Keychron K2 Wireless",
-      category: "Desk Setup",
-      price: "₹7,499",
-      tag: "Best Tactile",
-      slug: "keychron-k2-v2",
-      image: "/products/keychron-k2.png",
-      note: "75% compact layout with Mac & Windows support.",
-    },
-    {
-      name: "Sony WH-1000XM5",
-      category: "Audio",
-      price: "₹29,990",
-      tag: "Top ANC",
-      slug: "sony-wh-1000xm5",
-      image: "/products/sony-wh-1000xm5.png",
-      note: "Industry-leading active noise cancellation.",
-    },
-  ];
+  // Use real DB products passed from page.tsx — no hardcoded products here
+  const showcase = buildShowcase(featuredProducts);
+  const main = showcase[0] ?? PLACEHOLDER;
+  const secondary = showcase[1] ?? null;
+  const tertiary = showcase[2] ?? null;
 
   return (
     <section className="relative pt-12 pb-16 md:pt-20 md:pb-24 lg:pt-24 lg:pb-28 overflow-hidden bg-white dark:bg-slate-950 border-b border-slate-200/70 dark:border-slate-850">
@@ -135,7 +141,7 @@ export function Hero({ settings, featuredProducts = [] }: HeroProps) {
             </div>
           </div>
 
-          {/* Right Column: Authentic Editorial Product Showcase */}
+          {/* Right Column: Real Product Showcase from DB */}
           <div className="lg:col-span-5 relative">
             <div className="relative mx-auto max-w-md lg:max-w-none">
               
@@ -145,92 +151,120 @@ export function Hero({ settings, featuredProducts = [] }: HeroProps) {
                 {/* Header Row */}
                 <div className="flex items-center justify-between mb-4">
                   <span className="px-2.5 py-1 rounded-md bg-brand-50 dark:bg-brand-950/60 border border-brand-200/60 dark:border-brand-800/60 text-brand-700 dark:text-brand-300 text-[10px] font-black uppercase tracking-wider">
-                    {showcase[0].tag}
+                    {main.tag}
                   </span>
                   <span className="text-xs font-bold text-slate-400 dark:text-slate-500">
-                    {showcase[0].category}
+                    {main.category}
                   </span>
                 </div>
 
-                {/* Real Product Image */}
+                {/* Product Image */}
                 <div className="relative aspect-[4/3] w-full rounded-xl bg-slate-50 dark:bg-slate-950/60 overflow-hidden mb-5 border border-slate-100 dark:border-slate-800 flex items-center justify-center p-4">
                   <Image
-                    src={showcase[0].image}
-                    alt={showcase[0].name}
+                    src={main.image}
+                    alt={main.name}
                     fill
                     sizes="(max-width: 768px) 100vw, 400px"
                     priority
                     style={{ objectFit: "contain" }}
                     className="p-3 transition-transform duration-500 hover:scale-105"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = "/placeholder-product.png";
+                    }}
                   />
                 </div>
 
                 {/* Details */}
                 <div className="flex items-baseline justify-between mb-2">
-                  <h3 className="font-bold text-base text-slate-950 dark:text-white">
-                    {showcase[0].name}
+                  <h3 className="font-bold text-base text-slate-950 dark:text-white truncate pr-2">
+                    {main.name}
                   </h3>
-                  <span className="text-base font-black text-slate-950 dark:text-white">
-                    {showcase[0].price}
-                  </span>
+                  {main.price && (
+                    <span className="text-base font-black text-slate-950 dark:text-white shrink-0">
+                      {main.price}
+                    </span>
+                  )}
                 </div>
 
-                <p className="text-xs text-slate-500 dark:text-slate-400 mb-4 line-clamp-1">
-                  {showcase[0].note}
-                </p>
+                {main.expertNote && (
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mb-4 line-clamp-1">
+                    {main.expertNote}
+                  </p>
+                )}
 
-                <Link
-                  href={`/product/${showcase[0].slug}`}
-                  className="w-full py-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-900 dark:text-white font-bold text-xs uppercase tracking-wider rounded-xl transition-colors flex items-center justify-center gap-1.5"
-                >
-                  View Details <ArrowRight className="w-3.5 h-3.5" />
-                </Link>
+                {main.slug ? (
+                  <Link
+                    href={`/product/${main.slug}`}
+                    className="w-full py-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-900 dark:text-white font-bold text-xs uppercase tracking-wider rounded-xl transition-colors flex items-center justify-center gap-1.5"
+                  >
+                    View Details <ArrowRight className="w-3.5 h-3.5" />
+                  </Link>
+                ) : (
+                  <Link
+                    href="/products"
+                    className="w-full py-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-900 dark:text-white font-bold text-xs uppercase tracking-wider rounded-xl transition-colors flex items-center justify-center gap-1.5"
+                  >
+                    Browse All Picks <ArrowRight className="w-3.5 h-3.5" />
+                  </Link>
+                )}
               </div>
 
-              {/* Secondary Floating Overlap Card (Desktop only for asymmetric balance) */}
-              <div className="hidden sm:flex items-center gap-3 p-3.5 rounded-xl bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border border-slate-200/90 dark:border-slate-800 shadow-xl absolute -bottom-6 -left-6 z-20 max-w-[280px]">
-                <div className="relative w-12 h-12 rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-800 flex items-center justify-center shrink-0 p-1">
-                  <Image
-                    src={showcase[1].image}
-                    alt={showcase[1].name}
-                    fill
-                    sizes="48px"
-                    style={{ objectFit: "contain" }}
-                  />
+              {/* Secondary Floating Overlap Card */}
+              {secondary && (
+                <div className="hidden sm:flex items-center gap-3 p-3.5 rounded-xl bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border border-slate-200/90 dark:border-slate-800 shadow-xl absolute -bottom-6 -left-6 z-20 max-w-[280px]">
+                  <div className="relative w-12 h-12 rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-800 flex items-center justify-center shrink-0 p-1">
+                    <Image
+                      src={secondary.image}
+                      alt={secondary.name}
+                      fill
+                      sizes="48px"
+                      style={{ objectFit: "contain" }}
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = "/placeholder-product.png";
+                      }}
+                    />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
+                      {secondary.category}
+                    </span>
+                    <h4 className="text-xs font-bold text-slate-900 dark:text-white truncate">
+                      {secondary.name}
+                    </h4>
+                    {secondary.price && (
+                      <span className="text-xs font-black text-brand-600 dark:text-brand-400">
+                        {secondary.price}
+                      </span>
+                    )}
+                  </div>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
-                    {showcase[1].category}
-                  </span>
-                  <h4 className="text-xs font-bold text-slate-900 dark:text-white truncate">
-                    {showcase[1].name}
-                  </h4>
-                  <span className="text-xs font-black text-brand-600 dark:text-brand-400">
-                    {showcase[1].price}
-                  </span>
-                </div>
-              </div>
+              )}
 
-              {/* Audio Floating Overlap Badge (Top Right) */}
-              <div className="hidden sm:flex items-center gap-2.5 px-3.5 py-2 rounded-xl bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border border-slate-200/90 dark:border-slate-800 shadow-lg absolute -top-4 -right-4 z-20">
-                <div className="relative w-7 h-7 rounded-md bg-slate-50 dark:bg-slate-950 shrink-0 p-0.5">
-                  <Image
-                    src={showcase[2].image}
-                    alt={showcase[2].name}
-                    fill
-                    sizes="28px"
-                    style={{ objectFit: "contain" }}
-                  />
+              {/* Tertiary Floating Badge (Top Right) */}
+              {tertiary && (
+                <div className="hidden sm:flex items-center gap-2.5 px-3.5 py-2 rounded-xl bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border border-slate-200/90 dark:border-slate-800 shadow-lg absolute -top-4 -right-4 z-20">
+                  <div className="relative w-7 h-7 rounded-md bg-slate-50 dark:bg-slate-950 shrink-0 p-0.5">
+                    <Image
+                      src={tertiary.image}
+                      alt={tertiary.name}
+                      fill
+                      sizes="28px"
+                      style={{ objectFit: "contain" }}
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = "/placeholder-product.png";
+                      }}
+                    />
+                  </div>
+                  <div>
+                    <span className="text-[9px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest block leading-none">
+                      Verified Pick
+                    </span>
+                    <span className="text-xs font-bold text-slate-900 dark:text-slate-100">
+                      {tertiary.name.split(" ").slice(0, 2).join(" ")}
+                    </span>
+                  </div>
                 </div>
-                <div>
-                  <span className="text-[9px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest block leading-none">
-                    Verified Pick
-                  </span>
-                  <span className="text-xs font-bold text-slate-900 dark:text-slate-100">
-                    {showcase[2].name.split(" ")[0]} {showcase[2].name.split(" ")[1]}
-                  </span>
-                </div>
-              </div>
+              )}
 
             </div>
           </div>

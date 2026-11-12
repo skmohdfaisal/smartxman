@@ -77,6 +77,36 @@ export default async function Home() {
     last_price_checked_at: p.last_price_checked_at,
   }));
 
+  // Determine which products to show in the Hero showcase
+  // Admin can configure specific slugs via homepage_settings.hero_showcase_slugs (array of up to 3 slugs)
+  const heroSlugs: string[] = Array.isArray(settings?.hero_showcase_slugs)
+    ? settings.hero_showcase_slugs
+    : [];
+
+  let heroShowcaseProducts: typeof products = [];
+
+  if (heroSlugs.length > 0) {
+    // Admin-configured: pick products by slug, preserving admin-defined order
+    heroShowcaseProducts = heroSlugs
+      .map((slug: string) => products.find((p) => p.slug === slug))
+      .filter(Boolean) as typeof products;
+  }
+
+  // Fallback: featured products, then show_on_homepage products, then any published products
+  if (heroShowcaseProducts.length < 3) {
+    const remaining = products.filter(
+      (p) => !heroShowcaseProducts.find((hp) => hp.slug === p.slug)
+    );
+    const featuredFallback = remaining.filter((p) => p.featured);
+    const homepageFallback = remaining.filter((p) => p.showOnHomepage && !p.featured);
+    const anyFallback = remaining.filter((p) => !p.featured && !p.showOnHomepage);
+    const fallback = [...featuredFallback, ...homepageFallback, ...anyFallback];
+    heroShowcaseProducts = [
+      ...heroShowcaseProducts,
+      ...fallback.slice(0, 3 - heroShowcaseProducts.length),
+    ];
+  }
+
   // Fetch blogs
   const blogsRes = await getBlogs();
   const allBlogs = blogsRes.success && Array.isArray(blogsRes.data) ? blogsRes.data : [];
@@ -97,8 +127,8 @@ export default async function Home() {
 
   return (
     <div className="flex flex-col min-h-screen">
-      {/* Section 1 — Editorial Hero */}
-      <Hero settings={settings} featuredProducts={products} />
+      {/* Section 1 — Editorial Hero (uses only real DB-sourced products) */}
+      <Hero settings={settings} featuredProducts={heroShowcaseProducts} />
 
       {/* Section 2 — Explore by Budget (Interactive Discovery) */}
       <ExploreByBudget />
