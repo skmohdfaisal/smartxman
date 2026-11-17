@@ -5,7 +5,7 @@ import { getBlogBySlug, getBlogs } from "@/lib/blogs-actions";
 import { ShareButton } from "@/components/ShareButton";
 import { Metadata } from "next";
 
-export const revalidate = 3600;
+export const revalidate = 60;
 
 // Enhanced markdown to styled JSX converter for robust rendering without extra libraries
 function renderMarkdownToJSX(content: string) {

@@ -20,7 +20,7 @@ function readLocalBlogs(): any[] {
 }
 
 // Helper to wrap Supabase calls in a timeout
-async function withTimeout<T>(promise: any, timeoutMs: number = 3000): Promise<T> {
+async function withTimeout<T>(promise: any, timeoutMs: number = 15000): Promise<T> {
   let timeoutId: NodeJS.Timeout;
   const timeoutPromise = new Promise<never>((_, reject) => {
     timeoutId = setTimeout(() => {
