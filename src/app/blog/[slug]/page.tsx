@@ -131,29 +131,44 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const blog = res.data;
 
   if (!blog) {
-    return { title: 'Article Not Found | smartXman' };
+    return {
+      title: 'Article Not Found | smartXman',
+      robots: { index: false, follow: false },
+    };
   }
 
   const title = `${blog.seo_title || blog.title} | smartXman`;
   const description = blog.seo_description || blog.excerpt || '';
+  const canonicalUrl = blog.canonical_url 
+    ? blog.canonical_url.replace("https://smartxman.com", "https://www.smartxman.com")
+    : `https://www.smartxman.com/blog/${slug}`;
 
   return {
     title,
     description,
+    alternates: {
+      canonical: canonicalUrl,
+    },
     openGraph: {
       title,
       description,
       type: 'article',
-      url: `/blog/${slug}`,
+      url: canonicalUrl,
       images: blog.cover_image_url ? [blog.cover_image_url] : blog.cover_image ? [blog.cover_image] : [],
+      publishedTime: blog.published_at || blog.created_at,
+      modifiedTime: blog.updated_at || blog.created_at,
+      authors: [blog.author || "SmartXman Team"],
     },
-    alternates: {
-      canonical: blog.canonical_url || `/blog/${slug}`,
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: blog.cover_image_url ? [blog.cover_image_url] : blog.cover_image ? [blog.cover_image] : [],
     },
     robots: {
       index: !blog.noindex,
-      follow: !blog.noindex
-    }
+      follow: !blog.noindex,
+    },
   };
 }
 
@@ -211,12 +226,21 @@ export default async function BlogDetailPage({ params }: { params: Promise<{ slu
   } : null;
 
   // Article Schema JSON-LD builder
+  const coverImg = blog.cover_image_url || blog.cover_image;
+  const fullCoverImg = coverImg?.startsWith("http") 
+    ? coverImg 
+    : `https://www.smartxman.com${coverImg?.startsWith("/") ? "" : "/"}${coverImg || "og-image.png"}`;
+
   const articleSchema = {
     "@context": "https://schema.org",
     "@type": "Article",
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id": `https://www.smartxman.com/blog/${slug}`
+    },
     "headline": blog.seo_title || blog.title,
     "description": blog.seo_description || blog.excerpt,
-    "image": blog.cover_image_url || blog.cover_image || "",
+    "image": [fullCoverImg],
     "datePublished": blog.published_at || blog.created_at,
     "dateModified": blog.updated_at || blog.created_at,
     "author": {

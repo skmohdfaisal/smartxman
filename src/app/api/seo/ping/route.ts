@@ -15,7 +15,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'No slug provided' }, { status: 400 });
     }
 
-    const sitemapUrl = 'https://smartxman.com/sitemap.xml';
+    const sitemapUrl = 'https://www.smartxman.com/sitemap.xml';
     
     // Ping Google
     const pingUrl = `https://www.google.com/ping?sitemap=${encodeURIComponent(sitemapUrl)}`;

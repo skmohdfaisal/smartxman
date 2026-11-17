@@ -56,3 +56,4 @@ export function HandpickedPicks({ products = [] }: HandpickedPicksProps) {
     </section>
   );
 }
+

@@ -137,15 +137,25 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!product) {
     return {
       title: 'Product Not Found | smartXman',
+      robots: { index: false, follow: false },
     };
   }
 
+  const title = `${product.name} - Review & Best Price | smartXman`;
+  const description = product.expertNote || product.description?.substring(0, 160) || `Read our in-depth review, pros & cons, and find the best price for ${product.name} on smartXman.`;
+  const canonicalUrl = `https://www.smartxman.com/product/${resolvedParams.slug}`;
+
   return {
-    title: `${product.name} - Review & Best Price | smartXman`,
-    description: product.expertNote || product.description?.substring(0, 160),
+    title,
+    description,
+    alternates: {
+      canonical: canonicalUrl,
+    },
     openGraph: {
       title: `${product.name} | smartXman Picks`,
-      description: product.expertNote || product.description?.substring(0, 160),
+      description,
+      url: canonicalUrl,
+      type: 'website',
       images: [
         {
           url: product.image,
@@ -158,11 +168,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     twitter: {
       card: 'summary_large_image',
       title: `${product.name} | smartXman Picks`,
-      description: product.expertNote || product.description?.substring(0, 160),
+      description,
       images: [product.image],
-    },
-    alternates: {
-      canonical: `https://smartxman.com/product/${resolvedParams.slug}`,
     },
   };
 }
@@ -275,38 +282,53 @@ export default async function ProductDetailPage({ params }: Props) {
   }
 
   // Generate JSON-LD Schema for Rich Snippets
-  const baseUrl = "https://smartxman.com";
+  const baseUrl = "https://www.smartxman.com";
   
   const faqAnswerPricing = product.showFreshPrice 
     ? `Yes, pricing is verified dynamically via our smartXman sync system. The last check was completed recently.` 
     : `Amazon prices fluctuate. We highly recommend clicking 'Check Latest Price' to view live deals and promotions directly on Amazon.`;
 
+  // Parse price cleanly for schema.org offer
+  const rawPrice = product.currentPrice ? String(product.currentPrice) : (product.price ? product.price.replace(/[^0-9.]/g, '') : '');
+  const numericPrice = parseFloat(rawPrice);
+
+  const productGraphItem: Record<string, any> = {
+    '@type': 'Product',
+    '@id': `${baseUrl}/product/${product.slug}#product`,
+    name: product.name,
+    image: product.images && product.images.length > 0 ? product.images : [product.image],
+    description: product.description || product.expertNote || product.name,
+    brand: {
+      '@type': 'Brand',
+      name: product.brand || 'Generic',
+    },
+  };
+
+  // Only include real ratings from the database (no fabricated review counts)
+  if (product.rating && Number(product.rating) > 0) {
+    productGraphItem.aggregateRating = {
+      '@type': 'AggregateRating',
+      ratingValue: Number(product.rating).toFixed(1),
+      bestRating: '5',
+      worstRating: '1',
+      ratingCount: 1,
+    };
+  }
+
+  if (!isNaN(numericPrice) && numericPrice > 0) {
+    productGraphItem.offers = {
+      '@type': 'Offer',
+      priceCurrency: 'INR',
+      price: numericPrice.toString(),
+      availability: 'https://schema.org/InStock',
+      url: product.affiliateLink || `${baseUrl}/product/${product.slug}`,
+    };
+  }
+
   const jsonLd = {
     '@context': 'https://schema.org',
     '@graph': [
-      {
-        '@type': 'Product',
-        '@id': `${baseUrl}/product/${product.slug}#product`,
-        name: product.name,
-        image: product.images && product.images.length > 0 ? product.images : [product.image],
-        description: product.description || product.expertNote,
-        brand: {
-          '@type': 'Brand',
-          name: product.brand || 'Generic',
-        },
-        aggregateRating: {
-          '@type': 'AggregateRating',
-          ratingValue: product.rating > 0 ? product.rating : 4.5,
-          reviewCount: product.reviews || 840,
-        },
-        offers: {
-          '@type': 'Offer',
-          priceCurrency: 'INR',
-          price: product.price ? product.price.replace(/[^0-9.]/g, '') : '0',
-          availability: 'https://schema.org/InStock',
-          url: product.affiliateLink,
-        },
-      },
+      productGraphItem,
       {
         '@type': 'FAQPage',
         '@id': `${baseUrl}/product/${product.slug}#faq`,

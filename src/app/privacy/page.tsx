@@ -4,7 +4,7 @@ export const metadata: Metadata = {
   title: "Privacy Policy | smartXman",
   description: "Read about how smartXman collects, uses, and protects your personal data.",
   alternates: {
-    canonical: "/privacy",
+    canonical: "https://www.smartxman.com/privacy",
   },
 };
 

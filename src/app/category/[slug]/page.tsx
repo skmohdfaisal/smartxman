@@ -51,10 +51,10 @@ export async function generateMetadata({
       title,
       description,
       type: 'website',
-      url: `https://smartxman.com/category/${slug}`,
+      url: `https://www.smartxman.com/category/${slug}`,
     },
     alternates: {
-      canonical: `https://smartxman.com/category/${slug}`,
+      canonical: `https://www.smartxman.com/category/${slug}`,
     },
   };
 }

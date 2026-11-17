@@ -11,7 +11,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://smartxman.com"),
+  metadataBase: new URL("https://www.smartxman.com"),
   title: "SmartXMan | Make Smarter Buying Decisions",
   description: "SmartXMan helps students, creators, and professionals discover products worth buying through research-backed recommendations, buying guides, and setup planning.",
   keywords: ["smart product picks", "tech setup", "gaming setup", "creator tools", "productivity", "best tech 2026", "smartxman", "buying guides", "product reviews"],
@@ -19,7 +19,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "SmartXMan | Make Smarter Buying Decisions",
     description: "SmartXMan helps students, creators, and professionals discover products worth buying through research-backed recommendations, buying guides, and setup planning.",
-    url: "https://smartxman.com",
+    url: "https://www.smartxman.com",
     siteName: "smartXman",
     images: [
       {
@@ -43,6 +43,13 @@ export const metadata: Metadata = {
   robots: {
     index: true,
     follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
   },
   icons: {
     icon: "/icon.png",
@@ -66,14 +73,20 @@ export default function RootLayout({
               '@context': 'https://schema.org',
               '@type': 'WebSite',
               name: 'SmartXMan',
-              url: 'https://smartxman.com',
+              url: 'https://www.smartxman.com',
               description: 'SmartXMan helps students, creators, and professionals discover products worth buying through research-backed recommendations.',
+              potentialAction: {
+                '@type': 'SearchAction',
+                target: 'https://www.smartxman.com/products?search={search_term_string}',
+                'query-input': 'required name=search_term_string'
+              },
               publisher: {
                 '@type': 'Organization',
                 name: 'SmartXMan',
+                url: 'https://www.smartxman.com',
                 logo: {
                   '@type': 'ImageObject',
-                  url: 'https://smartxman.com/icon.png'
+                  url: 'https://www.smartxman.com/icon.png'
                 }
               }
             }),

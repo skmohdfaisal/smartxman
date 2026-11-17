@@ -4,7 +4,7 @@ export const metadata: Metadata = {
   title: "Terms of Service | smartXman",
   description: "Read about our terms of service, conditions, and intellectual property policies.",
   alternates: {
-    canonical: "/terms",
+    canonical: "https://www.smartxman.com/terms",
   },
 };
 

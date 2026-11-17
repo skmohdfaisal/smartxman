@@ -18,7 +18,7 @@ export async function generateMetadata(): Promise<Metadata> {
     title: "SmartXman | Good Tech. Better Choices.",
     description:
       "Useful gadgets, smarter setups, and products worth your money. Handpicked recommendations for students, creators, gamers, and everyday buyers.",
-    url: "https://smartxman.com",
+    url: "https://www.smartxman.com",
   });
 }
 

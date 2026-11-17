@@ -4,7 +4,7 @@ export const metadata = {
   title: "Affiliate Disclosure | Smartxman",
   description: "Read about how we fund our research and recommendations through affiliate links.",
   alternates: {
-    canonical: "/affiliate-disclosure",
+    canonical: "https://www.smartxman.com/affiliate-disclosure",
   },
 };
 
