@@ -2,70 +2,39 @@ import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight } from "lucide-react";
 
-export function ShopByCategory() {
-  const categories = [
-    {
-      name: "Tech Accessories",
-      slug: "tech-accessories",
-      description: "Cables, GaN chargers, adapters & daily tools",
-      image: "/categories/tech.png",
-      tag: "Everyday Gear",
-    },
-    {
-      name: "Creator Setup",
-      slug: "creator-setup",
-      description: "USB microphones, lighting & camera mounts",
-      image: "/categories/creator-setup.png",
-      tag: "Studio",
-    },
-    {
-      name: "Gaming Setup",
-      slug: "gaming-setup",
-      description: "Fast mice, mechanical keyboards & audio",
-      image: "/categories/setup.png",
-      tag: "Performance",
-    },
-    {
-      name: "Student Essentials",
-      slug: "student-essentials",
-      description: "Budget study setups & college backpack tech",
-      image: "/categories/student-essentials.png",
-      tag: "Value First",
-    },
-    {
-      name: "Desk Setup",
-      slug: "desk-setup",
-      description: "Ergonomic chairs, monitor arms & desk mats",
-      image: "/categories/desk-setup.png",
-      tag: "Workspace",
-    },
-    {
-      name: "Productivity",
-      slug: "productivity-tools",
-      description: "Ergonomic pointers, lightbars & docks",
-      image: "/categories/productivity.png",
-      tag: "Deep Work",
-    },
-    {
-      name: "Smart Gadgets",
-      slug: "smart-gadgets",
-      description: "Smart bulbs, smart plugs & sensors",
-      image: "/categories/smart-gadgets.png",
-      tag: "Automation",
-    },
-    {
-      name: "Budget Finds",
-      slug: "budget-finds",
-      description: "High-value tech essentials under ₹1,000",
-      image: "/categories/lifestyle.png",
-      tag: "Under ₹1K",
-    },
-  ];
+import { supabase } from "@/lib/supabase";
+
+export async function ShopByCategory() {
+  // Fetch categories from Supabase
+  const { data: categoriesData, error: catErr } = await supabase
+    .from("categories")
+    .select("id, name, slug, description, tag")
+    .order("id");
+
+  const categories = await Promise.all(
+    (categoriesData || []).map(async (cat) => {
+      // Try to get a representative product image for this category
+      const { data: prod } = await supabase
+        .from("products")
+        .select("images")
+        .eq("primary_category_id", cat.id)
+        .eq("status", "published")
+        .limit(1)
+        .single();
+      const image = prod?.images?.[0] || `https://picsum.photos/seed/${cat.slug}/600/400`;
+      return {
+        name: cat.name,
+        slug: cat.slug,
+        description: cat.description,
+        image,
+        tag: cat.tag,
+      };
+    })
+  );
 
   return (
     <section className="py-16 md:py-20 lg:py-24 bg-slate-50/70 dark:bg-slate-900/40 border-b border-slate-200/70 dark:border-slate-800/60">
       <div className="container mx-auto px-4 max-w-7xl">
-        
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 md:mb-12 gap-4">
           <div>
@@ -130,7 +99,6 @@ export function ShopByCategory() {
             </Link>
           ))}
         </div>
-
       </div>
     </section>
   );
