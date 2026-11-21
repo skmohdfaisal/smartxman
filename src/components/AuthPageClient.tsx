@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Mail, Lock, User, Globe, ArrowLeft, Loader2, CheckCircle2, Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
@@ -24,6 +24,16 @@ export default function AuthPageClient() {
   const [rememberMe, setRememberMe] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const urlError = params.get("error");
+      if (urlError) {
+        setError(decodeURIComponent(urlError));
+      }
+    }
+  }, []);
+
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -37,10 +47,10 @@ export default function AuthPageClient() {
           password,
         });
         if (error) throw error;
-        
+
         if (email.toLowerCase() === "skmohdfaisal07@gmail.com") {
-          window.location.href = process.env.NODE_ENV === "development" 
-            ? "http://localhost:3001" 
+          window.location.href = process.env.NODE_ENV === "development"
+            ? "http://localhost:3001"
             : (process.env.NEXT_PUBLIC_ADMIN_URL || "https://smartxman-admin.vercel.app");
         } else {
           window.location.href = "/"; // Redirect on success
@@ -69,6 +79,8 @@ export default function AuthPageClient() {
 
   const handleGoogleLogin = async () => {
     try {
+      setLoading(true);
+      setError(null);
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
@@ -77,7 +89,8 @@ export default function AuthPageClient() {
       });
       if (error) throw error;
     } catch (err: any) {
-      setError(err.message);
+      setError(err.message || "Failed to initiate Google sign-in");
+      setLoading(false);
     }
   };
 
@@ -86,12 +99,12 @@ export default function AuthPageClient() {
       <div className="max-w-md w-full">
         {/* Logo Link */}
         <div className="mb-8 flex items-center justify-center">
-           <Link href="/" className="flex items-center gap-2 text-brand-600 font-bold text-2xl tracking-tighter">
-              smartXman
-           </Link>
+          <Link href="/" className="flex items-center gap-2 text-brand-600 font-bold text-2xl tracking-tighter">
+            smartXman
+          </Link>
         </div>
 
-        <motion.div 
+        <motion.div
           layout
           className="bg-white dark:bg-slate-900 rounded-3xl p-8 shadow-2xl shadow-slate-200/50 dark:shadow-none border border-slate-100 dark:border-slate-800 overflow-hidden"
         >
@@ -112,13 +125,13 @@ export default function AuthPageClient() {
                     <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Email Address</label>
                     <div className="relative">
                       <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-                      <input 
+                      <input
                         required
-                        type="email" 
+                        type="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        className="w-full pl-11 pr-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-500 transition-all text-sm" 
-                        placeholder="you@example.com" 
+                        className="w-full pl-11 pr-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-500 transition-all text-sm"
+                        placeholder="Enter email address"
                       />
                     </div>
                   </div>
@@ -126,7 +139,7 @@ export default function AuthPageClient() {
                   <div className="space-y-1">
                     <div className="flex items-center justify-between">
                       <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Password</label>
-                      <button 
+                      <button
                         type="button"
                         onClick={() => setMode("forgot")}
                         className="text-sm font-medium text-brand-600 hover:text-brand-700"
@@ -136,13 +149,13 @@ export default function AuthPageClient() {
                     </div>
                     <div className="relative">
                       <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-                      <input 
+                      <input
                         required
-                        type={showPassword ? "text" : "password"} 
+                        type={showPassword ? "text" : "password"}
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        className="w-full pl-11 pr-12 py-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-500 transition-all text-sm" 
-                        placeholder="••••••••" 
+                        className="w-full pl-11 pr-12 py-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-500 transition-all text-sm"
+                        placeholder="••••••••"
                       />
                       <button
                         type="button"
@@ -155,19 +168,19 @@ export default function AuthPageClient() {
                   </div>
 
                   <div className="flex items-center gap-2 py-2">
-                    <input 
-                      type="checkbox" 
-                      id="remember" 
+                    <input
+                      type="checkbox"
+                      id="remember"
                       checked={rememberMe}
                       onChange={(e) => setRememberMe(e.target.checked)}
-                      className="w-4 h-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500" 
+                      className="w-4 h-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500"
                     />
                     <label htmlFor="remember" className="text-sm text-slate-655 dark:text-slate-400 cursor-pointer">Remember me for 30 days</label>
                   </div>
 
                   {error && <p className="text-red-500 text-xs bg-red-50 dark:bg-red-900/20 p-3 rounded-lg border border-red-100 dark:border-red-900/30">{error}</p>}
 
-                  <button 
+                  <button
                     disabled={loading}
                     className="w-full py-4 bg-brand-600 hover:bg-brand-700 text-white rounded-xl font-bold transition-all shadow-lg shadow-brand-500/20 flex items-center justify-center gap-2 disabled:opacity-50 text-sm uppercase tracking-wider"
                   >
@@ -181,9 +194,11 @@ export default function AuthPageClient() {
                 </div>
 
                 <div className="grid grid-cols-1 gap-4">
-                  <button 
+                  <button
+                    type="button"
                     onClick={handleGoogleLogin}
-                    className="flex items-center justify-center gap-3 py-3 px-4 border border-slate-200 dark:border-slate-800 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 transition-all font-medium text-slate-700 dark:text-slate-300 text-sm"
+                    disabled={loading}
+                    className="flex items-center justify-center gap-3 py-3 px-4 border border-slate-200 dark:border-slate-800 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 transition-all font-medium text-slate-700 dark:text-slate-300 text-sm disabled:opacity-50"
                   >
                     <Globe className="w-5 h-5 text-red-500" />
                     Google
@@ -213,13 +228,13 @@ export default function AuthPageClient() {
                     <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Full Name</label>
                     <div className="relative">
                       <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-                      <input 
+                      <input
                         required
-                        type="text" 
+                        type="text"
                         value={fullName}
                         onChange={(e) => setFullName(e.target.value)}
-                        className="w-full pl-11 pr-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-500 transition-all text-sm" 
-                        placeholder="John Doe" 
+                        className="w-full pl-11 pr-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-500 transition-all text-sm"
+                        placeholder="John Doe"
                       />
                     </div>
                   </div>
@@ -228,13 +243,13 @@ export default function AuthPageClient() {
                     <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Email Address</label>
                     <div className="relative">
                       <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-                      <input 
+                      <input
                         required
-                        type="email" 
+                        type="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        className="w-full pl-11 pr-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-500 transition-all text-sm" 
-                        placeholder="you@example.com" 
+                        className="w-full pl-11 pr-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-500 transition-all text-sm"
+                        placeholder="Enter email address"
                       />
                     </div>
                   </div>
@@ -243,13 +258,13 @@ export default function AuthPageClient() {
                     <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Password</label>
                     <div className="relative">
                       <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-                      <input 
+                      <input
                         required
-                        type={showPassword ? "text" : "password"} 
+                        type={showPassword ? "text" : "password"}
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        className="w-full pl-11 pr-12 py-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-500 transition-all text-sm" 
-                        placeholder="Min. 8 characters" 
+                        className="w-full pl-11 pr-12 py-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-500 transition-all text-sm"
+                        placeholder="Min. 8 characters"
                       />
                       <button
                         type="button"
@@ -264,7 +279,7 @@ export default function AuthPageClient() {
                   {error && <p className="text-red-500 text-xs bg-red-50 dark:bg-red-900/20 p-3 rounded-lg border border-red-100 dark:border-red-900/30">{error}</p>}
                   {message && <p className="text-green-600 text-sm bg-green-50 dark:bg-green-900/20 p-3 rounded-lg border border-green-100 dark:border-green-900/30 flex items-center gap-2"><CheckCircle2 className="w-4 h-4" /> {message}</p>}
 
-                  <button 
+                  <button
                     disabled={loading}
                     className="w-full py-4 bg-brand-600 hover:bg-brand-700 text-white rounded-xl font-bold transition-all shadow-lg shadow-brand-500/20 flex items-center justify-center gap-2 disabled:opacity-50 text-sm uppercase tracking-wider"
                   >
@@ -287,7 +302,7 @@ export default function AuthPageClient() {
                 exit={{ opacity: 0, scale: 0.95 }}
                 transition={{ duration: 0.2 }}
               >
-                <button 
+                <button
                   onClick={() => setMode("login")}
                   className="inline-flex items-center gap-2 text-sm text-slate-500 hover:text-slate-900 dark:hover:text-white mb-6 font-semibold"
                 >
@@ -301,13 +316,13 @@ export default function AuthPageClient() {
                     <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Email Address</label>
                     <div className="relative">
                       <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-                      <input 
+                      <input
                         required
-                        type="email" 
+                        type="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        className="w-full pl-11 pr-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-500 transition-all text-sm" 
-                        placeholder="you@example.com" 
+                        className="w-full pl-11 pr-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-500 transition-all text-sm"
+                        placeholder="Enter email address"
                       />
                     </div>
                   </div>
@@ -315,7 +330,7 @@ export default function AuthPageClient() {
                   {error && <p className="text-red-500 text-xs bg-red-50 dark:bg-red-900/20 p-3 rounded-lg border border-red-100 dark:border-red-900/30">{error}</p>}
                   {message && <p className="text-green-600 text-sm bg-green-50 dark:bg-green-900/20 p-3 rounded-lg border border-green-100 dark:border-green-900/30 flex items-center gap-2"><CheckCircle2 className="w-4 h-4" /> {message}</p>}
 
-                  <button 
+                  <button
                     disabled={loading}
                     className="w-full py-4 bg-brand-600 hover:bg-brand-700 text-white rounded-xl font-bold transition-all shadow-lg shadow-brand-500/20 flex items-center justify-center gap-2 disabled:opacity-50 text-sm uppercase tracking-wider"
                   >

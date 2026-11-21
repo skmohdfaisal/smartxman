@@ -5,7 +5,6 @@ import { NextResponse } from 'next/server';
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get('code');
-  // if "next" is in param, use it as the redirect URL
   const next = searchParams.get('next') ?? '/';
 
   if (code) {
@@ -33,12 +32,18 @@ export async function GET(request: Request) {
       }
     );
     
-    const { error } = await supabase.auth.exchangeCodeForSession(code);
+    const { data, error } = await supabase.auth.exchangeCodeForSession(code);
     if (!error) {
+      if (data?.user?.email?.toLowerCase() === "skmohdfaisal07@gmail.com") {
+        const adminUrl = process.env.NODE_ENV === "development"
+          ? "http://localhost:3001"
+          : (process.env.NEXT_PUBLIC_ADMIN_URL || "https://smartxman-admin.vercel.app");
+        return NextResponse.redirect(`${adminUrl}/admin`);
+      }
       return NextResponse.redirect(`${origin}${next}`);
     }
   }
 
-  // return the user to an error page with instructions
-  return NextResponse.redirect(`${origin}/auth?error=Could not authenticate with provider`);
+  const authError = searchParams.get('error_description') || searchParams.get('error') || 'Could not authenticate with provider';
+  return NextResponse.redirect(`${origin}/auth?error=${encodeURIComponent(authError)}`);
 }
