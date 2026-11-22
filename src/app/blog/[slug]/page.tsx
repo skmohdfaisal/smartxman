@@ -4,6 +4,7 @@ import Image from "next/image";
 import { getBlogBySlug, getBlogs } from "@/lib/blogs-actions";
 import { ShareButton } from "@/components/ShareButton";
 import { Metadata } from "next";
+import { notFound } from "next/navigation";
 
 export const revalidate = 60;
 
@@ -186,15 +187,7 @@ export default async function BlogDetailPage({ params }: { params: Promise<{ slu
   }
 
   if (!blog) {
-    return (
-      <div className="container mx-auto px-4 py-20 text-center">
-        <h1 className="text-3xl font-bold mb-4">Article Not Found</h1>
-        <p className="text-slate-600 mb-8">The blog post you are looking for does not exist or has been removed.</p>
-        <Link href="/blog" className="px-6 py-3 bg-brand-600 text-white rounded-xl font-bold hover:bg-brand-700 transition-colors">
-          Back to Articles
-        </Link>
-      </div>
-    );
+    notFound();
   }
 
   // Fetch related posts

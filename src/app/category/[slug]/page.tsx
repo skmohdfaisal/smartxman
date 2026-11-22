@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ProductFilters } from "@/components/ProductFilters";
 import { supabase } from "@/lib/supabase";
 import { Metadata } from "next";
+import { notFound } from "next/navigation";
 
 export const revalidate = 3600;
 
@@ -40,7 +41,14 @@ export async function generateMetadata({
     .eq('slug', slug.toLowerCase())
     .single();
 
-  const categoryName = categoryData?.name || slug.replace('-', ' ');
+  if (!categoryData) {
+    return {
+      title: 'Category Not Found | smartXman',
+      robots: { index: false, follow: false },
+    };
+  }
+
+  const categoryName = categoryData.name || slug.replace('-', ' ');
   const title = `${categoryName} Gear & Accessories | smartXman`;
   const description = categoryData?.description || `Discover expertly curated ${categoryName.toLowerCase()} for your setup. Handpicked for performance, design, and value.`;
 
@@ -76,6 +84,10 @@ export default async function CategoryPage({
     .select('id, name')
     .eq('slug', slug.toLowerCase())
     .single();
+
+  if (!categoryData) {
+    notFound();
+  }
 
   let products: any[] = [];
 
