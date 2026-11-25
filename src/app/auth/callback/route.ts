@@ -7,6 +7,11 @@ export async function GET(request: Request) {
   const code = searchParams.get('code');
   const next = searchParams.get('next') ?? '/';
 
+  const forwardedHost = request.headers.get('x-forwarded-host');
+  const isLocalEnv = process.env.NODE_ENV === 'development';
+  const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || 'https://www.smartxman.com').replace(/\/$/, "");
+  const targetOrigin = isLocalEnv ? origin : (forwardedHost ? `https://${forwardedHost}` : (origin.includes('localhost') ? siteUrl : origin));
+
   if (code) {
     const cookieStore = await cookies();
     const supabase = createServerClient(
@@ -34,16 +39,20 @@ export async function GET(request: Request) {
     
     const { data, error } = await supabase.auth.exchangeCodeForSession(code);
     if (!error) {
+      // Prioritize explicit destinations like /reset-password
+      if (next && next !== '/') {
+        return NextResponse.redirect(`${targetOrigin}${next}`);
+      }
       if (data?.user?.email?.toLowerCase() === "skmohdfaisal07@gmail.com") {
         const adminUrl = process.env.NODE_ENV === "development"
           ? "http://localhost:3001"
           : (process.env.NEXT_PUBLIC_ADMIN_URL || "https://smartxman-admin.vercel.app");
         return NextResponse.redirect(`${adminUrl}/admin`);
       }
-      return NextResponse.redirect(`${origin}${next}`);
+      return NextResponse.redirect(`${targetOrigin}${next}`);
     }
   }
 
   const authError = searchParams.get('error_description') || searchParams.get('error') || 'Could not authenticate with provider';
-  return NextResponse.redirect(`${origin}/auth?error=${encodeURIComponent(authError)}`);
+  return NextResponse.redirect(`${targetOrigin}/auth?error=${encodeURIComponent(authError)}`);
 }

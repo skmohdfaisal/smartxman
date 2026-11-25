@@ -66,7 +66,14 @@ export default function AuthPageClient() {
         if (error) throw error;
         setMessage("Check your email for the confirmation link!");
       } else if (mode === "forgot") {
-        const { error } = await supabase.auth.resetPasswordForEmail(email);
+        const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 
+          (typeof window !== "undefined" && !window.location.hostname.includes("localhost") 
+            ? window.location.origin 
+            : "https://www.smartxman.com");
+        const redirectTo = `${siteUrl.replace(/\/$/, "")}/auth/callback?next=/reset-password`;
+        const { error } = await supabase.auth.resetPasswordForEmail(email, {
+          redirectTo,
+        });
         if (error) throw error;
         setMessage("Password reset link sent to your email!");
       }
@@ -175,7 +182,7 @@ export default function AuthPageClient() {
                       onChange={(e) => setRememberMe(e.target.checked)}
                       className="w-4 h-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500"
                     />
-                    <label htmlFor="remember" className="text-sm text-slate-655 dark:text-slate-400 cursor-pointer">Remember me for 30 days</label>
+                    <label htmlFor="remember" className="text-sm text-slate-655 dark:text-slate-400 cursor-pointer">Remember me</label>
                   </div>
 
                   {error && <p className="text-red-500 text-xs bg-red-50 dark:bg-red-900/20 p-3 rounded-lg border border-red-100 dark:border-red-900/30">{error}</p>}
